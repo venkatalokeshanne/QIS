@@ -8,6 +8,11 @@ services:
     startCommand: uvicorn app.main:app --host 0.0.0.0 --port $PORT
     healthCheckPath: /api/health
     envVars:
+      # Pin to a version pandas==2.2.2 has prebuilt wheels for -- Render
+      # defaults to a newer Python that has no pandas wheel yet, which
+      # forces a from-source build that fails to compile.
+      - key: PYTHON_VERSION
+        value: 3.11.9
       # sync: false -- Render will prompt for these in its dashboard
       # rather than trying to generate them; see DEPLOY.md.
       - key: TWELVEDATA_API_KEY
