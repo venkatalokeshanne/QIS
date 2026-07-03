@@ -7,8 +7,10 @@ S3, touches this one file plus the repository implementation — not
 every module that needs a path.
 """
 
+import json
 from pathlib import Path
 
+from pydantic import Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -35,7 +37,22 @@ class Settings(BaseSettings):
     # SQLite + local CSV behavior everywhere else, including all tests.
     database_url: str = ""
 
-    cors_allowed_origins: list[str] = ["http://localhost:5173"]
+    # Plain string, not list[str]: pydantic-settings tries to JSON-decode
+    # any env var bound to a list-typed field before validators ever run,
+    # so a host dashboard's plain-text field (e.g. Render's) must contain
+    # exact JSON array syntax or the app crashes on startup. Parsing this
+    # ourselves in the property below accepts a bare URL or comma-separated
+    # URLs too.
+    cors_allowed_origins_env: str = Field(
+        default="http://localhost:5173", validation_alias="CORS_ALLOWED_ORIGINS"
+    )
+
+    @property
+    def cors_allowed_origins(self) -> list[str]:
+        value = self.cors_allowed_origins_env.strip()
+        if value.startswith("["):
+            return json.loads(value)
+        return [origin.strip() for origin in value.split(",") if origin.strip()]
 
     # Twelve Data (twelvedata.com), used only for pulling historical bars
     # into a dataset -- not for streaming or order placement.

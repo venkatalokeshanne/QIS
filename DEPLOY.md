@@ -72,8 +72,10 @@ git push -u origin main
    (`TWELVEDATA_API_KEY`, `DATABASE_URL`, `CORS_ALLOWED_ORIGINS`), fill in:
    - `TWELVEDATA_API_KEY` — your real key (same one from `backend/.env` locally)
    - `DATABASE_URL` — the Neon connection string from step 1
-   - `CORS_ALLOWED_ORIGINS` — leave a placeholder like `["http://localhost:5173"]`
-     for now; you'll update this in step 4 once you know your Vercel URL.
+   - `CORS_ALLOWED_ORIGINS` — leave a placeholder like `http://localhost:5173`
+     for now; you'll update this in step 4 once you know your Vercel URL. (A
+     bare URL or comma-separated URLs both work here — no JSON brackets/quotes
+     needed.)
 3. Deploy. Render gives you a URL like `https://quant-platform-backend.onrender.com`.
 
 **Verify it's up:**
@@ -112,11 +114,10 @@ Once Vercel gives you your live frontend URL (something like
 your service → **Environment** → update:
 
 ```
-CORS_ALLOWED_ORIGINS = ["https://your-app.vercel.app"]
+CORS_ALLOWED_ORIGINS = https://your-app.vercel.app
 ```
 
-(Exact JSON-array syntax — quotes and brackets — matters here.) Saving
-this triggers an automatic redeploy.
+Saving this triggers an automatic redeploy.
 
 ---
 
