@@ -1,0 +1,143 @@
+.levels-search-row {
+  display: flex;
+  gap: var(--space-3);
+}
+
+.levels-search-row .field-input {
+  flex: 1;
+  max-width: 280px;
+}
+
+.levels-header-row {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-4);
+  flex-wrap: wrap;
+}
+
+.levels-symbol {
+  font-family: var(--font-mono);
+  font-size: 20px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.levels-price-block {
+  text-align: right;
+}
+
+.levels-current-price {
+  font-size: 24px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.levels-gap {
+  font-size: 12px;
+  margin-top: var(--space-1);
+}
+
+.levels-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: var(--space-4);
+  margin-top: var(--space-4);
+}
+
+.level-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--space-2) 0;
+  border-bottom: 1px solid var(--border-hairline);
+  font-size: 13px;
+}
+
+.level-row:last-child {
+  border-bottom: none;
+}
+
+.level-row-label {
+  color: var(--text-secondary);
+}
+
+.level-row-highlight {
+  color: var(--accent);
+}
+
+.level-row-highlight .level-row-label {
+  color: var(--accent);
+}
+
+.date-chip-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  margin-top: var(--space-3);
+}
+
+.date-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: 4px 6px 4px 10px;
+  border-radius: var(--radius-sm);
+  background: var(--bg-panel-raised);
+  border: 1px solid var(--border-hairline-strong);
+  font-size: 13px;
+  color: var(--text-secondary);
+  white-space: nowrap;
+}
+
+.date-chip button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  border: none;
+  background: none;
+  color: var(--text-tertiary);
+  cursor: pointer;
+  font-size: 14px;
+  line-height: 1;
+  border-radius: 4px;
+}
+
+.date-chip button:hover {
+  color: var(--negative);
+  background: var(--negative-wash);
+}
+
+.outcome-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 8px;
+  border-radius: var(--radius-sm);
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  white-space: nowrap;
+}
+
+.outcome-positive {
+  background: var(--positive-wash);
+  color: var(--positive);
+}
+
+.outcome-negative {
+  background: var(--negative-wash);
+  color: var(--negative);
+}
+
+.outcome-neutral {
+  background: var(--bg-panel-raised);
+  color: var(--text-tertiary);
+}
+
+.outcome-accent {
+  background: var(--accent-wash);
+  color: var(--accent);
+}

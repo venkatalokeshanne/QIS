@@ -1,0 +1,21 @@
+.compare-sticky-col {
+  position: sticky;
+  left: 0;
+  background: var(--bg-panel);
+  z-index: 1;
+}
+
+.best-cell {
+  background: var(--accent-wash);
+  position: relative;
+}
+
+.best-cell::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  background: var(--accent);
+}

@@ -1,0 +1,163 @@
+.strategy-sidebar {
+  width: var(--sidebar-width);
+  flex-shrink: 0;
+  background: var(--bg-panel);
+  border-right: 1px solid var(--border-hairline);
+  display: flex;
+  flex-direction: column;
+  position: sticky;
+  top: var(--topbar-height);
+  height: calc(100vh - var(--topbar-height));
+}
+
+.strategy-sidebar-mobile-nav {
+  display: none;
+  flex-direction: column;
+  gap: 2px;
+  padding: var(--space-3);
+  border-bottom: 1px solid var(--border-hairline);
+}
+
+.strategy-sidebar-mobile-link {
+  padding: 8px 10px;
+  border-radius: var(--radius-sm);
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-secondary);
+  transition: background 0.12s ease, color 0.12s ease;
+}
+
+.strategy-sidebar-mobile-link:hover {
+  background: var(--bg-hover);
+  color: var(--text-primary);
+}
+
+.strategy-sidebar-mobile-link.active {
+  background: var(--accent-wash);
+  color: var(--accent);
+}
+
+.strategy-sidebar-mobile-dataset {
+  display: none;
+  flex-direction: column;
+  gap: 6px;
+  padding: var(--space-4);
+  border-bottom: 1px solid var(--border-hairline);
+}
+
+/* TickerMultiSelect's panel is absolutely positioned/sized for the header's
+   wide-open desktop context -- inside this narrow drawer, expand it inline
+   below the trigger instead of as a floating overlay, so it can't overflow
+   the drawer's edges. */
+.strategy-sidebar-mobile-dataset .ticker-select {
+  width: 100%;
+}
+
+.strategy-sidebar-mobile-dataset .ticker-select-trigger {
+  width: 100%;
+  min-width: 0;
+}
+
+.strategy-sidebar-mobile-dataset .ticker-select-panel {
+  position: static;
+  width: 100%;
+  max-width: none;
+  margin-top: var(--space-2);
+  box-shadow: none;
+  max-height: 240px;
+}
+
+.strategy-sidebar-search {
+  padding: var(--space-4);
+  border-bottom: 1px solid var(--border-hairline);
+}
+
+.strategy-sidebar-list {
+  flex: 1;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+}
+
+.strategy-sidebar-empty {
+  padding: var(--space-5) var(--space-4);
+  color: var(--text-tertiary);
+  font-size: 13px;
+}
+
+.strategy-sidebar-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+  width: 100%;
+  padding: var(--space-3) var(--space-4);
+  background: none;
+  border: none;
+  border-left: 3px solid transparent;
+  text-align: left;
+  cursor: pointer;
+  color: var(--text-primary);
+  font-size: 13px;
+  font-weight: 600;
+  transition: background 0.1s ease;
+}
+
+.strategy-sidebar-item:hover {
+  background: var(--bg-hover);
+}
+
+.strategy-sidebar-item.active {
+  background: var(--accent-wash);
+  border-left-color: var(--accent);
+  color: var(--accent);
+}
+
+.strategy-sidebar-name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+@media (max-width: 900px) {
+  .strategy-sidebar {
+    width: 72px;
+  }
+  .strategy-sidebar-name,
+  .strategy-sidebar-search {
+    display: none;
+  }
+}
+
+@media (max-width: 640px) {
+  .strategy-sidebar {
+    position: fixed;
+    top: var(--topbar-height);
+    left: 0;
+    width: min(280px, 85vw);
+    height: calc(100vh - var(--topbar-height));
+    transform: translateX(-100%);
+    transition: transform 0.2s ease;
+    z-index: 40;
+    box-shadow: 0 0 40px rgba(0, 0, 0, 0.5);
+  }
+
+  .strategy-sidebar.open {
+    transform: translateX(0);
+  }
+
+  /* The 900px tier hides these for the icon-only rail -- undo that
+     inside the drawer, where there's full width for them again. */
+  .strategy-sidebar-name,
+  .strategy-sidebar-search {
+    display: block;
+  }
+
+  .strategy-sidebar-mobile-nav {
+    display: flex;
+  }
+
+  .strategy-sidebar-mobile-dataset {
+    display: flex;
+  }
+}

@@ -1,0 +1,18 @@
+services:
+  - type: web
+    name: quant-platform-backend
+    runtime: python
+    rootDir: backend
+    plan: free
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn app.main:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /api/health
+    envVars:
+      # sync: false -- Render will prompt for these in its dashboard
+      # rather than trying to generate them; see DEPLOY.md.
+      - key: TWELVEDATA_API_KEY
+        sync: false
+      - key: DATABASE_URL
+        sync: false
+      - key: CORS_ALLOWED_ORIGINS
+        sync: false

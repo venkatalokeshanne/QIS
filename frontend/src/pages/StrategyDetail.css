@@ -1,0 +1,167 @@
+.strategy-detail-desc {
+  font-size: 13px;
+  color: var(--text-secondary);
+  line-height: 1.6;
+  margin-top: var(--space-3);
+  margin-bottom: var(--space-5);
+}
+
+.strategy-detail-indicators {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: var(--space-5);
+}
+
+.indicator-chip {
+  font-size: 11px;
+  padding: 3px 8px;
+  border-radius: var(--radius-sm);
+  background: var(--bg-panel-raised);
+  border: 1px solid var(--border-hairline-strong);
+  color: var(--text-secondary);
+}
+
+.strategy-detail-conditions {
+  margin-bottom: var(--space-5);
+}
+
+.strategy-detail-condition-label {
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  color: var(--text-secondary);
+  margin-bottom: var(--space-2);
+}
+
+.strategy-detail-condition-list {
+  margin: 0;
+  padding-left: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.strategy-detail-condition-list li {
+  font-size: 13px;
+  color: var(--text-secondary);
+  line-height: 1.5;
+}
+
+.strategy-detail-params {
+  border-top: 1px solid var(--border-hairline);
+  padding-top: var(--space-4);
+  margin-bottom: var(--space-5);
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: var(--space-2) var(--space-5);
+}
+
+.param-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 12px;
+}
+
+.param-key {
+  color: var(--text-tertiary);
+}
+
+.param-value {
+  color: var(--text-secondary);
+}
+
+.strategy-detail-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.result-header-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+/* .detail-panel supplies its own padding when used standalone (e.g. inside
+   a zero-padding table cell on the Results page); here it sits inside an
+   already-padded Card, so reset it to avoid doubling up. */
+.strategy-result-metrics .detail-panel {
+  padding: var(--space-4) 0 0;
+}
+
+/* Charts tab: each chart card has a standalone label above it (not
+   inside a .detail-metric flex column), so it needs its own spacing. */
+.charts-tab .detail-metric-label {
+  margin-bottom: var(--space-3);
+}
+
+/* The P&L-by-date chart is the primary chart on this tab -- everything
+   else (equity curve, fingerprint) is supporting detail below it. */
+.charts-main .detail-metric-label {
+  font-size: 12px;
+}
+
+.charts-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: var(--space-4);
+  margin-top: 16px;
+}
+
+@media (max-width: 900px) {
+  .charts-row {
+    grid-template-columns: 1fr;
+  }
+}
+
+.ts-guide-steps {
+  margin: var(--space-3) 0 0;
+  padding-left: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.ts-guide-steps li {
+  font-size: 13px;
+  color: var(--text-secondary);
+  line-height: 1.6;
+}
+
+.ts-guide-list {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin-top: var(--space-3);
+}
+
+.ts-guide-row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-3);
+  padding: 8px var(--space-3);
+  border-radius: var(--radius-sm);
+  background: var(--bg-panel-raised);
+}
+
+.ts-guide-row-name {
+  flex-shrink: 0;
+  font-size: 13px;
+  color: var(--text-primary);
+}
+
+.ts-guide-row-detail {
+  font-size: 12px;
+  color: var(--text-tertiary);
+  text-align: right;
+}
+
+.ts-guide-warning {
+  font-size: 12px;
+  color: var(--negative);
+  line-height: 1.6;
+  margin: 0;
+}
+

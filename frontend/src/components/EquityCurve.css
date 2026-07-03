@@ -1,0 +1,121 @@
+.equity-curve {
+  position: relative;
+  width: 100%;
+}
+
+.equity-curve-svg {
+  width: 100%;
+  height: 160px;
+  overflow: visible;
+  display: block;
+  cursor: crosshair;
+}
+
+.equity-curve-zero {
+  stroke: var(--border-hairline-strong);
+  stroke-width: 1;
+}
+
+.equity-curve-line {
+  fill: none;
+  stroke-width: 1.5;
+}
+
+.equity-curve-line.positive {
+  stroke: var(--positive);
+}
+
+.equity-curve-line.negative {
+  stroke: var(--negative);
+}
+
+.equity-curve-area {
+  stroke: none;
+}
+
+.equity-gradient-positive-start {
+  stop-color: var(--positive);
+  stop-opacity: 0.35;
+}
+
+.equity-gradient-positive-end {
+  stop-color: var(--positive);
+  stop-opacity: 0;
+}
+
+.equity-gradient-negative-start {
+  stop-color: var(--negative);
+  stop-opacity: 0;
+}
+
+.equity-gradient-negative-end {
+  stop-color: var(--negative);
+  stop-opacity: 0.35;
+}
+
+.equity-curve-crosshair {
+  stroke: var(--text-tertiary);
+  stroke-width: 1;
+  stroke-dasharray: 2 2;
+}
+
+.equity-curve-dot {
+  stroke: var(--bg-panel);
+  stroke-width: 1;
+}
+
+.equity-curve-dot.positive {
+  fill: var(--positive);
+}
+
+.equity-curve-dot.negative {
+  fill: var(--negative);
+}
+
+.equity-curve-tooltip {
+  position: absolute;
+  top: 0;
+  transform: translate(-50%, -100%);
+  background: var(--bg-panel-raised);
+  border: 1px solid var(--border-hairline-strong);
+  border-radius: var(--radius-sm);
+  padding: 6px 10px;
+  pointer-events: none;
+  white-space: nowrap;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.35);
+}
+
+.equity-curve-tooltip-label {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  color: var(--text-tertiary);
+}
+
+.equity-curve-tooltip-value {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.equity-curve-tooltip-value.positive {
+  color: var(--positive);
+}
+
+.equity-curve-tooltip-value.negative {
+  color: var(--negative);
+}
+
+.equity-curve-footline {
+  display: flex;
+  justify-content: space-between;
+  font-size: 11px;
+  color: var(--text-tertiary);
+  margin-top: var(--space-2);
+}
+
+.equity-curve-empty {
+  color: var(--text-tertiary);
+  font-size: 13px;
+  padding: var(--space-4) 0;
+}

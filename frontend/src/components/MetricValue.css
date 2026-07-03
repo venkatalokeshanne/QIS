@@ -1,0 +1,11 @@
+.metric-value {
+  font-size: 13px;
+}
+
+.metric-positive {
+  color: var(--positive);
+}
+
+.metric-negative {
+  color: var(--negative);
+}

@@ -1,0 +1,11 @@
+.venv
+__pycache__
+**/__pycache__
+*.pyc
+tests
+data
+quant_platform.db
+.env
+.pytest_cache
+htmlcov
+.coverage

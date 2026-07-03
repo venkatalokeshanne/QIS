@@ -1,0 +1,77 @@
+.trades-table-wrap {
+  border-top: 1px solid var(--border-hairline);
+  padding: var(--space-5) var(--space-6);
+  max-height: 320px;
+  overflow-y: auto;
+}
+
+.trades-table {
+  width: 100%;
+}
+
+.trades-empty {
+  padding: var(--space-4) var(--space-6);
+  color: var(--text-tertiary);
+  font-size: 13px;
+  border-top: 1px solid var(--border-hairline);
+}
+
+.trade-direction {
+  text-transform: capitalize;
+  font-size: 12px;
+}
+
+.trade-direction.trade-long {
+  color: var(--positive);
+}
+
+.trade-direction.trade-short {
+  color: var(--negative);
+}
+
+.exit-reason.exit-stop_loss,
+.exit-reason.exit-trailing_stop {
+  color: var(--negative);
+}
+
+.exit-reason.exit-take_profit {
+  color: var(--positive);
+}
+
+.trade-return {
+  font-family: var(--font-mono);
+  font-size: 13px;
+}
+
+.trade-return-win {
+  color: var(--positive);
+}
+
+.trade-return-loss {
+  color: var(--negative);
+}
+
+.trade-result-badge {
+  display: inline-block;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  padding: 2px 8px;
+  border-radius: 4px;
+}
+
+.trade-result-badge.trade-result-win {
+  color: var(--positive);
+  background: color-mix(in srgb, var(--positive) 15%, transparent);
+}
+
+.trade-result-badge.trade-result-loss {
+  color: var(--negative);
+  background: color-mix(in srgb, var(--negative) 15%, transparent);
+}
+
+.trade-result-badge.trade-result-flat {
+  color: var(--text-tertiary);
+  background: color-mix(in srgb, var(--text-tertiary) 15%, transparent);
+}

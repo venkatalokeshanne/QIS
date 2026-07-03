@@ -1,0 +1,69 @@
+/*
+  Design tokens.
+
+  Palette: near-black terminal base, not pure black (#0A0C0F reads as
+  "off" on most panels; #0B0D10 / #12151A give just enough separation
+  between background and card layers without a drop shadow).
+
+  Accent: a single functional cyan (#4FD1C5) for interactive elements
+  and the ranking score bar — the app's one signature visual. Green
+  and red are reserved strictly for P&L semantics (profit/loss), never
+  used decoratively, so their meaning stays trustworthy at a glance.
+
+  Type: Inter for UI text (tight, neutral, reads well at small sizes
+  in dense tables). JetBrains Mono for every number — prices, P&L,
+  percentages, scores — so columns of figures align like a real
+  terminal tape. This split is the core typographic decision.
+*/
+
+:root {
+  /* Surfaces */
+  --bg-base: #0b0d10;
+  --bg-panel: #12151a;
+  --bg-panel-raised: #171b21;
+  --bg-hover: #1c2129;
+  --border-hairline: #232830;
+  --border-hairline-strong: #2d333d;
+
+  /* Text */
+  --text-primary: #e7eaee;
+  --text-secondary: #9099a8;
+  --text-tertiary: #626b7a;
+  --text-on-accent: #06181a;
+
+  /* Accent */
+  --accent: #4fd1c5;
+  --accent-dim: #2e6f68;
+  --accent-wash: rgba(79, 209, 197, 0.1);
+
+  /* Semantic (P&L only) */
+  --positive: #3ddc84;
+  --positive-wash: rgba(61, 220, 132, 0.1);
+  --negative: #ff6b6b;
+  --negative-wash: rgba(255, 107, 107, 0.1);
+  --neutral: #9099a8;
+
+  /* Type */
+  --font-ui: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, 'SF Mono', Menlo, monospace;
+
+  /* Spacing scale */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --space-10: 40px;
+  --space-12: 48px;
+
+  /* Radius */
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 14px;
+
+  /* Layout */
+  --sidebar-width: 240px;
+  --topbar-height: 56px;
+}
