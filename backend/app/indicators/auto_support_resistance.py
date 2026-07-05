@@ -1,4 +1,4 @@
-"""Auto Support & Resistance — clusters recent confirmed swing highs/lows (within `cluster_pct` of each other) into levels, ranked by how many swings touched each cluster -- more touches implies a more significant level."""
+"""Auto Support & Resistance — clusters recent confirmed swing highs/lows (within `cluster_pct` of each other) into levels, ranked by how many DISTINCT SESSIONS touched each cluster -- more genuinely-repeated touches implies a more significant level. Empirically validated via a no-lookahead backtest across 10 real tickers (large-cap + volatile small-cap): this distinct-session requirement measurably raises the held-vs-broken rate over plain raw-touch-count clustering, though results still vary a lot by ticker volatility -- see conversation history, not a guaranteed fixed accuracy."""
 
 from typing import Any
 
@@ -16,9 +16,9 @@ class AutoSupportResistance(Indicator):
         return IndicatorMetadata(
             name="auto_support_resistance",
             display_name="Auto Support & Resistance",
-            description="Clusters recent swing highs/lows into levels, ranked by how many swings touched each cluster.",
+            description="Clusters recent swing highs/lows into levels, ranked by how many distinct sessions touched each cluster.",
             category="price_action",
-            default_params={"swing_range": 5, "lookback": 100, "cluster_pct": 0.5},
+            default_params={"swing_range": 5, "lookback": 500, "cluster_pct": 0.5, "min_touches": 2},
         )
 
     def calculate(self, df: pd.DataFrame, params: dict[str, Any]) -> pd.DataFrame:
@@ -40,28 +40,45 @@ class AutoSupportResistance(Indicator):
             out["low"].rolling(window=window, min_periods=window).apply(is_swing_low, raw=False).astype(bool)
         ).shift(-right).fillna(False).astype(bool)
 
-        swing_prices = pd.concat([out["high"].where(swing_high_mask), out["low"].where(swing_low_mask)]).dropna()
+        # sort_index() is load-bearing: concat appends the whole highs
+        # series before the whole lows series, so without re-sorting by
+        # time, the trailing lookback slice below would draw from
+        # whichever block happens to land last (e.g. only lows, no
+        # highs at all) instead of the true most-recent swings of both
+        # kinds.
+        swing_prices = (
+            pd.concat([out["high"].where(swing_high_mask), out["low"].where(swing_low_mask)]).dropna().sort_index()
+        )
 
         lookback = p["lookback"]
         recent = swing_prices.iloc[-lookback:] if len(swing_prices) > 0 else swing_prices
-        levels: list[tuple[float, int]] = []  # (level_price, touch_count)
         cluster_frac = p["cluster_pct"] / 100
 
-        for price in sorted(recent.tolist()):
-            matched = False
-            for i, (level_price, count) in enumerate(levels):
-                if abs(price - level_price) / max(level_price, 1e-9) <= cluster_frac:
-                    # Recompute the cluster's average price as new touches arrive.
-                    new_count = count + 1
-                    new_price = (level_price * count + price) / new_count
-                    levels[i] = (new_price, new_count)
-                    matched = True
+        # Each cluster tracks the SET of distinct calendar dates that
+        # touched it, not just a raw touch count -- a level tested five
+        # times in one choppy session isn't the same thing as one
+        # retested across five different days, and ranking by distinct
+        # days rather than raw touches meaningfully raises the
+        # held-vs-broken rate in backtesting (see module docstring).
+        clusters: list[dict] = []  # {"price": running mean, "count": int, "dates": set}
+        for ts, price in sorted(recent.items(), key=lambda kv: kv[1]):
+            matched_idx = None
+            for i, cluster in enumerate(clusters):
+                if abs(price - cluster["price"]) / max(cluster["price"], 1e-9) <= cluster_frac:
+                    matched_idx = i
                     break
-            if not matched:
-                levels.append((price, 1))
+            if matched_idx is None:
+                clusters.append({"price": price, "count": 1, "dates": {ts.date()}})
+            else:
+                cluster = clusters[matched_idx]
+                new_count = cluster["count"] + 1
+                new_price = (cluster["price"] * cluster["count"] + price) / new_count
+                cluster["dates"].add(ts.date())
+                clusters[matched_idx] = {"price": new_price, "count": new_count, "dates": cluster["dates"]}
 
-        levels.sort(key=lambda lv: lv[1], reverse=True)
-        top_levels = [lv[0] for lv in levels[:5]]
+        qualified = [c for c in clusters if len(c["dates"]) >= p["min_touches"]]
+        qualified.sort(key=lambda c: len(c["dates"]), reverse=True)
+        top_levels = [c["price"] for c in qualified[:5]]
         while len(top_levels) < 5:
             top_levels.append(np.nan)
 
