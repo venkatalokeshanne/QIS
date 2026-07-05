@@ -86,7 +86,3 @@ export function useDeleteWatch() {
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['watches'] }),
   })
 }
-
-export function useSendTestNotification() {
-  return useMutation({ mutationFn: (pushToken) => watchesApi.sendTestNotification(pushToken) })
-}

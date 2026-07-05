@@ -6,7 +6,7 @@ import Card from '../components/Card'
 import Button from '../components/Button'
 import EmptyState from '../components/EmptyState'
 import StrategyPickerModal from '../components/StrategyPickerModal'
-import { useStrategies, useWatches, useCreateWatch, useDeleteWatch, useSendTestNotification } from '../api/hooks'
+import { useStrategies, useWatches, useCreateWatch, useDeleteWatch } from '../api/hooks'
 import { useResearchStore } from '../store/useResearchStore'
 import { colors, fonts, radii, spacing } from '../styles/tokens'
 
@@ -31,7 +31,6 @@ export default function AlertsScreen() {
   const { data: watches, isLoading } = useWatches(pushToken)
   const createMutation = useCreateWatch()
   const deleteMutation = useDeleteWatch()
-  const testNotificationMutation = useSendTestNotification()
 
   const [pickerOpen, setPickerOpen] = useState(false)
   const [strategyName, setStrategyName] = useState(null)
@@ -115,25 +114,6 @@ export default function AlertsScreen() {
             Create Alert
           </Button>
           {createMutation.isError && <Text style={styles.errorText}>{createMutation.error.message}</Text>}
-        </Card>
-
-        <Card style={styles.spacedCard}>
-          <Text style={styles.sectionLabel}>Test Delivery</Text>
-          <Text style={styles.hintText}>
-            Sends a push right now, bypassing strategy signals and market hours -- confirms notifications actually
-            reach this device.
-          </Text>
-          <Button
-            variant="secondary"
-            onPress={() => testNotificationMutation.mutate(pushToken)}
-            disabled={testNotificationMutation.isPending}
-          >
-            Send Test Notification
-          </Button>
-          {testNotificationMutation.isSuccess && <Text style={styles.successText}>Sent -- check your device.</Text>}
-          {testNotificationMutation.isError && (
-            <Text style={styles.errorText}>{testNotificationMutation.error.message}</Text>
-          )}
         </Card>
 
         <Card tight style={styles.listCard}>
@@ -247,21 +227,6 @@ const styles = StyleSheet.create({
     fontSize: 12,
     color: colors.negative,
     marginTop: spacing[2],
-  },
-  successText: {
-    fontFamily: fonts.ui,
-    fontSize: 12,
-    color: colors.positive,
-    marginTop: spacing[2],
-  },
-  spacedCard: {
-    marginTop: spacing[4],
-  },
-  hintText: {
-    fontFamily: fonts.ui,
-    fontSize: 12,
-    color: colors.textSecondary,
-    marginBottom: spacing[3],
   },
   listCard: {
     marginTop: spacing[4],

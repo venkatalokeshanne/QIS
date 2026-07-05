@@ -245,19 +245,3 @@ def test_create_watch_rejects_invalid_interval(client):
 def test_delete_missing_watch_returns_404(client):
     resp = client.delete("/api/watches/does-not-exist")
     assert resp.status_code == 404
-
-
-def test_send_test_notification_calls_notification_service(client, monkeypatch):
-    from app.services import notification_service
-
-    sent = []
-    monkeypatch.setattr(
-        notification_service,
-        "send_push_notification",
-        lambda token, title, body, data=None: sent.append((token, title, body, data)),
-    )
-
-    resp = client.post("/api/watches/test-notification", json={"expo_push_token": "ExponentPushToken[abc123]"})
-    assert resp.status_code == 204
-    assert len(sent) == 1
-    assert sent[0][0] == "ExponentPushToken[abc123]"
