@@ -2,9 +2,10 @@
 
 from fastapi import APIRouter
 
-from app.api.schemas.watch_schemas import WatchCreateRequest, WatchResponse
+from app.api.schemas.watch_schemas import TestNotificationRequest, WatchCreateRequest, WatchResponse
 from app.core.exceptions import DataValidationError
 from app.repositories.watch_repository import WatchRecord, WatchRepository
+from app.services import notification_service
 
 router = APIRouter(prefix="/api/watches", tags=["watches"])
 
@@ -37,6 +38,22 @@ def create_watch(payload: WatchCreateRequest):
         interval=payload.interval,
     )
     return _to_response(record)
+
+
+@router.post("/test-notification", status_code=204)
+def send_test_notification(payload: TestNotificationRequest):
+    """
+    Sends a push immediately, bypassing the poller/strategy-signal logic
+    entirely -- lets someone confirm the delivery pipeline itself
+    (backend -> Expo -> APNs -> device) works without waiting on market
+    hours or a real entry/exit signal to happen to fire.
+    """
+    notification_service.send_push_notification(
+        payload.expo_push_token,
+        "Test Notification",
+        "If you can see this, push notifications are working.",
+        data={"test": True},
+    )
 
 
 @router.get("", response_model=list[WatchResponse])

@@ -16,7 +16,9 @@ import { colors, fonts, radii, spacing } from '../styles/tokens'
 // as removable chips right below Tickers -- same pattern as the
 // ticker chips), tap Analyze. No page title/subtitle at the top (the
 // bottom tab is already labeled "Backtest"). Monthly breakdown lives
-// in Settings now, not here.
+// in Settings now, not here. Settings itself is reached via the gear
+// icon at top-left (pushed onto this stack) rather than its own bottom
+// tab, since it's tuned rarely compared to the rest of the app.
 export default function RunBacktestsScreen() {
   const navigation = useNavigation()
   const [pickerOpen, setPickerOpen] = useState(false)
@@ -75,6 +77,9 @@ export default function RunBacktestsScreen() {
     <SafeAreaView style={styles.screen} edges={['top']}>
       <ScrollView contentContainerStyle={styles.content}>
       <View style={styles.topRow}>
+        <Pressable onPress={() => navigation.navigate('Settings')} style={styles.iconButton}>
+          <Ionicons name="settings-outline" size={18} color={colors.textSecondary} />
+        </Pressable>
         <Pressable onPress={() => setPickerOpen(true)} style={styles.dataIconButton}>
           <Ionicons name="cloud-download-outline" size={18} color={colors.accent} />
           <Text style={styles.dataIconLabel}>Data</Text>
@@ -172,8 +177,16 @@ const styles = StyleSheet.create({
   },
   topRow: {
     flexDirection: 'row',
-    justifyContent: 'flex-end',
+    justifyContent: 'space-between',
     marginBottom: spacing[4],
+  },
+  iconButton: {
+    paddingVertical: 6,
+    paddingHorizontal: spacing[3],
+    borderRadius: radii.sm,
+    borderWidth: 1,
+    borderColor: colors.borderHairlineStrong,
+    backgroundColor: colors.bgPanelRaised,
   },
   dataIconButton: {
     flexDirection: 'row',

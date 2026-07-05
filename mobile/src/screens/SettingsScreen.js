@@ -1,5 +1,4 @@
 import { View, Text, TextInput, ScrollView, Pressable, StyleSheet } from 'react-native'
-import PageHeader from '../components/PageHeader'
 import Card from '../components/Card'
 import { useResearchStore } from '../store/useResearchStore'
 import { colors, fonts, radii, spacing } from '../styles/tokens'
@@ -12,7 +11,8 @@ const toNullableNumber = (v) => (v === '' ? null : Number(v))
 // <input type="number">, a row of Pressable "chips" standing in for
 // the <select> direction dropdown (no native picker dependency needed
 // for 3 fixed options). Explanatory hint text under each field removed
-// per user feedback -- labels + inputs only.
+// per user feedback -- labels + inputs only. No PageHeader here -- this
+// screen is pushed with a native "Settings" title now, not a bottom tab.
 export default function SettingsScreen() {
   const executionSettings = useResearchStore((s) => s.executionSettings)
   const setExecutionSettings = useResearchStore((s) => s.setExecutionSettings)
@@ -21,8 +21,6 @@ export default function SettingsScreen() {
 
   return (
     <ScrollView style={styles.screen} contentContainerStyle={styles.content}>
-      <PageHeader title="Settings" />
-
       <Card style={styles.spacedCard}>
         <Text style={styles.sectionLabel}>Reporting</Text>
         <Pressable style={styles.checkboxRow} onPress={() => setBreakdownByMonth(!breakdownByMonth)}>

@@ -21,6 +21,10 @@ export const stackScreenOptions = {
   headerTintColor: colors.textPrimary,
   headerTitleStyle: { fontFamily: fonts.uiSemiBold },
   contentStyle: { backgroundColor: colors.bgBase },
+  // Just the chevron, not the previous screen's title -- native-stack's
+  // default back button otherwise falls back to the route name (e.g.
+  // "RunBacktests") when a screen doesn't set its own back title.
+  headerBackButtonDisplayMode: 'minimal',
 }
 
 export const bottomTabScreenOptions = {

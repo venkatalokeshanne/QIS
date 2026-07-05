@@ -13,6 +13,10 @@ class WatchCreateRequest(BaseModel):
     interval: str  # "1min" | "5min" | "15min"
 
 
+class TestNotificationRequest(BaseModel):
+    expo_push_token: str
+
+
 class WatchResponse(BaseModel):
     id: str
     symbol: str
