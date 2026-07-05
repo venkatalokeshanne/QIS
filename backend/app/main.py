@@ -14,9 +14,10 @@ from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
-from app.api.routes import backtest_routes, catalog_routes, dataset_routes, levels_routes
+from app.api.routes import backtest_routes, catalog_routes, dataset_routes, levels_routes, watch_routes
 from app.config.settings import settings
 from app.core.exceptions import AppError, DataValidationError, NotFoundError, TwelveDataError
+from app.services.poller import Poller
 from app.strategies.registry import discover_strategies
 
 logging.basicConfig(level=logging.INFO)
@@ -27,7 +28,10 @@ logger = logging.getLogger("quant_platform")
 async def lifespan(app: FastAPI):
     settings.ensure_dirs()
     discover_strategies()
+    poller = Poller()
+    poller.start()
     yield
+    await poller.stop()
 
 
 app = FastAPI(title="Quant Strategy Research Platform API", version="0.1.0", lifespan=lifespan)
@@ -44,6 +48,7 @@ app.include_router(dataset_routes.router)
 app.include_router(catalog_routes.router)
 app.include_router(backtest_routes.router)
 app.include_router(levels_routes.router)
+app.include_router(watch_routes.router)
 
 
 @app.exception_handler(NotFoundError)

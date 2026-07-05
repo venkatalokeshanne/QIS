@@ -197,3 +197,51 @@ def test_run_backtest_requires_at_least_one_dataset(client):
     assert resp.status_code == 422
 
 
+
+
+def test_create_list_and_delete_watch(client):
+    create_resp = client.post(
+        "/api/watches",
+        json={
+            "expo_push_token": "ExponentPushToken[abc123]",
+            "symbol": "aapl",
+            "strategy_name": "sma_cross",
+            "strategy_params": {"fast_period": 3, "slow_period": 8},
+            "interval": "5min",
+        },
+    )
+    assert create_resp.status_code == 200
+    watch = create_resp.json()
+    assert watch["symbol"] == "AAPL"
+    assert watch["interval"] == "5min"
+    assert watch["last_notified_bar_time"] is None
+
+    list_resp = client.get("/api/watches", params={"expo_push_token": "ExponentPushToken[abc123]"})
+    assert list_resp.status_code == 200
+    assert any(w["id"] == watch["id"] for w in list_resp.json())
+
+    other_token_resp = client.get("/api/watches", params={"expo_push_token": "some-other-token"})
+    assert other_token_resp.json() == []
+
+    delete_resp = client.delete(f"/api/watches/{watch['id']}")
+    assert delete_resp.status_code == 204
+    assert client.get("/api/watches", params={"expo_push_token": "ExponentPushToken[abc123]"}).json() == []
+
+
+def test_create_watch_rejects_invalid_interval(client):
+    resp = client.post(
+        "/api/watches",
+        json={
+            "expo_push_token": "ExponentPushToken[abc123]",
+            "symbol": "AAPL",
+            "strategy_name": "sma_cross",
+            "strategy_params": {},
+            "interval": "1hour",
+        },
+    )
+    assert resp.status_code == 422
+
+
+def test_delete_missing_watch_returns_404(client):
+    resp = client.delete("/api/watches/does-not-exist")
+    assert resp.status_code == 404
