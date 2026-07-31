@@ -16,7 +16,7 @@ from app.core.exceptions import NotFoundError
 from app.metrics.calculator import calculate_all_metrics, calculate_monthly_metrics
 from app.ranking.models import RankingConfig, StrategyResult
 from app.ranking.scorer import score_results
-from app.strategies.execution import ExecutionConfig, simulate_trades
+from app.strategies.execution import ExecutionConfig
 from app.strategies.registry import discover_strategies, get_strategy, strategy_registry
 
 
@@ -61,10 +61,12 @@ def run_strategies(df: pd.DataFrame, request: RunRequest) -> list[StrategyResult
         params = strategy.validate_params(param_overrides.get(name, {}))
 
         try:
-            enriched = strategy.prepare(df, params)
-            entries = strategy.generate_entries(enriched, params)
-            exits = strategy.generate_exits(enriched, params)
-            trades = simulate_trades(enriched, entries, exits, request.execution_config)
+            # Route through Strategy.run() (not a hand-inlined
+            # prepare/entries/exits/simulate_trades sequence) so a
+            # strategy that overrides run() for a non-standard execution
+            # model (e.g. confluence_order_block) is honored here too,
+            # not just by the live-signal path in signal_service.py.
+            trades = strategy.run(df, params, request.execution_config)
         except Exception:
             trades = []  # strategy failed to run; report it with zero trades rather than crash the batch
 
