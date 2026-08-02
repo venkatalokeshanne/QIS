@@ -14,10 +14,11 @@ from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
-from app.api.routes import backtest_routes, catalog_routes, dataset_routes, levels_routes, watch_routes
+from app.api.routes import backtest_routes, catalog_routes, dataset_routes, levels_routes, tastytrade_routes, watch_routes
 from app.config.settings import settings
-from app.core.exceptions import AppError, DataValidationError, NotFoundError, TwelveDataError
+from app.core.exceptions import AppError, DataValidationError, NotFoundError, TastytradeError, TwelveDataError
 from app.services.poller import Poller
+from app.services.tastytrade_stream import stream as tastytrade_stream
 from app.strategies.registry import discover_strategies
 
 logging.basicConfig(level=logging.INFO)
@@ -30,8 +31,10 @@ async def lifespan(app: FastAPI):
     discover_strategies()
     poller = Poller()
     poller.start()
+    tastytrade_stream.start()
     yield
     await poller.stop()
+    await tastytrade_stream.stop()
 
 
 app = FastAPI(title="Quant Strategy Research Platform API", version="0.1.0", lifespan=lifespan)
@@ -49,6 +52,7 @@ app.include_router(catalog_routes.router)
 app.include_router(backtest_routes.router)
 app.include_router(levels_routes.router)
 app.include_router(watch_routes.router)
+app.include_router(tastytrade_routes.router)
 
 
 @app.exception_handler(NotFoundError)
@@ -63,6 +67,11 @@ def handle_validation_error(request: Request, exc: DataValidationError):
 
 @app.exception_handler(TwelveDataError)
 def handle_twelvedata_error(request: Request, exc: TwelveDataError):
+    return JSONResponse(status_code=502, content={"detail": str(exc), "issues": exc.issues})
+
+
+@app.exception_handler(TastytradeError)
+def handle_tastytrade_error(request: Request, exc: TastytradeError):
     return JSONResponse(status_code=502, content={"detail": str(exc), "issues": exc.issues})
 
 

@@ -17,6 +17,12 @@ services:
       # rather than trying to generate them; see DEPLOY.md.
       - key: TWELVEDATA_API_KEY
         sync: false
+      - key: TASTYTRADE_CLIENT_ID
+        sync: false
+      - key: TASTYTRADE_CLIENT_SECRET
+        sync: false
+      - key: TASTYTRADE_REFRESH_TOKEN
+        sync: false
       - key: DATABASE_URL
         sync: false
       - key: CORS_ALLOWED_ORIGINS

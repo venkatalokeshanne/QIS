@@ -60,6 +60,15 @@ class Settings(BaseSettings):
     twelvedata_api_key: str = ""
     twelvedata_base_url: str = "https://api.twelvedata.com"
 
+    # Tastytrade (tastytrade.com), used only for live quote streaming via
+    # DXLink -- not for account data or order placement. OAuth2 app
+    # credentials from Tastytrade's developer portal; set all three in
+    # backend/.env (never commit the real values).
+    tastytrade_client_id: str = ""
+    tastytrade_client_secret: str = ""
+    tastytrade_refresh_token: str = ""
+    tastytrade_base_url: str = "https://api.tastyworks.com"
+
     def ensure_dirs(self) -> None:
         self.data_dir.mkdir(parents=True, exist_ok=True)
         self.dataset_storage_dir.mkdir(parents=True, exist_ok=True)
