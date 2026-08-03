@@ -8,14 +8,14 @@ import './styles/global.css'
 // Modern iOS Safari and Chrome ignore the viewport meta's
 // user-scalable=no for accessibility reasons, so pinch- and
 // double-tap-zoom have to be blocked at the touch-event level instead.
+const preventZoom = (e) => {
+  if (e.touches && e.touches.length > 1) e.preventDefault()
+  if (e.ctrlKey) e.preventDefault()
+}
+
 document.addEventListener('gesturestart', (e) => e.preventDefault())
-document.addEventListener(
-  'touchmove',
-  (e) => {
-    if (e.touches.length > 1) e.preventDefault()
-  },
-  { passive: false }
-)
+document.addEventListener('touchstart', preventZoom, { passive: false })
+document.addEventListener('touchmove', preventZoom, { passive: false })
 let lastTouchEnd = 0
 document.addEventListener(
   'touchend',
@@ -26,6 +26,12 @@ document.addEventListener(
   },
   { passive: false }
 )
+document.addEventListener('wheel', (e) => {
+  if (e.ctrlKey) e.preventDefault()
+}, { passive: false })
+document.addEventListener('keydown', (e) => {
+  if (e.ctrlKey && ['+', '-', '0'].includes(e.key)) e.preventDefault()
+}, { passive: false })
 
 const queryClient = new QueryClient({
   defaultOptions: {
