@@ -56,10 +56,10 @@ class AutoSupportResistance(Indicator):
 
         swing_high_mask = (
             out["high"].rolling(window=window, min_periods=window).apply(is_swing_high, raw=False).astype(bool)
-        ).shift(-right).fillna(False).astype(bool)
+        ).shift(-right).fillna(False).infer_objects(copy=False).astype(bool)
         swing_low_mask = (
             out["low"].rolling(window=window, min_periods=window).apply(is_swing_low, raw=False).astype(bool)
-        ).shift(-right).fillna(False).astype(bool)
+        ).shift(-right).fillna(False).infer_objects(copy=False).astype(bool)
 
         # sort_index() is load-bearing: concat appends the whole highs
         # series before the whole lows series, so without re-sorting by

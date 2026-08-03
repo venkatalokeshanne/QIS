@@ -249,6 +249,22 @@ class LiveSignalEngine:
                 len(historical_df),
             )
 
+    def get_cached_bars(self, symbol: str, interval: str) -> pd.DataFrame | None:
+        """Returns a copy of this (symbol, interval) pair's continuously
+        live-updated cached bars, or None if nothing has subscribed it
+        yet. Lets an on-demand check_signal call (app.api.routes.
+        signal_routes) reuse data this engine is already keeping fresh
+        instead of opening a brand-new short-lived DXLink connection
+        per poll -- those redundant per-poll connections were the
+        actual cause of intermittent TastytradeError/502s under
+        frequent polling, not a proxy/timeout issue. Safe to call from
+        a threadpool worker thread: _PairState.historical_df is only
+        ever replaced wholesale (never mutated in place, see
+        merge_live_candle), so a concurrent read here can't observe a
+        half-written frame."""
+        state = self._pairs.get((symbol.upper(), interval))
+        return state.historical_df.copy() if state is not None else None
+
     async def _maybe_unsubscribe(self, symbol: str, interval: str) -> None:
         pair = (symbol, interval)
         if pair not in self._pairs:

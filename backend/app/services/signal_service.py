@@ -112,6 +112,7 @@ def check_signal(
     strategy_params: dict,
     fetch_bars=tastytrade_client.fetch_historical_bars,
     execution_config: ExecutionConfig | None = None,
+    cached_df: pd.DataFrame | None = None,
 ) -> SignalCheck:
     """
     `execution_config`, when given, should reflect the SAME risk/sizing
@@ -121,8 +122,15 @@ def check_signal(
     is always overridden to False regardless of what's passed in --
     see LIVE_EXECUTION_CONFIG's comment for why. Omit entirely to fall
     back to bare defaults (pre-existing behavior).
+
+    `cached_df`, when given (app.services.live_signal_engine's already-
+    subscribed, continuously live-updated bars for this symbol+
+    interval), is used instead of opening a brand-new short-lived
+    DXLink connection via fetch_bars -- avoids hammering Tastytrade
+    with a fresh connection on every single poll for symbols already
+    being tracked live.
     """
-    df = fetch_symbol_bars(symbol, interval, fetch_bars=fetch_bars)
+    df = cached_df if cached_df is not None else fetch_symbol_bars(symbol, interval, fetch_bars=fetch_bars)
     strategy = get_strategy(strategy_name)
     params = strategy.validate_params(strategy_params)
     config = replace(execution_config or ExecutionConfig(), force_close_at_session_end=False)
