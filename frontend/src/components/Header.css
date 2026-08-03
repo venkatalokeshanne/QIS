@@ -183,5 +183,9 @@
     display: inline-flex;
     min-width: 0;
     flex: 1 1 auto;
+    /* iOS Safari auto-zooms the whole page on focus of any form control
+       under 16px -- bump just the mobile size here too (desktop stays
+       at the tighter 12px). */
+    font-size: 16px;
   }
 }
