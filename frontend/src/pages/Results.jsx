@@ -7,6 +7,8 @@ import EmptyState from '../components/EmptyState'
 import ScoreBar from '../components/ScoreBar'
 import MetricValue from '../components/MetricValue'
 import TradesTable from '../components/TradesTable'
+import SortableTh from '../components/SortableTh'
+import { useSortableData } from '../hooks/useSortableData'
 import { useMetricDefinitions } from '../api/hooks'
 import { useResearchStore } from '../store/useResearchStore'
 import './Compare.css' // shares .compare-table / .compare-sticky-col / .best-cell with MatrixView below
@@ -155,6 +157,13 @@ export default function Results() {
   )
 }
 
+function getStrategyRowValue(r, key) {
+  if (key === 'rank') return r.rank
+  if (key === 'strategy') return r.strategy_display_name
+  if (key === 'overall_score') return r.overall_score
+  return r.metrics[key]
+}
+
 function StrategyRankTable({
   results,
   symbol,
@@ -166,6 +175,8 @@ function StrategyRankTable({
   expandedKey,
   setExpandedKey,
 }) {
+  const { sorted, sortKey, sortDir, toggleSort } = useSortableData(results, getStrategyRowValue, 'rank', 'asc')
+
   return (
     <Card tight>
       <div className="data-table-scroll">
@@ -173,18 +184,30 @@ function StrategyRankTable({
           <thead>
             <tr>
               <th style={{ width: 36 }}></th>
-              <th>Rank</th>
-              <th>Strategy</th>
+              <SortableTh label="Rank" sortKey="rank" activeKey={sortKey} dir={sortDir} onSort={toggleSort} />
+              <SortableTh label="Strategy" sortKey="strategy" activeKey={sortKey} dir={sortDir} onSort={toggleSort} />
               {SUMMARY_METRIC_ORDER.map((name) => (
-                <th key={name} className="align-right">
-                  {metricFormatByName[name]?.display_name || name}
-                </th>
+                <SortableTh
+                  key={name}
+                  label={metricFormatByName[name]?.display_name || name}
+                  sortKey={name}
+                  activeKey={sortKey}
+                  dir={sortDir}
+                  onSort={toggleSort}
+                  align="right"
+                />
               ))}
-              <th>Overall Score</th>
+              <SortableTh
+                label="Overall Score"
+                sortKey="overall_score"
+                activeKey={sortKey}
+                dir={sortDir}
+                onSort={toggleSort}
+              />
             </tr>
           </thead>
           <tbody>
-            {results.map((r) => {
+            {sorted.map((r) => {
               const key = `${symbol}:${r.strategy_name}`
               const checked = symbol === compareSymbol && compareSelection.includes(r.strategy_name)
               return (
@@ -256,22 +279,38 @@ function MatrixView({ tickerResults }) {
     bestScoreByStrategy[s.name] = scores.length ? Math.max(...scores) : null
   }
 
+  const getMatrixValue = (s, key) => (key === 'strategy' ? s.display_name : scoreFor(key, s.name))
+  const { sorted, sortKey, sortDir, toggleSort } = useSortableData(strategyOrder, getMatrixValue)
+
   return (
     <Card tight>
       <div className="data-table-scroll">
         <table className="data-table compare-table">
           <thead>
             <tr>
-              <th className="compare-sticky-col">Strategy</th>
+              <SortableTh
+                label="Strategy"
+                sortKey="strategy"
+                activeKey={sortKey}
+                dir={sortDir}
+                onSort={toggleSort}
+                className="compare-sticky-col"
+              />
               {tickerResults.map((t) => (
-                <th key={t.symbol} className="align-right">
-                  {t.symbol}
-                </th>
+                <SortableTh
+                  key={t.symbol}
+                  label={t.symbol}
+                  sortKey={t.symbol}
+                  activeKey={sortKey}
+                  dir={sortDir}
+                  onSort={toggleSort}
+                  align="right"
+                />
               ))}
             </tr>
           </thead>
           <tbody>
-            {strategyOrder.map((s) => (
+            {sorted.map((s) => (
               <tr key={s.name}>
                 <td className="compare-sticky-col" style={{ fontWeight: 600 }}>
                   {s.display_name}

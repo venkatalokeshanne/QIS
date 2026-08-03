@@ -5,5 +5,6 @@ export const NAV_ITEMS = [
   { to: '/levels', label: 'Daily Levels' },
   { to: '/run', label: 'Run Backtests' },
   { to: '/compare', label: 'Compare' },
+  { to: '/alerts', label: 'Alerts' },
   { to: '/settings', label: 'Settings' },
 ]

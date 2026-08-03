@@ -1,6 +1,22 @@
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
 
+// YYYY-MM-DD, in local time -- matches the <input type="date"> value
+// format the header's date pickers already use.
+function toDateInputValue(date) {
+  return date.toISOString().slice(0, 10)
+}
+
+function oneMonthAgo() {
+  const d = new Date()
+  d.setMonth(d.getMonth() - 1)
+  return toDateInputValue(d)
+}
+
+function today() {
+  return toDateInputValue(new Date())
+}
+
 // Holds state that needs to survive navigation across the research
 // workflow: Upload -> Strategy Library -> Run Backtests -> Results ->
 // Compare. Keeping this out of individual page components is what
@@ -37,6 +53,13 @@ export const useResearchStore = create(
             ? state.selectedSymbols
             : [...state.selectedSymbols, symbol],
         })),
+      // Bulk version of addSelectedSymbol -- used by the header's
+      // Watchlists chips (see data/watchlists.js) to add every ticker
+      // in a category at once, deduped against what's already selected.
+      addSelectedSymbols: (symbols) =>
+        set((state) => ({
+          selectedSymbols: [...state.selectedSymbols, ...symbols.filter((s) => !state.selectedSymbols.includes(s))],
+        })),
 
       // One global timeframe for the whole session (see TickerSelect) --
       // used both for backtesting (what interval to fetch bars at) and
@@ -45,12 +68,11 @@ export const useResearchStore = create(
       selectedInterval: '5min',
       setSelectedInterval: (interval) => set({ selectedInterval: interval }),
 
-      // Optional override for the backtest fetch window -- "used only
-      // when needed" (see RunBacktests' collapsed Custom date range
-      // section); left null, the backend's own default-lookback
-      // heuristic applies.
-      backtestStartDate: null,
-      backtestEndDate: null,
+      // Backtest fetch window, set in the header's Date Range section --
+      // defaults to the last month; the backend's own default-lookback
+      // heuristic only kicks in if these are explicitly cleared to null.
+      backtestStartDate: oneMonthAgo(),
+      backtestEndDate: today(),
       setBacktestStartDate: (date) => set({ backtestStartDate: date }),
       setBacktestEndDate: (date) => set({ backtestEndDate: date }),
 

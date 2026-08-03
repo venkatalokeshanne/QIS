@@ -9,7 +9,15 @@ import MetricBar from '../components/MetricBar'
 import MetricValue from '../components/MetricValue'
 import TradesTable from '../components/TradesTable'
 import MonthlyBreakdownTable from '../components/MonthlyBreakdownTable'
-import { useStrategies, useRunBacktest, useMetricDefinitions, useSignalChecks } from '../api/hooks'
+import {
+  useStrategies,
+  useRunBacktest,
+  useMetricDefinitions,
+  useSignalChecks,
+  useWatches,
+  useCreateWatch,
+  useDeleteWatch,
+} from '../api/hooks'
 import { useResearchStore } from '../store/useResearchStore'
 import { formatDateTime } from '../utils/format'
 import './StrategyDetail.css'
@@ -125,7 +133,27 @@ export default function StrategyDetail() {
     () => selectedSymbols.map((symbol) => ({ symbol, interval: selectedInterval })),
     [selectedSymbols, selectedInterval]
   )
-  const signalQueries = useSignalChecks(signalTickers, name, effectiveParams)
+  const signalQueries = useSignalChecks(signalTickers, name, effectiveParams, executionSettings)
+
+  const { data: watches } = useWatches()
+  const createWatch = useCreateWatch()
+  const deleteWatch = useDeleteWatch()
+  const findWatch = (symbol) =>
+    (watches || []).find((w) => w.symbol === symbol && w.strategy_name === name && w.interval === selectedInterval)
+  const toggleWatch = (symbol) => {
+    const existing = findWatch(symbol)
+    if (existing) {
+      deleteWatch.mutate(existing.id)
+    } else {
+      createWatch.mutate({
+        symbol,
+        strategy_name: name,
+        strategy_params: effectiveParams,
+        interval: selectedInterval,
+        execution: executionSettings,
+      })
+    }
+  }
 
   useEffect(() => {
     if (signalTickers.length === 0) return
@@ -300,6 +328,18 @@ export default function StrategyDetail() {
                       <div>{formatDateTime(query.data.as_of)}</div>
                     </div>
                   )}
+                  <Button
+                    size="sm"
+                    variant={findWatch(ticker.symbol) ? 'primary' : 'secondary'}
+                    onClick={() => toggleWatch(ticker.symbol)}
+                    title={
+                      findWatch(ticker.symbol)
+                        ? 'Telegram alerts on for this signal — click to turn off'
+                        : 'Get a Telegram message when this signal fires'
+                    }
+                  >
+                    🔔 {findWatch(ticker.symbol) ? 'Alerting' : 'Notify'}
+                  </Button>
                 </div>
 
                 {query.isError && <div className="error-banner">{query.error.message}</div>}

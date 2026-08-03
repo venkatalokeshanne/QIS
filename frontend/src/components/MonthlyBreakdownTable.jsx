@@ -1,4 +1,6 @@
 import MetricValue from './MetricValue'
+import SortableTh from './SortableTh'
+import { useSortableData } from '../hooks/useSortableData'
 import './DataTable.css'
 
 // Curated subset of the full metrics suite -- the same continuous
@@ -25,10 +27,18 @@ function formatMonthLabel(key) {
 // closed in, with each month's own starting capital carried over from
 // the running equity at the end of the prior month (real compounding,
 // not a reset-to-zero re-run).
-export default function MonthlyBreakdownTable({ monthlyMetrics }) {
-  const months = Object.keys(monthlyMetrics || {}).sort()
+function getRowValue(row, key) {
+  if (key === 'month') return row.month
+  return row.metrics[key]
+}
 
-  if (months.length === 0) {
+export default function MonthlyBreakdownTable({ monthlyMetrics }) {
+  const rows = Object.keys(monthlyMetrics || {})
+    .sort()
+    .map((month) => ({ month, metrics: monthlyMetrics[month] }))
+  const { sorted, sortKey, sortDir, toggleSort } = useSortableData(rows, getRowValue, 'month', 'asc')
+
+  if (rows.length === 0) {
     return <div className="trades-empty">No monthly data (dataset may span less than one calendar month).</div>
   }
 
@@ -37,28 +47,31 @@ export default function MonthlyBreakdownTable({ monthlyMetrics }) {
       <table className="data-table">
         <thead>
           <tr>
-            <th>Month</th>
+            <SortableTh label="Month" sortKey="month" activeKey={sortKey} dir={sortDir} onSort={toggleSort} />
             {COLUMNS.map((col) => (
-              <th key={col.name} className="align-right">
-                {col.label}
-              </th>
+              <SortableTh
+                key={col.name}
+                label={col.label}
+                sortKey={col.name}
+                activeKey={sortKey}
+                dir={sortDir}
+                onSort={toggleSort}
+                align="right"
+              />
             ))}
           </tr>
         </thead>
         <tbody>
-          {months.map((month) => {
-            const metrics = monthlyMetrics[month]
-            return (
-              <tr key={month}>
-                <td>{formatMonthLabel(month)}</td>
-                {COLUMNS.map((col) => (
-                  <td key={col.name} className="align-right">
-                    <MetricValue value={metrics[col.name]} format={col.format} />
-                  </td>
-                ))}
-              </tr>
-            )
-          })}
+          {sorted.map((row) => (
+            <tr key={row.month}>
+              <td>{formatMonthLabel(row.month)}</td>
+              {COLUMNS.map((col) => (
+                <td key={col.name} className="align-right">
+                  <MetricValue value={row.metrics[col.name]} format={col.format} />
+                </td>
+              ))}
+            </tr>
+          ))}
         </tbody>
       </table>
     </div>

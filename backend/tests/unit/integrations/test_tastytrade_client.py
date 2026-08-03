@@ -148,18 +148,22 @@ def test_get_quote_token_raises_on_missing_fields(monkeypatch):
 
 
 def test_periodicity_for_interval_valid_and_invalid():
-    assert tt._periodicity_for_interval("5min") == "5m"
-    assert tt._periodicity_for_interval("1day") == "1d"
+    assert tt.periodicity_for_interval("5min") == "5m"
+    assert tt.periodicity_for_interval("1day") == "1d"
     with pytest.raises(TastytradeError, match="Unsupported interval"):
-        tt._periodicity_for_interval("3min")
+        tt.periodicity_for_interval("3min")
 
 
 def test_is_real_candle_filters_nan_placeholder():
     # Confirmed live: a just-subscribed, not-yet-computed candle arrives
     # with every OHLC field as the literal STRING "NaN".
-    assert not tt._is_real_candle({"open": "NaN", "time": 123})
-    assert not tt._is_real_candle({"open": 1.0, "time": None})
-    assert tt._is_real_candle({"open": 1.0, "time": 123})
+    assert not tt.is_real_candle({"open": "NaN", "time": 123})
+    assert not tt.is_real_candle({"open": 1.0, "time": None})
+    assert tt.is_real_candle({"open": 1.0, "time": 123})
+
+
+def test_build_candle_symbol_includes_periodicity_and_trading_hours_flag():
+    assert tt.build_candle_symbol("AAPL", "5m") == "AAPL{=5m,tho=true}"
 
 
 def test_from_time_ms_for_outputsize_looks_generously_far_back():

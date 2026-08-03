@@ -14,7 +14,7 @@ on the LAST bar of the freshest fetch -- everything earlier already
 happened and would have been reported by a prior poll.
 """
 
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 
 import pandas as pd
 
@@ -36,15 +36,20 @@ _ARTIFICIAL_EXIT_REASON = "end_of_data"
 # trading session -- simulate_trades' own forced_close_at_session_end
 # groups by calendar date, so it would otherwise treat every freshest
 # bar as "last bar of the session" and spuriously force-close open
-# positions on every single check. Disabled here; the always-present
-# unconditional end-of-data closure (excluded above) is what actually
-# represents "nothing new happened," and real strategy exit signals
-# still fire normally through generate_exits.
-_LIVE_EXECUTION_CONFIG = ExecutionConfig(force_close_at_session_end=False)
+# positions on every single check. Forced off in check_signal/
+# live_signal_engine regardless of what a caller's execution_config
+# says; the always-present unconditional end-of-data closure (excluded
+# above) is what actually represents "nothing new happened," and real
+# strategy exit signals still fire normally through generate_exits.
+# Fallback default when no execution_config is supplied at all (e.g. a
+# watch created before execution-settings snapshotting existed).
+LIVE_EXECUTION_CONFIG = ExecutionConfig(force_close_at_session_end=False)
 
 # Enough warm-up room for every strategy's slowest indicator (longest
 # moving averages / lookback periods in use) at any supported interval.
-_OUTPUTSIZE = 500
+# Public: app.services.live_signal_engine fetches the same initial
+# warm-up window for its cached historical bars.
+OUTPUTSIZE = 500
 
 
 @dataclass(frozen=True)
@@ -62,7 +67,7 @@ class SignalCheck:
 def fetch_symbol_bars(
     symbol: str, interval: str, fetch_bars=tastytrade_client.fetch_historical_bars
 ) -> pd.DataFrame:
-    raw = fetch_bars(symbol, interval=interval, outputsize=_OUTPUTSIZE)
+    raw = fetch_bars(symbol, interval=interval, outputsize=OUTPUTSIZE)
     detection = detect_columns(raw)
     normalized = normalize_ohlcv(raw, detection)
     report = validate_ohlcv(normalized)
@@ -71,33 +76,61 @@ def fetch_symbol_bars(
     return normalized
 
 
+def event_for_bar(trades: list, bar_time) -> tuple[str | None, str | None, str | None]:
+    """
+    Does the LAST trade produced by a strategy run land exactly on
+    `bar_time` as either its entry or its exit? Shared by check_signal
+    (the on-demand snapshot the Live Signal tab polls) and
+    app.services.live_signal_engine (the live, event-driven alerting
+    path) so "what counts as a new signal" can never drift between the
+    two -- everything earlier than the last trade already happened and
+    would have been reported already.
+
+    Returns (event, direction, exit_reason), each None when nothing new
+    landed on this bar.
+    """
+    if not trades:
+        return None, None, None
+
+    last_trade = trades[-1]
+    if last_trade.entry_time == bar_time:
+        direction = (
+            last_trade.direction.value
+            if isinstance(last_trade.direction, TradeDirection)
+            else last_trade.direction
+        )
+        return "entry", direction, None
+    if last_trade.exit_time == bar_time and last_trade.exit_reason != _ARTIFICIAL_EXIT_REASON:
+        return "exit", None, last_trade.exit_reason
+    return None, None, None
+
+
 def check_signal(
     symbol: str,
     interval: str,
     strategy_name: str,
     strategy_params: dict,
     fetch_bars=tastytrade_client.fetch_historical_bars,
+    execution_config: ExecutionConfig | None = None,
 ) -> SignalCheck:
+    """
+    `execution_config`, when given, should reflect the SAME risk/sizing
+    settings a backtest would use (stop loss, take profit, direction
+    filter, etc.) so a live check's entries/exits match what a backtest
+    with those settings would have produced. force_close_at_session_end
+    is always overridden to False regardless of what's passed in --
+    see LIVE_EXECUTION_CONFIG's comment for why. Omit entirely to fall
+    back to bare defaults (pre-existing behavior).
+    """
     df = fetch_symbol_bars(symbol, interval, fetch_bars=fetch_bars)
     strategy = get_strategy(strategy_name)
     params = strategy.validate_params(strategy_params)
-    trades = strategy.run(df, params, _LIVE_EXECUTION_CONFIG)
+    config = replace(execution_config or ExecutionConfig(), force_close_at_session_end=False)
+    trades = strategy.run(df, params, config)
 
     last_bar_time = df.index[-1]
     last_price = float(df["close"].iloc[-1])
-
-    event = None
-    direction = None
-    exit_reason = None
-
-    if trades:
-        last_trade = trades[-1]
-        if last_trade.entry_time == last_bar_time:
-            event = "entry"
-            direction = last_trade.direction.value if isinstance(last_trade.direction, TradeDirection) else last_trade.direction
-        elif last_trade.exit_time == last_bar_time and last_trade.exit_reason != _ARTIFICIAL_EXIT_REASON:
-            event = "exit"
-            exit_reason = last_trade.exit_reason
+    event, direction, exit_reason = event_for_bar(trades, last_bar_time)
 
     return SignalCheck(
         symbol=symbol.upper(),

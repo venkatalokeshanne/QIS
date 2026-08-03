@@ -14,9 +14,17 @@ from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
-from app.api.routes import backtest_routes, catalog_routes, levels_routes, signal_routes, watch_routes
+from app.api.routes import (
+    backtest_routes,
+    catalog_routes,
+    level_watch_routes,
+    levels_routes,
+    signal_routes,
+    watch_routes,
+)
 from app.config.settings import settings
 from app.core.exceptions import AppError, DataValidationError, NotFoundError, TastytradeError
+from app.services.live_signal_engine import engine as live_signal_engine
 from app.services.poller import Poller
 from app.strategies.registry import discover_strategies
 
@@ -30,7 +38,9 @@ async def lifespan(app: FastAPI):
     discover_strategies()
     poller = Poller()
     poller.start()
+    live_signal_engine.start()
     yield
+    await live_signal_engine.stop()
     await poller.stop()
 
 
@@ -48,6 +58,7 @@ app.include_router(catalog_routes.router)
 app.include_router(backtest_routes.router)
 app.include_router(levels_routes.router)
 app.include_router(watch_routes.router)
+app.include_router(level_watch_routes.router)
 app.include_router(signal_routes.router)
 
 

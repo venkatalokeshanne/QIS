@@ -4,7 +4,16 @@ import Card from '../components/Card'
 import Button from '../components/Button'
 import EmptyState from '../components/EmptyState'
 import MetricValue from '../components/MetricValue'
-import { useDailyLevels, useLevelsBacktest, useLevelsDayReports } from '../api/hooks'
+import SortableTh from '../components/SortableTh'
+import { useSortableData } from '../hooks/useSortableData'
+import {
+  useDailyLevels,
+  useLevelsBacktest,
+  useLevelsDayReports,
+  useLevelWatches,
+  useCreateLevelWatch,
+  useDeleteLevelWatch,
+} from '../api/hooks'
 import { useResearchStore } from '../store/useResearchStore'
 import { formatDate, formatDateTime } from '../utils/format'
 import './DailyLevels.css'
@@ -245,23 +254,58 @@ function DayByDaySection({ symbol }) {
       )}
 
       {reports.length > 0 && (
-        <div className="data-table-scroll" style={{ marginTop: 16 }}>
-          <table className="data-table">
-            <thead>
-              <tr>
-                <th>Date</th>
-                <th className="align-right">Open</th>
-                <th className="align-right">Close</th>
-                <th className="align-right">Gap</th>
-                <th className="align-right">Touched</th>
-                <th className="align-right">Held</th>
-                <th className="align-right">Broken</th>
-                <th>ADR</th>
-                <th>Opening Range</th>
-              </tr>
-            </thead>
-            <tbody>
-              {reports.map((day) => (
+        <SortableReportsTable reports={reports} expandedDate={expandedDate} setExpandedDate={setExpandedDate} />
+      )}
+    </Card>
+  )
+}
+
+function getReportValue(day, key) {
+  switch (key) {
+    case 'date':
+      return day.date
+    case 'open':
+      return day.session_open
+    case 'close':
+      return day.session_close
+    case 'gap':
+      return day.gap_pct
+    case 'touched':
+      return day.levels_touched_count
+    case 'held':
+      return day.levels_held_count
+    case 'broken':
+      return day.levels_broken_count
+    case 'adr':
+      return day.adr?.outcome ?? null
+    case 'opening_range':
+      return day.opening_range?.outcome ?? null
+    default:
+      return null
+  }
+}
+
+function SortableReportsTable({ reports, expandedDate, setExpandedDate }) {
+  const { sorted, sortKey, sortDir, toggleSort } = useSortableData(reports, getReportValue, 'date', 'asc')
+
+  return (
+    <div className="data-table-scroll" style={{ marginTop: 16 }}>
+      <table className="data-table">
+        <thead>
+          <tr>
+            <SortableTh label="Date" sortKey="date" activeKey={sortKey} dir={sortDir} onSort={toggleSort} />
+            <SortableTh label="Open" sortKey="open" activeKey={sortKey} dir={sortDir} onSort={toggleSort} align="right" />
+            <SortableTh label="Close" sortKey="close" activeKey={sortKey} dir={sortDir} onSort={toggleSort} align="right" />
+            <SortableTh label="Gap" sortKey="gap" activeKey={sortKey} dir={sortDir} onSort={toggleSort} align="right" />
+            <SortableTh label="Touched" sortKey="touched" activeKey={sortKey} dir={sortDir} onSort={toggleSort} align="right" />
+            <SortableTh label="Held" sortKey="held" activeKey={sortKey} dir={sortDir} onSort={toggleSort} align="right" />
+            <SortableTh label="Broken" sortKey="broken" activeKey={sortKey} dir={sortDir} onSort={toggleSort} align="right" />
+            <SortableTh label="ADR" sortKey="adr" activeKey={sortKey} dir={sortDir} onSort={toggleSort} />
+            <SortableTh label="Opening Range" sortKey="opening_range" activeKey={sortKey} dir={sortDir} onSort={toggleSort} />
+          </tr>
+        </thead>
+        <tbody>
+          {sorted.map((day) => (
                 <Fragment key={day.date}>
                   <tr
                     className="clickable"
@@ -289,12 +333,10 @@ function DayByDaySection({ symbol }) {
                     </tr>
                   )}
                 </Fragment>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      )}
-    </Card>
+          ))}
+        </tbody>
+      </table>
+    </div>
   )
 }
 
@@ -323,7 +365,26 @@ function HitRateTableRow({ label, stats }) {
   )
 }
 
+function getHitRateValue([label, stats], key) {
+  switch (key) {
+    case 'level':
+      return label
+    case 'touched':
+      return stats.touched_pct
+    case 'held':
+      return stats.held_pct
+    case 'broken':
+      return stats.broken_pct
+    case 'days':
+      return stats.sample_days
+    default:
+      return null
+  }
+}
+
 function HitRateTable({ title, rows }) {
+  const { sorted, sortKey, sortDir, toggleSort } = useSortableData(rows, getHitRateValue)
+
   return (
     <Card tight style={{ marginBottom: 16 }}>
       <div className="section-label" style={{ padding: '16px 16px 0' }}>
@@ -337,15 +398,15 @@ function HitRateTable({ title, rows }) {
         <table className="data-table">
           <thead>
             <tr>
-              <th>Level</th>
-              <th className="align-right">Touched</th>
-              <th className="align-right">Held</th>
-              <th className="align-right">Broken</th>
-              <th className="align-right">Days</th>
+              <SortableTh label="Level" sortKey="level" activeKey={sortKey} dir={sortDir} onSort={toggleSort} />
+              <SortableTh label="Touched" sortKey="touched" activeKey={sortKey} dir={sortDir} onSort={toggleSort} align="right" />
+              <SortableTh label="Held" sortKey="held" activeKey={sortKey} dir={sortDir} onSort={toggleSort} align="right" />
+              <SortableTh label="Broken" sortKey="broken" activeKey={sortKey} dir={sortDir} onSort={toggleSort} align="right" />
+              <SortableTh label="Days" sortKey="days" activeKey={sortKey} dir={sortDir} onSort={toggleSort} align="right" />
             </tr>
           </thead>
           <tbody>
-            {rows.map(([label, stats]) => (
+            {sorted.map(([label, stats]) => (
               <HitRateTableRow key={label} label={label} stats={stats} />
             ))}
           </tbody>
@@ -396,6 +457,18 @@ function LiveLevelsTab() {
   const srBelow = levels ? levels.auto_support_resistance.filter((v) => v < levels.current_price).reverse() : []
   const srAbove = levels ? levels.auto_support_resistance.filter((v) => v >= levels.current_price) : []
 
+  const { data: levelWatches } = useLevelWatches()
+  const createLevelWatch = useCreateLevelWatch()
+  const deleteLevelWatch = useDeleteLevelWatch()
+  const focusedWatch = (levelWatches || []).find((w) => w.symbol === focusedSymbol)
+  const toggleLevelWatch = () => {
+    if (focusedWatch) {
+      deleteLevelWatch.mutate(focusedWatch.id)
+    } else if (focusedSymbol) {
+      createLevelWatch.mutate(focusedSymbol)
+    }
+  }
+
   if (selectedSymbols.length === 0) {
     return (
       <Card>
@@ -409,7 +482,21 @@ function LiveLevelsTab() {
 
   return (
     <>
-      <TickerSwitcher symbols={selectedSymbols} focusedSymbol={focusedSymbol} onSelect={setFocusedSymbol} />
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
+        <TickerSwitcher symbols={selectedSymbols} focusedSymbol={focusedSymbol} onSelect={setFocusedSymbol} />
+        <Button
+          size="sm"
+          variant={focusedWatch ? 'primary' : 'secondary'}
+          onClick={toggleLevelWatch}
+          title={
+            focusedWatch
+              ? 'Telegram alerts on for S/R changes — click to turn off'
+              : 'Get a Telegram message whenever Auto Support/Resistance changes for this symbol'
+          }
+        >
+          🔔 {focusedWatch ? 'Alerting' : 'Notify'}
+        </Button>
+      </div>
 
       {levelsMutation.isPending && (
         <Card>

@@ -3,9 +3,17 @@ Watch repository.
 
 A "watch" is a standing request to poll one symbol+interval on a
 schedule and re-run one strategy's entry/exit logic against the
-freshest bar, pushing an Expo notification when a new signal appears.
-Same dual SQLite/Postgres backend switch as DatasetRepository (see
-that module's docstring) -- Postgres in production so watches survive
+freshest bar, sending a Telegram message the moment a new signal
+appears. Its execution_settings snapshot (commission, slippage, stop
+loss/take profit, direction filter, etc.) is captured at creation time
+from whatever the user's Settings page held then -- app.services.
+live_signal_engine and app.services.signal_service.check_signal both
+run the strategy through that same execution config, so a live alert's
+entries/exits match what a backtest with those same settings would
+have produced (force_close_at_session_end is always forced off for
+live checks regardless of what's stored -- see check_signal's
+docstring for why). Same dual SQLite/Postgres backend switch as other
+repositories in this app -- Postgres in production so watches survive
 Render's ephemeral disk, plain SQLite locally.
 """
 
@@ -22,11 +30,11 @@ from app.core.exceptions import NotFoundError
 _SCHEMA = """
 CREATE TABLE IF NOT EXISTS watches (
     id TEXT PRIMARY KEY,
-    expo_push_token TEXT NOT NULL,
     symbol TEXT NOT NULL,
     strategy_name TEXT NOT NULL,
     strategy_params TEXT NOT NULL,
     interval TEXT NOT NULL,
+    execution_settings TEXT NOT NULL,
     last_notified_bar_time TEXT,
     last_checked_at TEXT,
     created_at TEXT NOT NULL
@@ -34,19 +42,28 @@ CREATE TABLE IF NOT EXISTS watches (
 """
 
 _COLUMNS = (
-    "id, expo_push_token, symbol, strategy_name, strategy_params, interval, "
+    "id, symbol, strategy_name, strategy_params, interval, execution_settings, "
     "last_notified_bar_time, last_checked_at, created_at"
 )
+
+# Columns _SCHEMA must have -- used to detect a stale pre-existing local
+# table (e.g. from before execution_settings or expo_push_token was
+# removed) and rebuild it rather than silently failing on the first
+# insert with a mismatched column set. Old rows are moot either way
+# (expo tokens are gone, and pre-existing watches never had a captured
+# execution snapshot to migrate), so dropping is simpler and safe for
+# this single-user app's local/dev data.
+_REQUIRED_COLUMNS = {"execution_settings"}
 
 
 @dataclass(frozen=True)
 class WatchRecord:
     id: str
-    expo_push_token: str
     symbol: str
     strategy_name: str
     strategy_params: dict[str, Any]
     interval: str
+    execution_settings: dict[str, Any]
     last_notified_bar_time: str | None
     last_checked_at: str | None
     created_at: str
@@ -55,11 +72,11 @@ class WatchRecord:
 def _row_to_record(row) -> WatchRecord:
     return WatchRecord(
         id=row[0],
-        expo_push_token=row[1],
-        symbol=row[2],
-        strategy_name=row[3],
-        strategy_params=json.loads(row[4]) if row[4] else {},
-        interval=row[5],
+        symbol=row[1],
+        strategy_name=row[2],
+        strategy_params=json.loads(row[3]) if row[3] else {},
+        interval=row[4],
+        execution_settings=json.loads(row[5]) if row[5] else {},
         last_notified_bar_time=row[6],
         last_checked_at=row[7],
         created_at=row[8],
@@ -98,24 +115,34 @@ class WatchRepository:
     def _init_db(self) -> None:
         with self._connection() as conn:
             cur = conn.cursor()
+            if self._use_postgres:
+                cur.execute("SELECT column_name FROM information_schema.columns WHERE table_name = 'watches'")
+                existing_columns = {row[0] for row in cur.fetchall()}
+            else:
+                cur.execute("PRAGMA table_info(watches)")
+                existing_columns = {row[1] for row in cur.fetchall()}
+            table_exists = bool(existing_columns)
+            has_stale_schema = table_exists and not _REQUIRED_COLUMNS.issubset(existing_columns)
+            if has_stale_schema:
+                cur.execute("DROP TABLE watches")
             cur.execute(_SCHEMA)
             conn.commit()
 
     def create(
         self,
-        expo_push_token: str,
         symbol: str,
         strategy_name: str,
         strategy_params: dict[str, Any],
         interval: str,
+        execution_settings: dict[str, Any] | None = None,
     ) -> WatchRecord:
         record = WatchRecord(
             id=str(uuid.uuid4()),
-            expo_push_token=expo_push_token,
             symbol=symbol.upper(),
             strategy_name=strategy_name,
             strategy_params=strategy_params or {},
             interval=interval,
+            execution_settings=execution_settings or {},
             last_notified_bar_time=None,
             last_checked_at=None,
             created_at=datetime.now(timezone.utc).isoformat(),
@@ -127,11 +154,11 @@ class WatchRepository:
                 f"INSERT INTO watches ({_COLUMNS}) VALUES ({ph}, {ph}, {ph}, {ph}, {ph}, {ph}, {ph}, {ph}, {ph})",
                 (
                     record.id,
-                    record.expo_push_token,
                     record.symbol,
                     record.strategy_name,
                     json.dumps(record.strategy_params),
                     record.interval,
+                    json.dumps(record.execution_settings),
                     record.last_notified_bar_time,
                     record.last_checked_at,
                     record.created_at,
@@ -154,17 +181,6 @@ class WatchRepository:
         with self._connection() as conn:
             cur = conn.cursor()
             cur.execute(f"SELECT {_COLUMNS} FROM watches ORDER BY created_at DESC")
-            rows = cur.fetchall()
-        return [_row_to_record(row) for row in rows]
-
-    def list_for_token(self, expo_push_token: str) -> list[WatchRecord]:
-        ph = self._ph()
-        with self._connection() as conn:
-            cur = conn.cursor()
-            cur.execute(
-                f"SELECT {_COLUMNS} FROM watches WHERE expo_push_token = {ph} ORDER BY created_at DESC",
-                (expo_push_token,),
-            )
             rows = cur.fetchall()
         return [_row_to_record(row) for row in rows]
 

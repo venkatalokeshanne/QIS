@@ -1,38 +1,43 @@
 """
 Notification Service.
 
-Thin wrapper around Expo's push notification HTTP API
-(https://docs.expo.dev/push-notifications/sending-notifications/) --
-the free delivery mechanism for the mobile app's signal alerts. Expo's
-endpoint is a stable public constant, not a credential, so it lives
-here rather than in settings.
+Thin wrapper around Telegram's Bot API
+(https://core.telegram.org/bots/api#sendmessage) -- the only
+notification channel in this app (see app.services.poller, which
+calls this on every new strategy signal and every Auto
+Support/Resistance change).
 """
 
 import logging
 
 import requests
 
-_EXPO_PUSH_URL = "https://exp.host/--/api/v2/push/send"
+from app.config.settings import settings
+
+_TELEGRAM_API_URL = "https://api.telegram.org/bot{token}/sendMessage"
 _TIMEOUT_SECONDS = 10
 
 logger = logging.getLogger("quant_platform")
 
 
-def send_push_notification(expo_push_token: str, title: str, body: str, data: dict | None = None) -> None:
+def send_telegram_message(text: str) -> None:
     """
-    Best-effort send: logs and swallows failures rather than raising,
-    so one bad/expired push token can't take down the poller loop for
-    every other watch.
+    Best-effort send: logs and swallows failures (missing settings,
+    network errors, bad responses) rather than raising, so one bad
+    send can't take down the poller loop for every other watch.
     """
+    if not settings.telegram_bot_token or not settings.telegram_chat_id:
+        logger.debug("Telegram not configured (telegram_bot_token/telegram_chat_id unset) -- skipping send.")
+        return
+
+    url = _TELEGRAM_API_URL.format(token=settings.telegram_bot_token)
     payload = {
-        "to": expo_push_token,
-        "title": title,
-        "body": body,
-        "sound": "default",
-        "data": data or {},
+        "chat_id": settings.telegram_chat_id,
+        "text": text,
+        "parse_mode": "Markdown",
     }
     try:
-        resp = requests.post(_EXPO_PUSH_URL, json=payload, timeout=_TIMEOUT_SECONDS)
+        resp = requests.post(url, json=payload, timeout=_TIMEOUT_SECONDS)
         resp.raise_for_status()
     except requests.RequestException:
-        logger.exception("Failed to send Expo push notification to token %s", expo_push_token)
+        logger.exception("Failed to send Telegram message")

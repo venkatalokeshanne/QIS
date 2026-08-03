@@ -61,6 +61,14 @@ class Settings(BaseSettings):
     tastytrade_refresh_token: str = ""
     tastytrade_base_url: str = "https://api.tastyworks.com"
 
+    # Telegram Bot API -- the only notification channel (see
+    # app.services.notification_service). Message @BotFather to create
+    # a bot and get telegram_bot_token; message the bot once, then hit
+    # https://api.telegram.org/bot<token>/getUpdates to read chat.id
+    # for telegram_chat_id.
+    telegram_bot_token: str = ""
+    telegram_chat_id: str = ""
+
     def ensure_dirs(self) -> None:
         self.data_dir.mkdir(parents=True, exist_ok=True)
 

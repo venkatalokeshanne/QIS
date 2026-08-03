@@ -151,11 +151,11 @@ def test_create_list_and_delete_watch(client):
     create_resp = client.post(
         "/api/watches",
         json={
-            "expo_push_token": "ExponentPushToken[abc123]",
             "symbol": "aapl",
             "strategy_name": "sma_cross",
             "strategy_params": {"fast_period": 3, "slow_period": 8},
             "interval": "5min",
+            "execution": {"capital": 5000.0, "direction_filter": "short_only"},
         },
     )
     assert create_resp.status_code == 200
@@ -163,24 +163,22 @@ def test_create_list_and_delete_watch(client):
     assert watch["symbol"] == "AAPL"
     assert watch["interval"] == "5min"
     assert watch["last_notified_bar_time"] is None
+    assert watch["execution_settings"]["capital"] == 5000.0
+    assert watch["execution_settings"]["direction_filter"] == "short_only"
 
-    list_resp = client.get("/api/watches", params={"expo_push_token": "ExponentPushToken[abc123]"})
+    list_resp = client.get("/api/watches")
     assert list_resp.status_code == 200
     assert any(w["id"] == watch["id"] for w in list_resp.json())
 
-    other_token_resp = client.get("/api/watches", params={"expo_push_token": "some-other-token"})
-    assert other_token_resp.json() == []
-
     delete_resp = client.delete(f"/api/watches/{watch['id']}")
     assert delete_resp.status_code == 204
-    assert client.get("/api/watches", params={"expo_push_token": "ExponentPushToken[abc123]"}).json() == []
+    assert all(w["id"] != watch["id"] for w in client.get("/api/watches").json())
 
 
 def test_create_watch_rejects_invalid_interval(client):
     resp = client.post(
         "/api/watches",
         json={
-            "expo_push_token": "ExponentPushToken[abc123]",
             "symbol": "AAPL",
             "strategy_name": "sma_cross",
             "strategy_params": {},
@@ -195,13 +193,40 @@ def test_delete_missing_watch_returns_404(client):
     assert resp.status_code == 404
 
 
+def test_create_list_and_delete_level_watch(client):
+    create_resp = client.post("/api/level-watches", json={"symbol": "aapl"})
+    assert create_resp.status_code == 200
+    watch = create_resp.json()
+    assert watch["symbol"] == "AAPL"
+    assert watch["last_levels"] is None
+
+    list_resp = client.get("/api/level-watches")
+    assert list_resp.status_code == 200
+    assert any(w["id"] == watch["id"] for w in list_resp.json())
+
+    delete_resp = client.delete(f"/api/level-watches/{watch['id']}")
+    assert delete_resp.status_code == 204
+    assert all(w["id"] != watch["id"] for w in client.get("/api/level-watches").json())
+
+
+def test_create_duplicate_level_watch_returns_422(client):
+    client.post("/api/level-watches", json={"symbol": "AAPL"})
+    resp = client.post("/api/level-watches", json={"symbol": "aapl"})
+    assert resp.status_code == 422
+
+
+def test_delete_missing_level_watch_returns_404(client):
+    resp = client.delete("/api/level-watches/does-not-exist")
+    assert resp.status_code == 404
+
+
 def test_signal_check_returns_result(client, monkeypatch):
     from datetime import datetime
 
     from app.api.routes import signal_routes
     from app.services.signal_service import SignalCheck
 
-    def fake_check_signal(symbol, interval, strategy_name, strategy_params):
+    def fake_check_signal(symbol, interval, strategy_name, strategy_params, execution_config=None):
         return SignalCheck(
             symbol=symbol.upper(),
             interval=interval,

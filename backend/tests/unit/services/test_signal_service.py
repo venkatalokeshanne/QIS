@@ -13,7 +13,9 @@ reproduces exactly what a live poll would see at each moment in time.
 import pandas as pd
 import pytest
 
+from app.domain.interfaces.strategy import Trade, TradeDirection
 from app.services import signal_service
+from app.strategies.execution import ExecutionConfig
 from app.strategies.registry import discover_strategies
 
 
@@ -94,3 +96,112 @@ def test_check_signal_unknown_strategy_raises():
     fetch_bars = _fetch_bars_up_to("2024-01-02 11:20:00")
     with pytest.raises(KeyError):
         signal_service.check_signal("AAPL", "5min", "not_a_real_strategy", {}, fetch_bars=fetch_bars)
+
+
+# --- execution_config wiring --------------------------------------------
+
+
+def test_check_signal_passes_execution_config_through_to_strategy(monkeypatch):
+    """The Live Signal tab / a watch's snapshotted settings (stop loss,
+    direction filter, etc.) should reach the strategy's execution
+    engine unchanged -- except force_close_at_session_end, which is
+    always forced off for a live check (see check_signal's docstring)
+    regardless of what the caller passed."""
+    captured = {}
+
+    class _FakeStrategy:
+        def validate_params(self, params):
+            return params
+
+        def run(self, df, params, config):
+            captured["config"] = config
+            return []
+
+    monkeypatch.setattr(signal_service, "get_strategy", lambda name: _FakeStrategy())
+    fetch_bars = _fetch_bars_up_to("2024-01-02 11:20:00")
+    config = ExecutionConfig(
+        capital=2500.0, direction_filter="short_only", stop_loss_atr_multiple=1.5, force_close_at_session_end=True
+    )
+
+    signal_service.check_signal("AAPL", "5min", "sma_cross", {}, fetch_bars=fetch_bars, execution_config=config)
+
+    result_config = captured["config"]
+    assert result_config.capital == 2500.0
+    assert result_config.direction_filter == "short_only"
+    assert result_config.stop_loss_atr_multiple == 1.5
+    assert result_config.force_close_at_session_end is False  # always overridden
+
+
+def test_check_signal_defaults_execution_config_when_none_given(monkeypatch):
+    captured = {}
+
+    class _FakeStrategy:
+        def validate_params(self, params):
+            return params
+
+        def run(self, df, params, config):
+            captured["config"] = config
+            return []
+
+    monkeypatch.setattr(signal_service, "get_strategy", lambda name: _FakeStrategy())
+    fetch_bars = _fetch_bars_up_to("2024-01-02 11:20:00")
+
+    signal_service.check_signal("AAPL", "5min", "sma_cross", {}, fetch_bars=fetch_bars)
+
+    assert captured["config"] == ExecutionConfig(force_close_at_session_end=False)
+
+
+# --- event_for_bar -- shared by check_signal and live_signal_engine ----
+
+
+def _trade(entry_time, exit_time=None, direction=TradeDirection.LONG, exit_reason=None):
+    return Trade(
+        entry_time=entry_time,
+        exit_time=exit_time,
+        direction=direction,
+        entry_price=100.0,
+        exit_price=101.0 if exit_time else None,
+        quantity=1,
+        exit_reason=exit_reason,
+    )
+
+
+def test_event_for_bar_no_trades_returns_no_event():
+    assert signal_service.event_for_bar([], pd.Timestamp("2024-01-02 11:20")) == (None, None, None)
+
+
+def test_event_for_bar_entry_on_last_bar():
+    bar_time = pd.Timestamp("2024-01-02 11:20")
+    trades = [_trade(entry_time=bar_time, direction=TradeDirection.SHORT)]
+
+    event, direction, exit_reason = signal_service.event_for_bar(trades, bar_time)
+
+    assert event == "entry"
+    assert direction == "short"
+    assert exit_reason is None
+
+
+def test_event_for_bar_exit_on_last_bar():
+    entry = pd.Timestamp("2024-01-02 10:00")
+    exit_time = pd.Timestamp("2024-01-02 12:10")
+    trades = [_trade(entry_time=entry, exit_time=exit_time, exit_reason="signal_exit")]
+
+    event, direction, exit_reason = signal_service.event_for_bar(trades, exit_time)
+
+    assert event == "exit"
+    assert direction is None
+    assert exit_reason == "signal_exit"
+
+
+def test_event_for_bar_ignores_artificial_end_of_data_exit():
+    entry = pd.Timestamp("2024-01-02 10:00")
+    exit_time = pd.Timestamp("2024-01-02 12:10")
+    trades = [_trade(entry_time=entry, exit_time=exit_time, exit_reason="end_of_data")]
+
+    assert signal_service.event_for_bar(trades, exit_time) == (None, None, None)
+
+
+def test_event_for_bar_neither_entry_nor_exit_on_bar_returns_no_event():
+    trades = [_trade(entry_time=pd.Timestamp("2024-01-02 10:00"), exit_time=pd.Timestamp("2024-01-02 10:30"))]
+
+    assert signal_service.event_for_bar(trades, pd.Timestamp("2024-01-02 11:00")) == (None, None, None)

@@ -140,10 +140,13 @@ _INTERVAL_MINUTES = {"1min": 1, "5min": 5, "15min": 15, "30min": 30, "1h": 60, "
 _QUIET_PERIOD_SECONDS = 2.0
 _MAX_COLLECT_SECONDS = 20.0
 
-_CANDLE_FIELDS = ["eventType", "eventSymbol", "time", "open", "high", "low", "close", "volume"]
+# Shared with app.services.live_signal_engine, which subscribes to the
+# same event type/fields for a long-lived (never-closed) Candle feed
+# instead of this module's short-lived backfill-then-close fetch.
+CANDLE_FIELDS = ["eventType", "eventSymbol", "time", "open", "high", "low", "close", "volume"]
 
 
-def _periodicity_for_interval(interval: str) -> str:
+def periodicity_for_interval(interval: str) -> str:
     try:
         return _DXFEED_PERIODICITY[interval]
     except KeyError:
@@ -151,6 +154,22 @@ def _periodicity_for_interval(interval: str) -> str:
             f"Unsupported interval '{interval}' for Tastytrade historical bars. "
             f"Supported: {sorted(_DXFEED_PERIODICITY)}."
         ) from None
+
+
+def build_candle_symbol(symbol: str, periodicity: str) -> str:
+    """dxFeed compound symbol for a Candle subscription, e.g. "AAPL{=5m,tho=true}".
+    tho=true (trading hours only) -- confirmed against a live connection:
+    without it, candles include pre-/after-market data. Shared by this
+    module's one-shot backfill and live_signal_engine's long-lived feed
+    so both see identical bar boundaries/timestamps."""
+    return f"{symbol}{{={periodicity},tho=true}}"
+
+
+def is_real_candle(event: dict) -> bool:
+    # A just-subscribed, not-yet-computed candle arrives with every OHLC
+    # field as the literal string "NaN" -- confirmed against a live
+    # connection -- rather than being omitted or JSON null.
+    return event.get("open") != "NaN" and event.get("time") is not None
 
 
 def _from_time_ms_for_outputsize(interval: str, outputsize: int) -> int:
@@ -163,24 +182,12 @@ def _from_time_ms_for_outputsize(interval: str, outputsize: int) -> int:
     return int((time.time() - 86400 * calendar_days_back) * 1000)
 
 
-def _is_real_candle(event: dict) -> bool:
-    # A just-subscribed, not-yet-computed candle arrives with every OHLC
-    # field as the literal string "NaN" -- confirmed against a live
-    # connection -- rather than being omitted or JSON null.
-    return event.get("open") != "NaN" and event.get("time") is not None
-
-
 async def _collect_candles(symbol: str, periodicity: str, outputsize: int, from_time_ms: int) -> list[dict]:
     quote_token = get_quote_token()
-    # tho=true (trading hours only) -- confirmed against a live
-    # connection: without it, candles include pre-/after-market data,
-    # which would silently pull extended-hours ticks into
-    # levels_service's session-boundary aggregates (prior close, daily
-    # high/low) where Twelve Data's regular-session-only bars didn't.
-    dxfeed_symbol = f"{symbol}{{={periodicity},tho=true}}"
+    dxfeed_symbol = build_candle_symbol(symbol, periodicity)
 
     async with websockets.connect(quote_token["dxlink-url"]) as ws:
-        await dxlink.handshake(ws, quote_token["token"], {"Candle": _CANDLE_FIELDS})
+        await dxlink.handshake(ws, quote_token["token"], {"Candle": CANDLE_FIELDS})
         await ws.send(json.dumps({
             "type": "FEED_SUBSCRIPTION",
             "channel": 1,
@@ -202,7 +209,7 @@ async def _collect_candles(symbol: str, periodicity: str, outputsize: int, from_
             if message.get("type") != "FEED_DATA":
                 continue
             for event in message.get("data", []):
-                if event.get("eventType") == "Candle" and _is_real_candle(event):
+                if event.get("eventType") == "Candle" and is_real_candle(event):
                     candles.append(event)
 
             # Candles arrive newest-first, so once we have enough we
@@ -239,7 +246,7 @@ def fetch_historical_bars(
     fresh loop in that thread rather than colliding with one already
     running.
     """
-    periodicity = _periodicity_for_interval(interval)  # validate before opening a connection
+    periodicity = periodicity_for_interval(interval)  # validate before opening a connection
 
     if start_date:
         from_time_ms = int(pd.Timestamp(start_date).timestamp() * 1000)

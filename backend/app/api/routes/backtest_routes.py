@@ -19,21 +19,9 @@ router = APIRouter(prefix="/api/backtests", tags=["backtests"])
 
 @router.post("/run", response_model=RunBacktestResponse)
 def run_backtest(payload: RunBacktestRequest):
-    execution_config = ExecutionConfig(
-        capital=payload.execution.capital,
-        quantity=payload.execution.quantity,
-        commission_per_trade=payload.execution.commission_per_trade,
-        slippage_pct=payload.execution.slippage_pct,
-        force_close_at_session_end=payload.execution.force_close_at_session_end,
-        direction_filter=payload.execution.direction_filter,
-        atr_period=payload.execution.atr_period,
-        stop_loss_atr_multiple=payload.execution.stop_loss_atr_multiple,
-        stop_loss_pct=payload.execution.stop_loss_pct,
-        take_profit_atr_multiple=payload.execution.take_profit_atr_multiple,
-        trailing_stop_atr_multiple=payload.execution.trailing_stop_atr_multiple,
-        risk_per_trade_pct=payload.execution.risk_per_trade_pct,
-        max_position_value_pct=payload.execution.max_position_value_pct,
-    )
+    # ExecutionSettings' fields are named identically to ExecutionConfig's --
+    # a plain spread is exact, no field-by-field mapping needed.
+    execution_config = ExecutionConfig(**payload.execution.model_dump())
     ranking_config = (
         RankingConfig(weights=payload.ranking_weights) if payload.ranking_weights else RankingConfig()
     )
