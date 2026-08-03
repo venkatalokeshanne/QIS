@@ -226,7 +226,7 @@ def test_signal_check_returns_result(client, monkeypatch):
     from app.api.routes import signal_routes
     from app.services.signal_service import SignalCheck
 
-    def fake_check_signal(symbol, interval, strategy_name, strategy_params, execution_config=None):
+    def fake_check_signal(symbol, interval, strategy_name, strategy_params, execution_config=None, cached_df=None):
         return SignalCheck(
             symbol=symbol.upper(),
             interval=interval,
@@ -236,6 +236,7 @@ def test_signal_check_returns_result(client, monkeypatch):
             event="entry",
             direction="long",
             exit_reason=None,
+            position="long",
         )
 
     monkeypatch.setattr(signal_routes, "check_signal", fake_check_signal)

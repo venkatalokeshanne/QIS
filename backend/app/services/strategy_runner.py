@@ -30,6 +30,13 @@ class RunRequest:
     # calendar month (see calculate_monthly_metrics) -- off by default
     # since it's extra computation nobody needs for a quick batch scan.
     breakdown_by_month: bool = False
+    # The user's actual requested start date -- `df` may extend further
+    # back than this (see app.services.backtest_data.WARMUP_CALENDAR_DAYS)
+    # purely so indicators/zone-tracking strategies have warm-up history.
+    # Trades entered before this date are warm-up artifacts and get
+    # trimmed here, before metrics are computed, so a narrow date range
+    # never changes WHICH signals fire, only which of them get reported.
+    report_start_date: str | None = None
 
 
 def _resolve_strategy_names(requested: list[str] | None) -> list[str]:
@@ -53,6 +60,7 @@ def run_strategies(df: pd.DataFrame, request: RunRequest) -> list[StrategyResult
     """
     names = _resolve_strategy_names(request.strategy_names)
     param_overrides = request.strategy_params or {}
+    report_start = pd.Timestamp(request.report_start_date).date() if request.report_start_date else None
 
     raw_results: list[tuple[str, str, dict[str, float | None], int, list, dict | None]] = []
 
@@ -69,6 +77,9 @@ def run_strategies(df: pd.DataFrame, request: RunRequest) -> list[StrategyResult
             trades = strategy.run(df, params, request.execution_config)
         except Exception:
             trades = []  # strategy failed to run; report it with zero trades rather than crash the batch
+
+        if report_start is not None:
+            trades = [t for t in trades if t.entry_time.date() >= report_start]
 
         metrics = calculate_all_metrics(trades, request.execution_config.capital)
         monthly_metrics = (

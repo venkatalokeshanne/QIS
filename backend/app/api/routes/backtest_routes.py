@@ -32,6 +32,7 @@ def run_backtest(payload: RunBacktestRequest):
         execution_config=execution_config,
         ranking_config=ranking_config,
         breakdown_by_month=payload.breakdown_by_month,
+        report_start_date=payload.start_date,
     )
 
     ticker_results = []

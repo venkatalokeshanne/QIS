@@ -332,7 +332,7 @@ class LiveSignalEngine:
 
     async def _evaluate_watch(self, watch: WatchRecord, df: pd.DataFrame, bar_time: pd.Timestamp) -> None:
         try:
-            event, direction, exit_reason = await asyncio.to_thread(self._run_strategy, watch, df, bar_time)
+            event, direction, exit_reason, trades = await asyncio.to_thread(self._run_strategy, watch, df, bar_time)
         except Exception:
             logger.exception("Live signal check failed for watch %s (%s)", watch.id, watch.symbol)
             return
@@ -342,6 +342,7 @@ class LiveSignalEngine:
         already_notified = watch.last_notified_bar_time == bar_time_iso
 
         if event is not None and not already_notified:
+            position = signal_service.position_for_bar(trades, bar_time)
             check = signal_service.SignalCheck(
                 symbol=watch.symbol,
                 interval=watch.interval,
@@ -351,6 +352,7 @@ class LiveSignalEngine:
                 event=event,
                 direction=direction,
                 exit_reason=exit_reason,
+                position=position,
             )
             title, body = poller.format_notification(check)
             notification_service.send_telegram_message(f"*{title}*\n{body}")
@@ -368,7 +370,8 @@ class LiveSignalEngine:
         base_config = ExecutionConfig(**watch.execution_settings) if watch.execution_settings else ExecutionConfig()
         execution_config = replace(base_config, force_close_at_session_end=False)
         trades = strategy.run(df, params, execution_config)
-        return signal_service.event_for_bar(trades, bar_time)
+        event, direction, exit_reason = signal_service.event_for_bar(trades, bar_time)
+        return event, direction, exit_reason, trades
 
 
 # Module-level singleton, same pattern as app.services.poller's own

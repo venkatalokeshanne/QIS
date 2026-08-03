@@ -14,7 +14,7 @@ on the LAST bar of the freshest fetch -- everything earlier already
 happened and would have been reported by a prior poll.
 """
 
-from dataclasses import dataclass, replace
+from dataclasses import dataclass, field, replace
 
 import pandas as pd
 
@@ -62,6 +62,8 @@ class SignalCheck:
     event: str | None  # "entry" | "exit" | None (no new signal on the latest bar)
     direction: str | None  # TradeDirection value, only set when event == "entry"
     exit_reason: str | None  # only set when event == "exit"
+    position: str = "flat"  # "long" | "short" | "flat"
+    today_events: list[dict] = field(default_factory=list)
 
 
 def fetch_symbol_bars(
@@ -74,6 +76,10 @@ def fetch_symbol_bars(
     if not report.is_valid:
         raise DataValidationError(f"Received unusable bars for '{symbol}' from the live data source.", issues=report.errors)
     return normalized
+
+
+def _trade_direction(trade) -> str:
+    return trade.direction.value if isinstance(trade.direction, TradeDirection) else trade.direction
 
 
 def event_for_bar(trades: list, bar_time) -> tuple[str | None, str | None, str | None]:
@@ -94,15 +100,69 @@ def event_for_bar(trades: list, bar_time) -> tuple[str | None, str | None, str |
 
     last_trade = trades[-1]
     if last_trade.entry_time == bar_time:
-        direction = (
-            last_trade.direction.value
-            if isinstance(last_trade.direction, TradeDirection)
-            else last_trade.direction
-        )
-        return "entry", direction, None
+        return "entry", _trade_direction(last_trade), None
     if last_trade.exit_time == bar_time and last_trade.exit_reason != _ARTIFICIAL_EXIT_REASON:
         return "exit", None, last_trade.exit_reason
     return None, None, None
+
+
+def position_for_bar(trades: list, bar_time) -> str:
+    """Return the current strategy position as of `bar_time`.
+
+    A live signal should reflect the current state, not only the latest
+    state-change event. When the strategy is still open at the end of the
+    window, the simulated trade list contains an artificial end-of-data
+    close; we treat that as the position remaining open rather than as a
+    real exit signal.
+    """
+    if not trades:
+        return "flat"
+
+    last_trade = trades[-1]
+    if last_trade.exit_time is None:
+        return _trade_direction(last_trade)
+    if last_trade.exit_time == bar_time and last_trade.exit_reason == _ARTIFICIAL_EXIT_REASON:
+        return _trade_direction(last_trade)
+    return "flat"
+
+
+def todays_events(trades: list, session_date) -> list[dict]:
+    """Every entry/exit a strategy run produced whose bar falls on
+    `session_date` (a date, not a timestamp) -- so the Live Signal tab
+    can show the whole day's signal timeline, not just whatever landed
+    on the single freshest bar. Excludes the artificial end-of-data
+    close (still-open position, not a real exit) the same way
+    event_for_bar does.
+
+    Returns entries sorted oldest-first, each a plain dict (not a Trade)
+    so it serializes directly onto the API response.
+    """
+    events: list[dict] = []
+    for trade in trades:
+        if trade.entry_time.date() == session_date:
+            events.append(
+                {
+                    "time": trade.entry_time,
+                    "event": "entry",
+                    "direction": _trade_direction(trade),
+                    "exit_reason": None,
+                }
+            )
+        if (
+            trade.exit_time is not None
+            and trade.exit_time.date() == session_date
+            and trade.exit_reason != _ARTIFICIAL_EXIT_REASON
+        ):
+            events.append(
+                {
+                    "time": trade.exit_time,
+                    "event": "exit",
+                    "direction": None,
+                    "exit_reason": trade.exit_reason,
+                }
+            )
+    events.sort(key=lambda e: e["time"])
+    return events
 
 
 def check_signal(
@@ -139,6 +199,8 @@ def check_signal(
     last_bar_time = df.index[-1]
     last_price = float(df["close"].iloc[-1])
     event, direction, exit_reason = event_for_bar(trades, last_bar_time)
+    position = position_for_bar(trades, last_bar_time)
+    today_events = todays_events(trades, last_bar_time.date())
 
     return SignalCheck(
         symbol=symbol.upper(),
@@ -149,4 +211,6 @@ def check_signal(
         event=event,
         direction=direction,
         exit_reason=exit_reason,
+        position=position,
+        today_events=today_events,
     )

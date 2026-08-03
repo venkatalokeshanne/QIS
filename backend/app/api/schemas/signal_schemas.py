@@ -21,6 +21,13 @@ class SignalCheckRequest(BaseModel):
     execution: ExecutionSettings = ExecutionSettings()
 
 
+class SignalEvent(BaseModel):
+    time: datetime
+    event: str  # "entry" | "exit"
+    direction: str | None  # only set when event == "entry"
+    exit_reason: str | None  # only set when event == "exit"
+
+
 class SignalCheckResponse(BaseModel):
     symbol: str
     interval: str
@@ -30,3 +37,5 @@ class SignalCheckResponse(BaseModel):
     event: str | None  # "entry" | "exit" | None
     direction: str | None  # only set when event == "entry"
     exit_reason: str | None  # only set when event == "exit"
+    position: str  # "long" | "short" | "flat"
+    today_events: list[SignalEvent] = []

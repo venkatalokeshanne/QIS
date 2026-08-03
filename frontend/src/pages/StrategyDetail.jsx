@@ -29,13 +29,17 @@ const BAR_METRICS = new Set(['win_rate', 'max_drawdown'])
 
 function signalBadgeTone(signal) {
   if (signal.event === 'entry') return signal.direction === 'long' ? 'positive' : 'negative'
+  if (signal.position === 'long') return 'positive'
+  if (signal.position === 'short') return 'negative'
   return 'neutral'
 }
 
 function signalBadgeText(signal) {
   if (signal.event === 'entry') return `New ${signal.direction === 'long' ? 'LONG' : 'SHORT'} entry`
   if (signal.event === 'exit') return `Exit (${signal.exit_reason || 'signal'})`
-  return 'No new signal on the latest bar'
+  if (signal.position === 'long') return 'Currently LONG'
+  if (signal.position === 'short') return 'Currently SHORT'
+  return 'Flat'
 }
 
 // Stable empty-object reference so "no override set for this strategy"
@@ -355,6 +359,42 @@ export default function StrategyDetail() {
                     </div>
                   </div>
                 )}
+
+                {query.data && query.data.today_events.length > 0 && (
+                  <div className="detail-panel" style={{ marginTop: 12 }}>
+                    <div className="detail-metric-label" style={{ marginBottom: 8 }}>
+                      Today's Signals
+                    </div>
+                    <div className="data-table-scroll">
+                      <table className="data-table">
+                        <thead>
+                          <tr>
+                            <th>Time</th>
+                            <th>Event</th>
+                            <th>Detail</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {query.data.today_events.map((e, idx) => (
+                            <tr key={idx}>
+                              <td>{formatDateTime(e.time)}</td>
+                              <td>
+                                <span
+                                  className={`signal-badge signal-badge-${
+                                    e.event === 'entry' ? (e.direction === 'long' ? 'positive' : 'negative') : 'neutral'
+                                  }`}
+                                >
+                                  {e.event === 'entry' ? `${e.direction === 'long' ? 'LONG' : 'SHORT'} entry` : 'Exit'}
+                                </span>
+                              </td>
+                              <td>{e.event === 'exit' ? e.exit_reason || 'signal' : '—'}</td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                )}
               </Card>
             )
           })}
@@ -379,10 +419,15 @@ export default function StrategyDetail() {
           )}
 
           {selectedSymbols.length > 0 && runMutation.isError && (
-            <div className="error-banner">{runMutation.error.message}</div>
+            <Card>
+              <div className="error-banner">{runMutation.error.message}</div>
+              <Button size="sm" variant="secondary" onClick={runNow} style={{ marginTop: 12 }}>
+                Retry
+              </Button>
+            </Card>
           )}
 
-          {selectedSymbols.length > 0 && result && !runMutation.isPending && (
+          {selectedSymbols.length > 0 && result && !runMutation.isPending && !runMutation.isError && (
             <>
               {tickerResults.length > 1 && (
                 <div className="chip-row" style={{ marginBottom: 16 }}>

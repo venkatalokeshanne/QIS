@@ -183,7 +183,7 @@ def test_evaluate_pair_notifies_on_new_event_and_dedupes_same_bar(engine, reposi
     watch = repository.create("AAPL", "sma_cross", {}, "5min")
     engine._pairs[("AAPL", "5min")] = lse._PairState(_historical_df())
     monkeypatch.setattr(
-        lse.LiveSignalEngine, "_run_strategy", staticmethod(lambda watch, df, bar_time: ("entry", "long", None))
+        lse.LiveSignalEngine, "_run_strategy", staticmethod(lambda watch, df, bar_time: ("entry", "long", None, []))
     )
 
     bar_ms = int(pd.Timestamp("2024-01-02 09:35:00", tz="America/New_York").timestamp() * 1000)
@@ -205,7 +205,7 @@ def test_evaluate_pair_notifies_again_on_a_new_bar(engine, repository, sent_mess
     repository.create("AAPL", "sma_cross", {}, "5min")
     engine._pairs[("AAPL", "5min")] = lse._PairState(_historical_df())
     monkeypatch.setattr(
-        lse.LiveSignalEngine, "_run_strategy", staticmethod(lambda watch, df, bar_time: ("entry", "long", None))
+        lse.LiveSignalEngine, "_run_strategy", staticmethod(lambda watch, df, bar_time: ("entry", "long", None, []))
     )
 
     first_ms = int(pd.Timestamp("2024-01-02 09:35:00", tz="America/New_York").timestamp() * 1000)
@@ -222,7 +222,7 @@ def test_evaluate_pair_no_event_does_not_notify(engine, repository, sent_message
     repository.create("AAPL", "sma_cross", {}, "5min")
     engine._pairs[("AAPL", "5min")] = lse._PairState(_historical_df())
     monkeypatch.setattr(
-        lse.LiveSignalEngine, "_run_strategy", staticmethod(lambda watch, df, bar_time: (None, None, None))
+        lse.LiveSignalEngine, "_run_strategy", staticmethod(lambda watch, df, bar_time: (None, None, None, []))
     )
 
     bar_ms = int(pd.Timestamp("2024-01-02 09:35:00", tz="America/New_York").timestamp() * 1000)
@@ -236,7 +236,7 @@ def test_evaluate_pair_skips_outside_market_hours(engine, repository, sent_messa
     repository.create("AAPL", "sma_cross", {}, "5min")
     engine._pairs[("AAPL", "5min")] = lse._PairState(_historical_df())
     monkeypatch.setattr(
-        lse.LiveSignalEngine, "_run_strategy", staticmethod(lambda watch, df, bar_time: ("entry", "long", None))
+        lse.LiveSignalEngine, "_run_strategy", staticmethod(lambda watch, df, bar_time: ("entry", "long", None, []))
     )
 
     bar_ms = int(pd.Timestamp("2024-01-02 09:35:00", tz="America/New_York").timestamp() * 1000)

@@ -84,6 +84,7 @@ def test_check_signal_reports_no_event_mid_position():
     assert result.event is None
     assert result.direction is None
     assert result.exit_reason is None
+    assert result.position == "long"
 
 
 def test_check_signal_symbol_is_uppercased():
@@ -205,3 +206,47 @@ def test_event_for_bar_neither_entry_nor_exit_on_bar_returns_no_event():
     trades = [_trade(entry_time=pd.Timestamp("2024-01-02 10:00"), exit_time=pd.Timestamp("2024-01-02 10:30"))]
 
     assert signal_service.event_for_bar(trades, pd.Timestamp("2024-01-02 11:00")) == (None, None, None)
+
+
+# --- todays_events -- full-day signal timeline for the Live Signal tab --
+
+
+def test_todays_events_includes_entries_and_exits_on_the_session_date():
+    trades = [
+        _trade(
+            entry_time=pd.Timestamp("2024-01-02 10:00"),
+            exit_time=pd.Timestamp("2024-01-02 10:30"),
+            direction=TradeDirection.LONG,
+            exit_reason="signal_exit",
+        ),
+        _trade(entry_time=pd.Timestamp("2024-01-02 11:20"), direction=TradeDirection.SHORT),
+    ]
+
+    events = signal_service.todays_events(trades, pd.Timestamp("2024-01-02").date())
+
+    assert events == [
+        {"time": pd.Timestamp("2024-01-02 10:00"), "event": "entry", "direction": "long", "exit_reason": None},
+        {"time": pd.Timestamp("2024-01-02 10:30"), "event": "exit", "direction": None, "exit_reason": "signal_exit"},
+        {"time": pd.Timestamp("2024-01-02 11:20"), "event": "entry", "direction": "short", "exit_reason": None},
+    ]
+
+
+def test_todays_events_excludes_other_days_and_artificial_exit():
+    trades = [
+        _trade(
+            entry_time=pd.Timestamp("2024-01-01 10:00"),
+            exit_time=pd.Timestamp("2024-01-01 10:30"),
+            exit_reason="signal_exit",
+        ),
+        _trade(entry_time=pd.Timestamp("2024-01-02 10:00"), exit_time=pd.Timestamp("2024-01-02 10:30"), exit_reason="end_of_data"),
+    ]
+
+    events = signal_service.todays_events(trades, pd.Timestamp("2024-01-02").date())
+
+    assert events == [
+        {"time": pd.Timestamp("2024-01-02 10:00"), "event": "entry", "direction": "long", "exit_reason": None},
+    ]
+
+
+def test_todays_events_empty_when_no_trades():
+    assert signal_service.todays_events([], pd.Timestamp("2024-01-02").date()) == []
