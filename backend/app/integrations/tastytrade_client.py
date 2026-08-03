@@ -249,7 +249,10 @@ def fetch_historical_bars(
     periodicity = periodicity_for_interval(interval)  # validate before opening a connection
 
     if start_date:
-        from_time_ms = int(pd.Timestamp(start_date).timestamp() * 1000)
+        start_dt = pd.Timestamp(start_date)
+        if start_dt.tzinfo is None:
+            start_dt = start_dt.tz_localize("America/New_York")
+        from_time_ms = int(start_dt.tz_convert("UTC").timestamp() * 1000)
     else:
         from_time_ms = _from_time_ms_for_outputsize(interval, outputsize)
 
@@ -275,7 +278,11 @@ def fetch_historical_bars(
     df = df[["date", "open", "high", "low", "close", "volume"]].sort_values("date").reset_index(drop=True)
 
     if end_date:
-        df = df[df["date"] <= pd.Timestamp(end_date)].reset_index(drop=True)
+        end_dt = pd.Timestamp(end_date)
+        if end_dt.tzinfo is None:
+            end_dt = end_dt.tz_localize("America/New_York")
+        end_dt = end_dt.tz_convert(None) + pd.Timedelta(days=1) - pd.Timedelta(seconds=1)
+        df = df[df["date"] <= end_dt].reset_index(drop=True)
 
     # A quiet-period/timeout exit (rather than the outputsize early-exit)
     # can overshoot since a single batched message can carry more than

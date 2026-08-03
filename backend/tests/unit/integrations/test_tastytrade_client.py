@@ -239,6 +239,24 @@ def test_fetch_historical_bars_raises_when_no_candles_come_back(monkeypatch):
         tt.fetch_historical_bars("AAPL")
 
 
+def test_fetch_historical_bars_keeps_same_day_bars_for_date_only_end_date(monkeypatch):
+    candles = [
+        _fake_candle(int(pd.Timestamp("2026-08-03 04:05:00", tz="UTC").timestamp() * 1000), 1.0),
+        _fake_candle(int(pd.Timestamp("2026-08-03 23:55:00", tz="UTC").timestamp() * 1000), 2.0),
+    ]
+
+    async def fake_collect(symbol, periodicity, outputsize, from_time_ms):
+        return candles
+
+    monkeypatch.setattr(tt, "_collect_candles", fake_collect)
+
+    df = tt.fetch_historical_bars("AAPL", interval="5min", outputsize=10, start_date="2026-08-03", end_date="2026-08-03")
+
+    assert len(df) == 2
+    assert df["date"].dt.date.iloc[0] == pd.Timestamp("2026-08-03").date()
+    assert df["date"].dt.date.iloc[-1] == pd.Timestamp("2026-08-03").date()
+
+
 def test_fetch_historical_bars_wraps_unexpected_errors(monkeypatch):
     async def fake_collect(symbol, periodicity, outputsize, from_time_ms):
         raise RuntimeError("socket exploded")
