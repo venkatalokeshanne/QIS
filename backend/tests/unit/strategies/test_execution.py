@@ -544,3 +544,67 @@ def test_stop_loss_pct_must_be_positive():
 
     with pytest.raises(ValueError):
         simulate_trades(df, entries, exits, ExecutionConfig(stop_loss_pct=0))
+
+def test_max_position_value_pct_caps_fixed_quantity():
+    df = _bars([100, 101])
+    entries = pd.Series([TradeDirection.LONG, None], index=df.index)
+    exits = pd.Series([False, True], index=df.index)
+
+    trades = simulate_trades(
+        df,
+        entries,
+        exits,
+        ExecutionConfig(
+            capital=1_000, quantity=10, max_position_value_pct=0.5, force_close_at_session_end=False
+        ),
+    )
+    # Cap: 1000 * 0.5 / 100 = 5 shares, below the configured quantity of 10.
+    assert trades[0].quantity == 5
+
+
+def test_max_position_value_pct_caps_risk_based_sizing():
+    # Flat bars so neither the 1% stop nor anything else fires intrabar.
+    df = _ohlc([(100, 100, 100, 100), (100, 100, 100, 100)])
+    entries = pd.Series([TradeDirection.LONG, None], index=df.index)
+    exits = pd.Series([False, True], index=df.index)
+
+    trades = simulate_trades(
+        df,
+        entries,
+        exits,
+        ExecutionConfig(
+            capital=100_000,
+            risk_per_trade_pct=0.02,
+            stop_loss_pct=0.01,
+            max_position_value_pct=1.0,
+            force_close_at_session_end=False,
+        ),
+    )
+    # Risk sizing alone: (100000 * 0.02) / (100 * 0.01) = 2000 shares =
+    # a $200k position on $100k capital. The cap holds it to 1000 shares.
+    assert trades[0].quantity == 1000
+
+
+def test_max_position_value_pct_leaves_smaller_positions_alone():
+    df = _bars([100, 101])
+    entries = pd.Series([TradeDirection.LONG, None], index=df.index)
+    exits = pd.Series([False, True], index=df.index)
+
+    trades = simulate_trades(
+        df,
+        entries,
+        exits,
+        ExecutionConfig(
+            capital=1_000_000, quantity=10, max_position_value_pct=1.0, force_close_at_session_end=False
+        ),
+    )
+    assert trades[0].quantity == 10
+
+
+def test_max_position_value_pct_must_be_positive():
+    df = _bars([100, 101])
+    entries = pd.Series([None, None], index=df.index)
+    exits = pd.Series([False, False], index=df.index)
+
+    with pytest.raises(ValueError):
+        simulate_trades(df, entries, exits, ExecutionConfig(max_position_value_pct=0))

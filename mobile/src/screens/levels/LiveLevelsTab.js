@@ -1,5 +1,6 @@
 import { useState } from 'react'
-import { View, Text, TextInput, ScrollView, StyleSheet } from 'react-native'
+import { View, Text, TextInput, ScrollView, Pressable, StyleSheet } from 'react-native'
+import { Ionicons } from '@expo/vector-icons'
 import Card from '../../components/Card'
 import Button from '../../components/Button'
 import MetricValue from '../../components/MetricValue'
@@ -8,11 +9,18 @@ import { formatDateTime } from '../../utils/format'
 import LevelRow from './LevelRow'
 import { colors, fonts, radii, spacing } from '../../styles/tokens'
 
+const SIGNAL_META = {
+  buy: { label: 'BUY', color: colors.positive, wash: colors.positiveWash },
+  sell: { label: 'SELL', color: colors.negative, wash: colors.negativeWash },
+  neutral: { label: 'NEUTRAL', color: colors.textSecondary, wash: colors.bgPanelRaised },
+}
+
 // Ported from LiveLevelsTab in frontend/src/pages/DailyLevels.jsx --
 // each level-type group stays its own Card (already card-stacked on
 // web too), just laid out in a single column instead of a wide grid.
 export default function LiveLevelsTab() {
   const [symbolInput, setSymbolInput] = useState('')
+  const [reasonsOpen, setReasonsOpen] = useState(false)
   const levelsMutation = useDailyLevels()
   const levels = levelsMutation.data
 
@@ -61,6 +69,39 @@ export default function LiveLevelsTab() {
                 </Text>
               </View>
             </View>
+          </Card>
+
+          <Card style={styles.spacedCard}>
+            <Pressable style={styles.signalRow} onPress={() => setReasonsOpen((open) => !open)}>
+              <View style={[styles.signalBadge, { backgroundColor: SIGNAL_META[levels.signal].wash }]}>
+                <Text style={[styles.signalBadgeText, { color: SIGNAL_META[levels.signal].color }]}>
+                  {SIGNAL_META[levels.signal].label}
+                </Text>
+              </View>
+              <Text style={styles.signalHint}>Why?</Text>
+              <Ionicons
+                name={reasonsOpen ? 'chevron-up' : 'information-circle-outline'}
+                size={18}
+                color={colors.textSecondary}
+              />
+            </Pressable>
+            {reasonsOpen && (
+              <View style={styles.reasonsList}>
+                {levels.signal_reasons.length === 0 ? (
+                  <Text style={styles.reasonItem}>Nothing lines up strongly enough for a directional read right now.</Text>
+                ) : (
+                  levels.signal_reasons.map((reason, i) => (
+                    <Text key={i} style={styles.reasonItem}>
+                      • {reason}
+                    </Text>
+                  ))
+                )}
+                <Text style={styles.signalCaveat}>
+                  A confluence heuristic across today's levels -- not a guaranteed prediction. Always confirm with
+                  price action before acting.
+                </Text>
+              </View>
+            )}
           </Card>
 
           <Card style={styles.spacedCard}>
@@ -219,5 +260,46 @@ const styles = StyleSheet.create({
     textTransform: 'uppercase',
     letterSpacing: 0.4,
     marginBottom: spacing[2],
+  },
+  signalRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing[3],
+  },
+  signalBadge: {
+    paddingVertical: 6,
+    paddingHorizontal: spacing[3],
+    borderRadius: radii.sm,
+  },
+  signalBadgeText: {
+    fontFamily: fonts.uiSemiBold,
+    fontSize: 13,
+    letterSpacing: 0.5,
+  },
+  signalHint: {
+    flex: 1,
+    fontFamily: fonts.ui,
+    fontSize: 12,
+    color: colors.textSecondary,
+  },
+  reasonsList: {
+    marginTop: spacing[3],
+    paddingTop: spacing[3],
+    borderTopWidth: 1,
+    borderTopColor: colors.borderHairline,
+  },
+  reasonItem: {
+    fontFamily: fonts.ui,
+    fontSize: 13,
+    color: colors.textPrimary,
+    marginBottom: spacing[2],
+    lineHeight: 19,
+  },
+  signalCaveat: {
+    fontFamily: fonts.ui,
+    fontSize: 11,
+    color: colors.textTertiary,
+    marginTop: spacing[1],
+    fontStyle: 'italic',
   },
 })

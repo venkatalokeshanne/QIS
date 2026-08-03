@@ -47,8 +47,9 @@
   position: absolute;
   top: calc(100% + 10px);
   right: 0;
-  width: 280px;
-  max-height: min(400px, calc(100vh - var(--topbar-height) - 32px));
+  width: 300px;
+  max-height: min(480px, calc(100vh - var(--topbar-height) - 32px));
+  overflow-y: auto;
   background: var(--bg-panel-raised);
   border: 1px solid var(--border-hairline-strong);
   border-radius: var(--radius-lg);
@@ -60,6 +61,10 @@
 }
 
 .ticker-select-search {
+  margin-bottom: var(--space-3);
+}
+
+.ticker-select-interval-row {
   margin-bottom: var(--space-2);
 }
 
@@ -79,49 +84,59 @@
   text-decoration: underline;
 }
 
-.ticker-select-list {
-  overflow-y: auto;
+.ticker-select-symbol-row {
+  margin-bottom: var(--space-3);
+}
+
+.ticker-select-date-row {
   display: flex;
-  flex-direction: column;
-  gap: 1px;
+  gap: var(--space-2);
+  margin-bottom: var(--space-2);
+}
+
+.ticker-select-date-row .field-input {
+  min-width: 0;
+  flex: 1 1 0;
 }
 
 .ticker-select-empty {
-  padding: var(--space-4) var(--space-2);
+  padding: var(--space-2);
   color: var(--text-tertiary);
   font-size: 13px;
-  text-align: center;
 }
 
-.ticker-select-item {
-  display: flex;
+.ticker-select-symbol-chip {
+  display: inline-flex;
   align-items: center;
   gap: var(--space-2);
-  padding: 8px;
+  padding: 4px 6px 4px 10px;
   border-radius: var(--radius-sm);
-  cursor: pointer;
-  transition: background 0.1s ease;
-}
-
-.ticker-select-item:hover {
-  background: var(--bg-hover);
-}
-
-.ticker-select-item-name {
-  flex: 1 1 auto;
-  min-width: 0;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  background: var(--bg-panel-raised);
+  border: 1px solid var(--border-hairline-strong);
   font-size: 13px;
   font-weight: 600;
   color: var(--text-primary);
+  white-space: nowrap;
 }
 
-.ticker-select-item-rows {
-  flex-shrink: 0;
-  font-size: 11px;
+.ticker-select-symbol-remove {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  border: none;
+  background: none;
   color: var(--text-tertiary);
+  cursor: pointer;
+  font-size: 14px;
+  line-height: 1;
+  border-radius: 4px;
+}
+
+.ticker-select-symbol-remove:hover {
+  color: var(--negative);
+  background: var(--negative-wash);
 }
 
 @media (max-width: 900px) {

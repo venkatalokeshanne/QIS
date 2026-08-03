@@ -8,7 +8,7 @@ import { persist } from 'zustand/middleware'
 // already there, and lets Compare read the same last-run results
 // Results is showing, with no prop drilling or re-fetching.
 //
-// The "configuration" fields (selectedDatasetIds, selectedStrategyNames,
+// The "configuration" fields (selectedSymbols, selectedStrategyNames,
 // executionSettings) are also persisted to localStorage via the
 // `persist` middleware below, so picking tickers or tuning risk settings
 // survives a page refresh -- only those fields are persisted
@@ -19,23 +19,40 @@ import { persist } from 'zustand/middleware'
 export const useResearchStore = create(
   persist(
     (set) => ({
-      // Multiple tickers/datasets can be selected at once (see
-      // TickerMultiSelect) -- every page that used to read a single
-      // selectedDatasetId now runs against each id in this array.
-      selectedDatasetIds: [],
-      setSelectedDatasetIds: (ids) => set({ selectedDatasetIds: ids }),
-      toggleDatasetId: (id) =>
+      // Multiple tickers can be selected at once (see TickerSelect) --
+      // every page that used to read a single selectedDatasetId now
+      // runs against each symbol in this array. No fetch happens on
+      // selection -- backtesting/Live Signal fetch bars live, on demand.
+      selectedSymbols: [],
+      setSelectedSymbols: (symbols) => set({ selectedSymbols: symbols }),
+      toggleSymbol: (symbol) =>
         set((state) => ({
-          selectedDatasetIds: state.selectedDatasetIds.includes(id)
-            ? state.selectedDatasetIds.filter((x) => x !== id)
-            : [...state.selectedDatasetIds, id],
+          selectedSymbols: state.selectedSymbols.includes(symbol)
+            ? state.selectedSymbols.filter((x) => x !== symbol)
+            : [...state.selectedSymbols, symbol],
         })),
-      addSelectedDatasetId: (id) =>
+      addSelectedSymbol: (symbol) =>
         set((state) => ({
-          selectedDatasetIds: state.selectedDatasetIds.includes(id)
-            ? state.selectedDatasetIds
-            : [...state.selectedDatasetIds, id],
+          selectedSymbols: state.selectedSymbols.includes(symbol)
+            ? state.selectedSymbols
+            : [...state.selectedSymbols, symbol],
         })),
+
+      // One global timeframe for the whole session (see TickerSelect) --
+      // used both for backtesting (what interval to fetch bars at) and
+      // by Live Signal (what interval to live-check every selected
+      // ticker at), rather than each ticker carrying its own.
+      selectedInterval: '5min',
+      setSelectedInterval: (interval) => set({ selectedInterval: interval }),
+
+      // Optional override for the backtest fetch window -- "used only
+      // when needed" (see RunBacktests' collapsed Custom date range
+      // section); left null, the backend's own default-lookback
+      // heuristic applies.
+      backtestStartDate: null,
+      backtestEndDate: null,
+      setBacktestStartDate: (date) => set({ backtestStartDate: date }),
+      setBacktestEndDate: (date) => set({ backtestEndDate: date }),
 
       selectedStrategyNames: [], // empty array = "run all" semantics on the Backtest page
       setSelectedStrategyNames: (names) => set({ selectedStrategyNames: names }),
@@ -86,26 +103,30 @@ export const useResearchStore = create(
         take_profit_atr_multiple: 4, // 2:1 reward:risk relative to the stop
         trailing_stop_atr_multiple: null, // mutually exclusive with stop_loss_atr_multiple; off by default
         risk_per_trade_pct: 0.01, // 1% of capital per trade
+        max_position_value_pct: null, // cap position value at capital * this (1 = no leverage); off by default
       },
       setExecutionSettings: (settings) =>
         set((state) => ({ executionSettings: { ...state.executionSettings, ...settings } })),
 
-      lastRunResults: null, // { dataset_results: [{ dataset_id, dataset_name, results: [...] }] }
+      lastRunResults: null, // { ticker_results: [{ symbol, results: [...] }] }
       setLastRunResults: (results) => set({ lastRunResults: results }),
 
       // Compare (see Compare.jsx) is scoped to one ticker at a time --
-      // comparing strategies only makes sense within the same dataset,
-      // so the selection carries which dataset_id it belongs to and
-      // resets itself if the Results page's compare click comes from a
+      // comparing strategies only makes sense within the same symbol,
+      // so the selection carries which symbol it belongs to and resets
+      // itself if the Results page's compare click comes from a
       // different ticker's table.
-      compareDatasetId: null,
+      compareSymbol: null,
       compareSelection: [], // strategy_name[] chosen on the Results page for the Compare page
-      setCompareSelection: (datasetId, names) => set({ compareDatasetId: datasetId, compareSelection: names }),
+      setCompareSelection: (symbol, names) => set({ compareSymbol: symbol, compareSelection: names }),
     }),
     {
       name: 'quant-platform-research-store',
       partialize: (state) => ({
-        selectedDatasetIds: state.selectedDatasetIds,
+        selectedSymbols: state.selectedSymbols,
+        selectedInterval: state.selectedInterval,
+        backtestStartDate: state.backtestStartDate,
+        backtestEndDate: state.backtestEndDate,
         selectedStrategyNames: state.selectedStrategyNames,
         executionSettings: state.executionSettings,
         strategyParamOverrides: state.strategyParamOverrides,

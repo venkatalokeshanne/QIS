@@ -15,8 +15,6 @@ services:
         value: 3.11.9
       # sync: false -- Render will prompt for these in its dashboard
       # rather than trying to generate them; see DEPLOY.md.
-      - key: TWELVEDATA_API_KEY
-        sync: false
       - key: TASTYTRADE_CLIENT_ID
         sync: false
       - key: TASTYTRADE_CLIENT_SECRET

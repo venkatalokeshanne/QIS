@@ -1,7 +1,7 @@
 import { useMemo, useState } from 'react'
 import { NavLink, useNavigate, useParams } from 'react-router-dom'
 import CategoryIcon from './CategoryIcon'
-import TickerMultiSelect from './TickerMultiSelect'
+import TickerSelect from './TickerSelect'
 import { useStrategies } from '../api/hooks'
 import { NAV_ITEMS } from '../nav-items'
 import './StrategySidebar.css'
@@ -45,7 +45,7 @@ export default function StrategySidebar({ mobileOpen }) {
           ticker picker lives in the header instead (see Header.jsx). */}
       <div className="strategy-sidebar-mobile-dataset">
         <span className="field-label">Tickers</span>
-        <TickerMultiSelect />
+        <TickerSelect />
       </div>
 
       <div className="strategy-sidebar-search">

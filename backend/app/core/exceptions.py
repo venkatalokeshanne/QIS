@@ -12,19 +12,11 @@ class AppError(Exception):
 
 
 class NotFoundError(AppError):
-    """A requested resource (dataset, strategy, indicator...) doesn't exist."""
+    """A requested resource (watch, strategy, indicator...) doesn't exist."""
 
 
 class DataValidationError(AppError):
-    """Uploaded data failed validation. Carries a list of human-readable issues."""
-
-    def __init__(self, message: str, issues: list[str] | None = None):
-        super().__init__(message)
-        self.issues = issues or []
-
-
-class TwelveDataError(AppError):
-    """Could not connect to, or fetch data from, the Twelve Data API."""
+    """Fetched/uploaded data failed validation. Carries a list of human-readable issues."""
 
     def __init__(self, message: str, issues: list[str] | None = None):
         super().__init__(message)

@@ -1,7 +1,7 @@
 """
 Tests for app.indicators.auto_support_resistance.
 
-Covers two things found while reviewing the indicator for intraday
+Covers three things found while reviewing the indicator for intraday
 accuracy:
 
 1. A real bug (fixed): swing highs and swing lows were concatenated
@@ -15,6 +15,14 @@ accuracy:
    ranking clusters by how many DISTINCT SESSIONS touched them, not
    raw touch count, and requiring a minimum of `min_touches` distinct
    sessions before a level qualifies at all.
+
+3. A more serious architectural bug (fixed): levels used to be computed
+   ONCE globally over the whole input df, so every historical bar in a
+   would-be strategy backtest would be evaluated against levels only
+   knowable using the entire rest of the dataset. Now computed per
+   session using only swings both dated AND confirmed strictly before
+   that session starts, broadcast across that session's own bars --
+   matching how every other levels indicator here already behaves.
 """
 
 import numpy as np
@@ -106,3 +114,54 @@ def test_calculate_does_not_mutate_input(random_walk_df):
     original_columns = list(random_walk_df.columns)
     AutoSupportResistance().calculate(random_walk_df, {})
     assert list(random_walk_df.columns) == original_columns
+
+
+def test_levels_vary_across_sessions_not_globally_constant(random_walk_df):
+    """
+    Regression guard for the "computed once globally" bug: with a
+    price series that trends a long way over 2000 bars, the levels
+    relevant to an early session should differ from the levels
+    relevant to a late session -- if they're identical throughout,
+    the per-session recompute silently regressed back to a single
+    global calculation.
+    """
+    out = AutoSupportResistance().calculate(random_walk_df, {})
+    session_date = pd.Series(random_walk_df.index.date, index=random_walk_df.index)
+    unique_days = session_date.unique()
+
+    early_day_mask = session_date == unique_days[len(unique_days) // 4]
+    late_day_mask = session_date == unique_days[-1]
+
+    early_levels = out.loc[early_day_mask, "auto_sr_level_1"].iloc[0]
+    late_levels = out.loc[late_day_mask, "auto_sr_level_1"].iloc[0]
+
+    assert early_levels != late_levels, "levels are identical early vs late -- looks globally constant, not per-session"
+
+
+def test_a_sessions_levels_are_unaffected_by_bars_that_come_after_it(random_walk_df):
+    """
+    The core no-lookahead property: a given session's own levels must
+    be reproducible using ONLY the data available up through that
+    session -- appending more bars afterward (as a live feed would)
+    must not change what was already computed for an earlier session.
+    """
+    full = AutoSupportResistance().calculate(random_walk_df, {})
+    session_date = pd.Series(random_walk_df.index.date, index=random_walk_df.index)
+    unique_days = sorted(session_date.unique())
+    cutoff_day = unique_days[len(unique_days) // 2]
+
+    truncated_df = random_walk_df.loc[session_date <= cutoff_day]
+    truncated = AutoSupportResistance().calculate(truncated_df, {})
+
+    cutoff_mask_full = session_date == cutoff_day
+    cutoff_mask_truncated = pd.Series(truncated_df.index.date, index=truncated_df.index) == cutoff_day
+
+    for i in range(1, 6):
+        full_value = full.loc[cutoff_mask_full, f"auto_sr_level_{i}"].iloc[0]
+        truncated_value = truncated.loc[cutoff_mask_truncated, f"auto_sr_level_{i}"].iloc[0]
+        if pd.isna(full_value):
+            assert pd.isna(truncated_value)
+        else:
+            assert full_value == truncated_value, (
+                f"auto_sr_level_{i} for the cutoff session changed after appending later bars -- lookahead regressed"
+            )

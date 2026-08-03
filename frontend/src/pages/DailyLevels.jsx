@@ -1,9 +1,11 @@
-import { Fragment, useState } from 'react'
+import { Fragment, useEffect, useState } from 'react'
 import PageHeader from '../components/PageHeader'
 import Card from '../components/Card'
 import Button from '../components/Button'
+import EmptyState from '../components/EmptyState'
 import MetricValue from '../components/MetricValue'
 import { useDailyLevels, useLevelsBacktest, useLevelsDayReports } from '../api/hooks'
+import { useResearchStore } from '../store/useResearchStore'
 import { formatDate, formatDateTime } from '../utils/format'
 import './DailyLevels.css'
 
@@ -353,43 +355,73 @@ function HitRateTable({ title, rows }) {
   )
 }
 
+function TickerSwitcher({ symbols, focusedSymbol, onSelect }) {
+  if (symbols.length === 0) return null
+  return (
+    <div className="chip-row" style={{ marginBottom: 16 }}>
+      {symbols.map((s) => (
+        <button
+          key={s}
+          type="button"
+          className={`chip${focusedSymbol === s ? ' active' : ''}`}
+          onClick={() => onSelect(s)}
+        >
+          {s}
+        </button>
+      ))}
+    </div>
+  )
+}
+
 function LiveLevelsTab() {
-  const [symbolInput, setSymbolInput] = useState('')
+  const selectedSymbols = useResearchStore((s) => s.selectedSymbols)
+  const [focusedSymbol, setFocusedSymbol] = useState(null)
   const levelsMutation = useDailyLevels()
   const levels = levelsMutation.data
 
-  const handleSubmit = (e) => {
-    e.preventDefault()
-    const symbol = symbolInput.trim().toUpperCase()
-    if (!symbol) return
-    levelsMutation.mutate(symbol)
-  }
+  useEffect(() => {
+    if (selectedSymbols.length === 0) return
+    if (!selectedSymbols.includes(focusedSymbol)) {
+      setFocusedSymbol(selectedSymbols[0])
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedSymbols])
+
+  useEffect(() => {
+    if (!focusedSymbol) return
+    levelsMutation.mutate(focusedSymbol)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [focusedSymbol])
 
   const srBelow = levels ? levels.auto_support_resistance.filter((v) => v < levels.current_price).reverse() : []
   const srAbove = levels ? levels.auto_support_resistance.filter((v) => v >= levels.current_price) : []
 
+  if (selectedSymbols.length === 0) {
+    return (
+      <Card>
+        <EmptyState
+          title="Select ticker(s)"
+          body="Choose one or more tickers from the header above to see their key levels."
+        />
+      </Card>
+    )
+  }
+
   return (
     <>
-      <Card>
-        <form className="levels-search-row" onSubmit={handleSubmit}>
-          <input
-            className="field-input mono"
-            placeholder="Symbol (e.g. AAPL)"
-            value={symbolInput}
-            onChange={(e) => setSymbolInput(e.target.value)}
-            autoFocus
-          />
-          <Button type="submit" variant="primary" disabled={levelsMutation.isPending || !symbolInput.trim()}>
-            {levelsMutation.isPending ? 'Loading…' : 'Get Levels'}
-          </Button>
-        </form>
+      <TickerSwitcher symbols={selectedSymbols} focusedSymbol={focusedSymbol} onSelect={setFocusedSymbol} />
 
-        {levelsMutation.isError && (
-          <div className="error-banner" style={{ marginTop: 16 }}>
-            {levelsMutation.error.message}
-          </div>
-        )}
-      </Card>
+      {levelsMutation.isPending && (
+        <Card>
+          <div className="loading-text">Loading {focusedSymbol}…</div>
+        </Card>
+      )}
+
+      {levelsMutation.isError && (
+        <div className="error-banner" style={{ marginBottom: 16 }}>
+          {levelsMutation.error.message}
+        </div>
+      )}
 
       {levels && (
         <>
@@ -493,38 +525,50 @@ function LiveLevelsTab() {
 }
 
 function BacktestLevelsTab() {
-  const [symbolInput, setSymbolInput] = useState('')
-  const symbol = symbolInput.trim().toUpperCase()
+  const selectedSymbols = useResearchStore((s) => s.selectedSymbols)
+  const [focusedSymbol, setFocusedSymbol] = useState(null)
   const backtestMutation = useLevelsBacktest()
   const report = backtestMutation.data
 
-  const handleSubmit = (e) => {
-    e.preventDefault()
-    if (!symbol) return
-    backtestMutation.mutate(symbol)
+  useEffect(() => {
+    if (selectedSymbols.length === 0) return
+    if (!selectedSymbols.includes(focusedSymbol)) {
+      setFocusedSymbol(selectedSymbols[0])
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedSymbols])
+
+  useEffect(() => {
+    if (!focusedSymbol) return
+    backtestMutation.mutate(focusedSymbol)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [focusedSymbol])
+
+  const symbol = focusedSymbol
+
+  if (selectedSymbols.length === 0) {
+    return (
+      <Card>
+        <EmptyState
+          title="Select ticker(s)"
+          body="Choose one or more tickers from the header above to backtest their key levels."
+        />
+      </Card>
+    )
   }
 
   return (
     <>
+      <TickerSwitcher symbols={selectedSymbols} focusedSymbol={focusedSymbol} onSelect={setFocusedSymbol} />
+
       <Card>
-        <form className="levels-search-row" onSubmit={handleSubmit}>
-          <input
-            className="field-input mono"
-            placeholder="Symbol (e.g. AAPL)"
-            value={symbolInput}
-            onChange={(e) => setSymbolInput(e.target.value)}
-            autoFocus
-          />
-          <Button type="submit" variant="primary" disabled={!symbol || backtestMutation.isPending}>
-            {backtestMutation.isPending ? 'Running…' : 'Run Backtest'}
-          </Button>
-        </form>
-        <p className="field-hint" style={{ marginTop: 12 }}>
+        <p className="field-hint">
           Fetches the freshest available bars for this symbol live (same path as the Live tab). Every level is
           computed from data known strictly BEFORE the session it applies to (prior-session pivots, trailing ADR) —
           so there's no lookahead. This measures how often price actually respected or broke each level across every
           session fetched.
         </p>
+        {backtestMutation.isPending && <div className="loading-text" style={{ marginTop: 12 }}>Running {symbol}…</div>}
         {backtestMutation.isError && (
           <div className="error-banner" style={{ marginTop: 16 }}>
             {backtestMutation.error.message}

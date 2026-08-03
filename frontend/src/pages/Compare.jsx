@@ -11,13 +11,13 @@ import './Compare.css'
 export default function Compare() {
   const navigate = useNavigate()
   const lastRunResults = useResearchStore((s) => s.lastRunResults)
-  const compareDatasetId = useResearchStore((s) => s.compareDatasetId)
+  const compareSymbol = useResearchStore((s) => s.compareSymbol)
   const compareSelection = useResearchStore((s) => s.compareSelection)
   const { data: metricDefs } = useMetricDefinitions()
 
-  const datasetResult = lastRunResults?.dataset_results.find((d) => d.dataset_id === compareDatasetId)
+  const tickerResult = lastRunResults?.ticker_results.find((t) => t.symbol === compareSymbol)
 
-  if (!datasetResult || compareSelection.length === 0) {
+  if (!tickerResult || compareSelection.length === 0) {
     return (
       <div>
         <PageHeader title="Compare Strategies" subtitle="Select strategies on the Results page to compare them side by side." />
@@ -36,7 +36,7 @@ export default function Compare() {
     )
   }
 
-  const selected = datasetResult.results.filter((r) => compareSelection.includes(r.strategy_name))
+  const selected = tickerResult.results.filter((r) => compareSelection.includes(r.strategy_name))
 
   const bestForMetric = (metricName, higherIsBetter) => {
     const values = selected.map((r) => r.metrics[metricName]).filter((v) => v !== null && v !== undefined)
@@ -50,7 +50,7 @@ export default function Compare() {
     <div>
       <PageHeader
         title="Compare Strategies"
-        subtitle={`Comparing ${selected.length} strategies on ${datasetResult.dataset_name}. The best value in each row is highlighted.`}
+        subtitle={`Comparing ${selected.length} strategies on ${tickerResult.symbol}. The best value in each row is highlighted.`}
       />
 
       <Card tight>

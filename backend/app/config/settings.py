@@ -27,14 +27,11 @@ class Settings(BaseSettings):
 
     data_dir: Path = Path("./data")
     db_path: Path = Path("./data/app.db")
-    dataset_storage_dir: Path = Path("./data/datasets")
 
     # Set (e.g. in production, to a free-tier hosted Postgres) to switch
-    # DatasetRepository from local SQLite + local CSV files to Postgres
-    # with the CSV content stored as a column -- no local disk writes at
-    # all, so data survives hosts with ephemeral filesystems (e.g.
-    # Render's free tier). Unset (the default) keeps the original
-    # SQLite + local CSV behavior everywhere else, including all tests.
+    # WatchRepository from local SQLite to Postgres -- so watches survive
+    # hosts with ephemeral filesystems (e.g. Render's free tier). Unset
+    # (the default) keeps local SQLite everywhere else, including tests.
     database_url: str = ""
 
     # Plain string, not list[str]: pydantic-settings tries to JSON-decode
@@ -54,16 +51,11 @@ class Settings(BaseSettings):
             return json.loads(value)
         return [origin.strip() for origin in value.split(",") if origin.strip()]
 
-    # Twelve Data (twelvedata.com), used only for pulling historical bars
-    # into a dataset -- not for streaming or order placement.
-    # Set TWELVEDATA_API_KEY in backend/.env (never commit the real key).
-    twelvedata_api_key: str = ""
-    twelvedata_base_url: str = "https://api.twelvedata.com"
-
-    # Tastytrade (tastytrade.com), used only for live quote streaming via
-    # DXLink -- not for account data or order placement. OAuth2 app
-    # credentials from Tastytrade's developer portal; set all three in
-    # backend/.env (never commit the real values).
+    # Tastytrade (tastytrade.com) -- the only market-data source in this
+    # app now (live quotes/signals and historical bars for backtesting,
+    # both via DXLink); not used for account data or order placement.
+    # OAuth2 app credentials from Tastytrade's developer portal; set all
+    # three in backend/.env (never commit the real values).
     tastytrade_client_id: str = ""
     tastytrade_client_secret: str = ""
     tastytrade_refresh_token: str = ""
@@ -71,7 +63,6 @@ class Settings(BaseSettings):
 
     def ensure_dirs(self) -> None:
         self.data_dir.mkdir(parents=True, exist_ok=True)
-        self.dataset_storage_dir.mkdir(parents=True, exist_ok=True)
 
 
 settings = Settings()

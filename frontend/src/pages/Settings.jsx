@@ -177,6 +177,30 @@ export default function Settings() {
           />
           <span className="field-hint">Requires a Stop Loss or Trailing Stop to be set.</span>
         </div>
+
+        <div className="field-group">
+          <label className="field-label">Max position value (% of capital)</label>
+          <input
+            type="number"
+            step="1"
+            className="field-input"
+            placeholder="Disabled"
+            value={
+              executionSettings.max_position_value_pct !== null &&
+              executionSettings.max_position_value_pct !== undefined
+                ? executionSettings.max_position_value_pct * 100
+                : ''
+            }
+            onChange={(e) => {
+              const n = toNullableNumber(e.target.value)
+              setExecutionSettings({ max_position_value_pct: n === null ? null : n / 100 })
+            }}
+          />
+          <span className="field-hint">
+            Caps shares so position value never exceeds this % of capital. 100 = full capital, no
+            leverage. Blank = uncapped.
+          </span>
+        </div>
       </Card>
     </div>
   )

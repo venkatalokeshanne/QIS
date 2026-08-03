@@ -45,6 +45,11 @@ class ExecutionConfig:
     take_profit_atr_multiple: float | None = None
     trailing_stop_atr_multiple: float | None = None  # if set, takes precedence over stop_loss_atr_multiple/stop_loss_pct
     risk_per_trade_pct: float | None = None  # requires a stop (atr_multiple, pct, or trailing) to be set
+    # Cap quantity so entry position value never exceeds capital * this
+    # (1.0 = full capital, i.e. no leverage). Applied to BOTH fixed and
+    # risk-based sizing — risk sizing on a tight stop can otherwise
+    # imply a position worth many times the account.
+    max_position_value_pct: float | None = None
 
     # Priority when multiple stop mechanisms are configured at once:
     # trailing_stop_atr_multiple > stop_loss_pct > stop_loss_atr_multiple.
@@ -73,6 +78,8 @@ def _validate_config(config: ExecutionConfig) -> None:
         )
     if config.stop_loss_pct is not None and config.stop_loss_pct <= 0:
         raise ValueError(f"stop_loss_pct must be > 0 (got {config.stop_loss_pct!r}).")
+    if config.max_position_value_pct is not None and config.max_position_value_pct <= 0:
+        raise ValueError(f"max_position_value_pct must be > 0 (got {config.max_position_value_pct!r}).")
     if config.direction_filter not in ("long_only", "short_only", "both"):
         raise ValueError(
             f"direction_filter must be 'long_only', 'short_only', or 'both' (got {config.direction_filter!r})."
@@ -322,6 +329,10 @@ def simulate_trades(
                     open_quantity = (config.capital * config.risk_per_trade_pct) / stop_distance_for_sizing
                 else:
                     open_quantity = config.quantity
+
+                if config.max_position_value_pct is not None and open_entry_price > 0:
+                    max_quantity = (config.capital * config.max_position_value_pct) / open_entry_price
+                    open_quantity = min(open_quantity, max_quantity)
 
     # Any position still open at the end of the data: force-close at the last bar.
     if open_direction is not None:

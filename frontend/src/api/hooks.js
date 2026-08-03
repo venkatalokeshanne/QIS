@@ -1,54 +1,8 @@
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { datasetsApi } from './datasets'
+import { useMutation, useQueries, useQuery } from '@tanstack/react-query'
 import { catalogApi } from './catalog'
 import { backtestsApi } from './backtests'
 import { levelsApi } from './levels'
-
-// --- Datasets ---
-
-export function useDatasets() {
-  return useQuery({ queryKey: ['datasets'], queryFn: datasetsApi.list })
-}
-
-export function useDataset(id) {
-  return useQuery({
-    queryKey: ['datasets', id],
-    queryFn: () => datasetsApi.get(id),
-    enabled: Boolean(id),
-  })
-}
-
-export function useDatasetPreview(id, rows = 20) {
-  return useQuery({
-    queryKey: ['datasets', id, 'preview', rows],
-    queryFn: () => datasetsApi.preview(id, rows),
-    enabled: Boolean(id),
-  })
-}
-
-export function useUploadDataset() {
-  const queryClient = useQueryClient()
-  return useMutation({
-    mutationFn: ({ file, name, onProgress }) => datasetsApi.upload(file, name, onProgress),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['datasets'] }),
-  })
-}
-
-export function useFetchFromTwelvedata() {
-  const queryClient = useQueryClient()
-  return useMutation({
-    mutationFn: (params) => datasetsApi.fetchFromTwelvedata(params),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['datasets'] }),
-  })
-}
-
-export function useDeleteDataset() {
-  const queryClient = useQueryClient()
-  return useMutation({
-    mutationFn: (id) => datasetsApi.remove(id),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['datasets'] }),
-  })
-}
+import { signalsApi } from './signals'
 
 // --- Catalog ---
 
@@ -86,4 +40,28 @@ export function useLevelsBacktest() {
 
 export function useLevelsDayReports() {
   return useMutation({ mutationFn: levelsApi.dayReports })
+}
+
+// --- Live Signal ---
+
+// One query per ticker (each {symbol, interval}) so every selected
+// ticker's signal refreshes independently -- a slow/failing check for
+// one symbol doesn't block or blank out the others.
+export function useSignalChecks(tickers, strategyName, strategyParams) {
+  return useQueries({
+    queries: (tickers || []).map((ticker) => ({
+      queryKey: ['signals', 'check', ticker.symbol, ticker.interval, strategyName, strategyParams],
+      queryFn: () =>
+        signalsApi.check({
+          symbol: ticker.symbol,
+          interval: ticker.interval,
+          strategy_name: strategyName,
+          strategy_params: strategyParams,
+        }),
+      // Matches the backend Poller's own 30s tick cadence -- each check
+      // triggers a real multi-second Tastytrade historical-bar fetch
+      // server-side, so this shouldn't poll more aggressively than that.
+      refetchInterval: 30000,
+    })),
+  })
 }

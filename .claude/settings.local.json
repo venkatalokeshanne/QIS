@@ -4,7 +4,17 @@
       "Skill(run)",
       "Skill(run:*)",
       "Bash(python -m venv .venv)",
-      "Bash(npm install *)"
+      "Bash(npm install *)",
+      "Bash(curl -s -D - http://localhost:8000/ -o /tmp/ts_body.js)",
+      "Read(//tmp/**)",
+      "mcp__claude-in-chrome__tabs_context_mcp",
+      "Bash(printf '\\\\n// live-reload test marker 7281\\\\n' >> \"/c/Users/annev/Downloads/trendspider-indicators/indicators/_template.js\")",
+      "Bash(curl -s http://localhost:8000/)",
+      "Bash(pkill -f \"serve.py\")",
+      "Read(//c/Users/annev/Downloads/trendspider-indicators/**)",
+      "Bash(nohup python dev/serve.py indicators/orb_atr_volume_trend.js)",
+      "Bash(netstat -ano)",
+      "Bash(python dev/serve.py indicators/orb_atr_volume_trend.js)"
     ]
   }
 }

@@ -14,6 +14,7 @@ from app.api.schemas.levels_schemas import (
 )
 from app.services.levels_backtest_service import get_day_reports, run_levels_backtest
 from app.services.levels_service import get_daily_levels
+from app.services.levels_signal import compute_signal
 
 router = APIRouter(prefix="/api/levels", tags=["levels"])
 
@@ -39,4 +40,10 @@ def backtest_levels_days(payload: DayReportsRequest):
 @router.get("/{symbol}", response_model=DailyLevelsResponse)
 def get_levels(symbol: str):
     levels = get_daily_levels(symbol)
-    return DailyLevelsResponse(**levels.__dict__)
+    signal = compute_signal(levels)
+    return DailyLevelsResponse(
+        **levels.__dict__,
+        signal=signal.verdict,
+        signal_score=signal.score,
+        signal_reasons=signal.reasons,
+    )

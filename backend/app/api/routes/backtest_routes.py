@@ -3,14 +3,14 @@
 from fastapi import APIRouter
 
 from app.api.schemas.backtest_schemas import (
-    DatasetBacktestResult,
     RunBacktestRequest,
     RunBacktestResponse,
     StrategyResultResponse,
+    TickerBacktestResult,
     TradeResponse,
 )
 from app.ranking.models import RankingConfig
-from app.services.dataset_service import DatasetService
+from app.services.backtest_data import fetch_backtest_bars
 from app.services.strategy_runner import RunRequest, run_strategies
 from app.strategies.execution import ExecutionConfig
 
@@ -19,8 +19,6 @@ router = APIRouter(prefix="/api/backtests", tags=["backtests"])
 
 @router.post("/run", response_model=RunBacktestResponse)
 def run_backtest(payload: RunBacktestRequest):
-    dataset_service = DatasetService()
-
     execution_config = ExecutionConfig(
         capital=payload.execution.capital,
         quantity=payload.execution.quantity,
@@ -34,6 +32,7 @@ def run_backtest(payload: RunBacktestRequest):
         take_profit_atr_multiple=payload.execution.take_profit_atr_multiple,
         trailing_stop_atr_multiple=payload.execution.trailing_stop_atr_multiple,
         risk_per_trade_pct=payload.execution.risk_per_trade_pct,
+        max_position_value_pct=payload.execution.max_position_value_pct,
     )
     ranking_config = (
         RankingConfig(weights=payload.ranking_weights) if payload.ranking_weights else RankingConfig()
@@ -47,18 +46,16 @@ def run_backtest(payload: RunBacktestRequest):
         breakdown_by_month=payload.breakdown_by_month,
     )
 
-    dataset_results = []
-    for dataset_id in payload.dataset_ids:
-        # Each dataset is scored/ranked independently -- "rank 1" means
+    ticker_results = []
+    for symbol in payload.symbols:
+        # Each ticker is scored/ranked independently -- "rank 1" means
         # best strategy for THAT ticker, not across the whole batch.
-        metadata = dataset_service.get_metadata(dataset_id)
-        df = dataset_service.get_dataframe(dataset_id)
+        df = fetch_backtest_bars(symbol, payload.interval, payload.start_date, payload.end_date)
         results = run_strategies(df, request)
 
-        dataset_results.append(
-            DatasetBacktestResult(
-                dataset_id=dataset_id,
-                dataset_name=metadata.name,
+        ticker_results.append(
+            TickerBacktestResult(
+                symbol=symbol.upper(),
                 results=[
                     StrategyResultResponse(
                         strategy_name=r.strategy_name,
@@ -87,4 +84,4 @@ def run_backtest(payload: RunBacktestRequest):
             )
         )
 
-    return RunBacktestResponse(dataset_results=dataset_results)
+    return RunBacktestResponse(ticker_results=ticker_results)

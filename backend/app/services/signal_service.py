@@ -3,7 +3,7 @@ Signal Service.
 
 Re-runs one strategy's entry/exit logic against the freshest bars for
 a symbol+interval, the same way the levels service takes a live,
-throwaway Twelve Data snapshot (see app.services.levels_service's
+throwaway Tastytrade snapshot (see app.services.levels_service's
 docstring) rather than a saved dataset. Reuses the exact backtest
 execution engine (Strategy.run -> simulate_trades) so a "live" signal
 is judged by identical logic to a backtest, not a re-implementation
@@ -23,7 +23,7 @@ from app.data.column_detector import detect_columns
 from app.data.normalizer import normalize_ohlcv
 from app.data.validator import validate_ohlcv
 from app.domain.interfaces.strategy import TradeDirection
-from app.integrations import twelvedata_client
+from app.integrations import tastytrade_client
 from app.strategies.execution import ExecutionConfig
 from app.strategies.registry import get_strategy
 
@@ -60,14 +60,14 @@ class SignalCheck:
 
 
 def fetch_symbol_bars(
-    symbol: str, interval: str, fetch_bars=twelvedata_client.fetch_historical_bars
+    symbol: str, interval: str, fetch_bars=tastytrade_client.fetch_historical_bars
 ) -> pd.DataFrame:
     raw = fetch_bars(symbol, interval=interval, outputsize=_OUTPUTSIZE)
     detection = detect_columns(raw)
     normalized = normalize_ohlcv(raw, detection)
     report = validate_ohlcv(normalized)
     if not report.is_valid:
-        raise DataValidationError(f"Twelve Data returned unusable bars for '{symbol}'.", issues=report.errors)
+        raise DataValidationError(f"Received unusable bars for '{symbol}' from the live data source.", issues=report.errors)
     return normalized
 
 
@@ -76,7 +76,7 @@ def check_signal(
     interval: str,
     strategy_name: str,
     strategy_params: dict,
-    fetch_bars=twelvedata_client.fetch_historical_bars,
+    fetch_bars=tastytrade_client.fetch_historical_bars,
 ) -> SignalCheck:
     df = fetch_symbol_bars(symbol, interval, fetch_bars=fetch_bars)
     strategy = get_strategy(strategy_name)

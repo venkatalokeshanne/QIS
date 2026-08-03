@@ -2,17 +2,18 @@ import { Link, useNavigate } from 'react-router-dom'
 import PageHeader from '../components/PageHeader'
 import Card from '../components/Card'
 import Button from '../components/Button'
-import EmptyState from '../components/EmptyState'
-import { useDatasets, useStrategies, useRunBacktest } from '../api/hooks'
+import { useStrategies, useRunBacktest } from '../api/hooks'
 import { useResearchStore } from '../store/useResearchStore'
 import './RunBacktests.css'
 
 export default function RunBacktests() {
   const navigate = useNavigate()
-  const { data: datasets, isLoading: datasetsLoading } = useDatasets()
   const { data: strategies, isLoading: strategiesLoading } = useStrategies()
 
-  const selectedDatasetIds = useResearchStore((s) => s.selectedDatasetIds)
+  const selectedSymbols = useResearchStore((s) => s.selectedSymbols)
+  const selectedInterval = useResearchStore((s) => s.selectedInterval)
+  const backtestStartDate = useResearchStore((s) => s.backtestStartDate)
+  const backtestEndDate = useResearchStore((s) => s.backtestEndDate)
   const selectedStrategyNames = useResearchStore((s) => s.selectedStrategyNames)
   const toggleStrategyName = useResearchStore((s) => s.toggleStrategyName)
   const setSelectedStrategyNames = useResearchStore((s) => s.setSelectedStrategyNames)
@@ -27,14 +28,17 @@ export default function RunBacktests() {
   const runAll = selectedStrategyNames.length === 0
 
   const handleAnalyze = () => {
-    if (selectedDatasetIds.length === 0) return
+    if (selectedSymbols.length === 0) return
     const namesToRun = runAll ? (strategies || []).map((s) => s.name) : selectedStrategyNames
     const strategyParams = Object.fromEntries(
       namesToRun.filter((n) => strategyParamOverrides[n]).map((n) => [n, strategyParamOverrides[n]])
     )
     runMutation.mutate(
       {
-        dataset_ids: selectedDatasetIds,
+        symbols: selectedSymbols,
+        interval: selectedInterval,
+        start_date: backtestStartDate,
+        end_date: backtestEndDate,
         strategy_names: runAll ? null : selectedStrategyNames,
         strategy_params: strategyParams,
         execution: executionSettings,
@@ -49,27 +53,8 @@ export default function RunBacktests() {
     )
   }
 
-  if (datasetsLoading || strategiesLoading) {
+  if (strategiesLoading) {
     return <div className="loading-text">Loading…</div>
-  }
-
-  if (!datasets?.length) {
-    return (
-      <div>
-        <PageHeader title="Run Backtests" subtitle="Select tickers in the header, choose strategies, then analyze." />
-        <Card>
-          <EmptyState
-            title="Upload a dataset first"
-            body="You need historical OHLCV data before you can run backtests."
-            action={
-              <Button variant="primary" onClick={() => navigate('/upload')}>
-                Upload Data
-              </Button>
-            }
-          />
-        </Card>
-      </div>
-    )
   }
 
   return (
@@ -115,6 +100,18 @@ export default function RunBacktests() {
               ))}
             </div>
           </Card>
+
+          {(backtestStartDate || backtestEndDate) && (
+            <Card style={{ marginTop: 16 }}>
+              <div className="section-label">
+                Date Range
+                <span className="section-label-hint">set in the header</span>
+              </div>
+              <p className="field-hint">
+                {backtestStartDate || '…'} – {backtestEndDate || '…'}
+              </p>
+            </Card>
+          )}
         </div>
 
         <div className="run-side">
@@ -137,11 +134,11 @@ export default function RunBacktests() {
             </label>
             <p className="field-hint">
               Also slice these same results by calendar month -- useful for seeing how a strategy holds up
-              across different stretches of a longer dataset.
+              across different stretches of a longer lookback.
             </p>
           </Card>
 
-          {selectedDatasetIds.length === 0 && (
+          {selectedSymbols.length === 0 && (
             <div className="error-banner" style={{ marginTop: 16 }}>
               Select at least one ticker in the header before running.
             </div>
@@ -156,7 +153,7 @@ export default function RunBacktests() {
           <Button
             variant="primary"
             className="analyze-btn"
-            disabled={selectedDatasetIds.length === 0 || runMutation.isPending}
+            disabled={selectedSymbols.length === 0 || runMutation.isPending}
             onClick={handleAnalyze}
           >
             {runMutation.isPending ? 'Analyzing…' : 'Analyze →'}

@@ -21,10 +21,14 @@ class ExecutionSettings(BaseModel):
     take_profit_atr_multiple: float | None = None
     trailing_stop_atr_multiple: float | None = None
     risk_per_trade_pct: float | None = None
+    max_position_value_pct: float | None = None  # cap position value at capital * this; 1.0 = no leverage
 
 
 class RunBacktestRequest(BaseModel):
-    dataset_ids: list[str] = Field(min_length=1, description="One or more datasets (tickers) to run against.")
+    symbols: list[str] = Field(min_length=1, description="One or more tickers to run against.")
+    interval: str = Field(description="Bar interval to fetch live, e.g. '5min'.")
+    start_date: str | None = Field(default=None, description="Optional override; omit for a sensible default lookback.")
+    end_date: str | None = None
     strategy_names: list[str] | None = Field(
         default=None, description="Omit or null to run every discovered strategy."
     )
@@ -59,11 +63,10 @@ class StrategyResultResponse(BaseModel):
     monthly_metrics: dict[str, dict[str, float | None]] | None = None
 
 
-class DatasetBacktestResult(BaseModel):
-    dataset_id: str
-    dataset_name: str
+class TickerBacktestResult(BaseModel):
+    symbol: str
     results: list[StrategyResultResponse]
 
 
 class RunBacktestResponse(BaseModel):
-    dataset_results: list[DatasetBacktestResult]
+    ticker_results: list[TickerBacktestResult]

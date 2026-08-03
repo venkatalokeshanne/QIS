@@ -1,8 +1,7 @@
 import { NavLink, useNavigate, useParams } from 'react-router-dom'
 import { useStrategies } from '../api/hooks'
 import { NAV_ITEMS } from '../nav-items'
-import TickerMultiSelect from './TickerMultiSelect'
-import TwelvedataFetchMenu from './TwelvedataFetchMenu'
+import TickerSelect from './TickerSelect'
 import './Header.css'
 
 export default function Header({ mobileNavOpen, onMenuToggle }) {
@@ -45,7 +44,7 @@ export default function Header({ mobileNavOpen, onMenuToggle }) {
         {/* Desktop/tablet only -- hidden ≤640px via CSS, where the ticker
             picker moves into the drawer (StrategySidebar) instead. */}
         <div className="topbar-ticker-select">
-          <TickerMultiSelect />
+          <TickerSelect />
         </div>
 
         {/* Mobile-only: the ticker picker moves into the drawer where
@@ -66,8 +65,6 @@ export default function Header({ mobileNavOpen, onMenuToggle }) {
             </option>
           ))}
         </select>
-
-        <TwelvedataFetchMenu />
       </div>
     </header>
   )

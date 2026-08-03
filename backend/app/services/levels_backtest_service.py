@@ -3,7 +3,7 @@ Levels Backtest Service.
 
 Answers "historically, how reliable have these levels actually been
 for this stock?" -- fetches the freshest available bars for a symbol
-(same live Twelve Data path the Daily Levels snapshot uses, see
+(same live Tastytrade path the Daily Levels snapshot uses, see
 app.services.levels_service), runs the SAME indicators across that
 whole window (every level here is computed from data known strictly
 BEFORE the session it applies to -- prior-session pivots, trailing ADR
@@ -27,7 +27,7 @@ from app.indicators.demark_pivots import DeMarkPivots
 from app.indicators.pivot_points import PivotPoints
 from app.indicators.session_opening_range import SessionOpeningRange
 from app.indicators.vwap import VWAP
-from app.integrations import twelvedata_client
+from app.integrations import tastytrade_client
 from app.services.levels_service import fetch_symbol_bars
 
 _ADR_PERIOD = 14
@@ -320,7 +320,7 @@ def _enrich(df: pd.DataFrame) -> pd.DataFrame:
 
 
 def run_levels_backtest(
-    symbol: str, fetch_bars=twelvedata_client.fetch_historical_bars
+    symbol: str, fetch_bars=tastytrade_client.fetch_historical_bars
 ) -> LevelsBacktestReport:
     df = fetch_symbol_bars(symbol, fetch_bars=fetch_bars)
     enriched = _enrich(df)
@@ -438,7 +438,7 @@ def _classify_opening_range(day: pd.Series, or_high: float, or_low: float) -> Op
 
 
 def get_day_reports(
-    symbol: str, dates: list[str], fetch_bars=twelvedata_client.fetch_historical_bars
+    symbol: str, dates: list[str], fetch_bars=tastytrade_client.fetch_historical_bars
 ) -> list[DayLevelsReport]:
     """
     The same levels as run_levels_backtest, but for specific individual

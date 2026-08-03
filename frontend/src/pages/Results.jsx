@@ -1,4 +1,4 @@
-import { useMemo, useState, Fragment } from 'react'
+import { useEffect, useMemo, useState, Fragment } from 'react'
 import { useNavigate } from 'react-router-dom'
 import PageHeader from '../components/PageHeader'
 import Card from '../components/Card'
@@ -23,18 +23,29 @@ const SUMMARY_METRIC_ORDER = [
 export default function Results() {
   const navigate = useNavigate()
   const lastRunResults = useResearchStore((s) => s.lastRunResults)
-  const compareDatasetId = useResearchStore((s) => s.compareDatasetId)
+  const compareSymbol = useResearchStore((s) => s.compareSymbol)
   const compareSelection = useResearchStore((s) => s.compareSelection)
   const setCompareSelection = useResearchStore((s) => s.setCompareSelection)
   const { data: metricDefs } = useMetricDefinitions()
   const [expandedKey, setExpandedKey] = useState(null)
   const [view, setView] = useState('grouped') // 'grouped' | 'matrix' -- matrix only shown for 2+ tickers
+  const [focusedSymbol, setFocusedSymbol] = useState(null)
 
   const metricFormatByName = useMemo(() => {
     const map = {}
     for (const m of metricDefs || []) map[m.name] = m
     return map
   }, [metricDefs])
+
+  const tickerResults = lastRunResults?.ticker_results || []
+
+  useEffect(() => {
+    if (tickerResults.length === 0) return
+    if (!tickerResults.some((t) => t.symbol === focusedSymbol)) {
+      setFocusedSymbol(tickerResults[0].symbol)
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [tickerResults])
 
   if (!lastRunResults) {
     return (
@@ -43,7 +54,7 @@ export default function Results() {
         <Card>
           <EmptyState
             title="No results yet"
-            body="Run backtests against a dataset to see strategies ranked by overall score."
+            body="Run backtests against a ticker to see strategies ranked by overall score."
             action={
               <Button variant="primary" onClick={() => navigate('/run')}>
                 Run Backtests
@@ -55,13 +66,13 @@ export default function Results() {
     )
   }
 
-  const { dataset_results: datasetResults } = lastRunResults
-  const isMultiTicker = datasetResults.length > 1
+  const isMultiTicker = tickerResults.length > 1
+  const focusedResult = tickerResults.find((t) => t.symbol === focusedSymbol)
 
-  const toggleCompare = (datasetId, strategyName) => {
-    const current = datasetId === compareDatasetId ? compareSelection : []
+  const toggleCompare = (symbol, strategyName) => {
+    const current = symbol === compareSymbol ? compareSelection : []
     setCompareSelection(
-      datasetId,
+      symbol,
       current.includes(strategyName) ? current.filter((n) => n !== strategyName) : [...current, strategyName]
     )
   }
@@ -72,8 +83,8 @@ export default function Results() {
         title="Results"
         subtitle={
           isMultiTicker
-            ? `${datasetResults.length} tickers × ${datasetResults[0].results.length} strategies.`
-            : `${datasetResults[0]?.results.length ?? 0} strategies ranked by overall score. Click a row for full metrics.`
+            ? `${tickerResults.length} tickers × ${tickerResults[0].results.length} strategies.`
+            : `${tickerResults[0]?.results.length ?? 0} strategies ranked by overall score. Click a row for full metrics.`
         }
         actions={
           <div style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
@@ -104,14 +115,28 @@ export default function Results() {
         }
       />
 
-      {(!isMultiTicker || view === 'grouped') &&
-        datasetResults.map((d) => (
-          <div key={d.dataset_id} style={{ marginBottom: isMultiTicker ? 24 : 0 }}>
-            {isMultiTicker && <div className="section-label">{d.dataset_name}</div>}
+      {(!isMultiTicker || view === 'grouped') && (
+        <>
+          {isMultiTicker && (
+            <div className="chip-row" style={{ marginBottom: 16 }}>
+              {tickerResults.map((t) => (
+                <button
+                  key={t.symbol}
+                  type="button"
+                  className={`chip${focusedSymbol === t.symbol ? ' active' : ''}`}
+                  onClick={() => setFocusedSymbol(t.symbol)}
+                >
+                  {t.symbol}
+                </button>
+              ))}
+            </div>
+          )}
+
+          {focusedResult && (
             <StrategyRankTable
-              results={d.results}
-              datasetId={d.dataset_id}
-              compareDatasetId={compareDatasetId}
+              results={focusedResult.results}
+              symbol={focusedResult.symbol}
+              compareSymbol={compareSymbol}
               compareSelection={compareSelection}
               toggleCompare={toggleCompare}
               metricDefs={metricDefs}
@@ -119,11 +144,12 @@ export default function Results() {
               expandedKey={expandedKey}
               setExpandedKey={setExpandedKey}
             />
-          </div>
-        ))}
+          )}
+        </>
+      )}
 
       {isMultiTicker && view === 'matrix' && (
-        <MatrixView datasetResults={datasetResults} />
+        <MatrixView tickerResults={tickerResults} />
       )}
     </div>
   )
@@ -131,8 +157,8 @@ export default function Results() {
 
 function StrategyRankTable({
   results,
-  datasetId,
-  compareDatasetId,
+  symbol,
+  compareSymbol,
   compareSelection,
   toggleCompare,
   metricDefs,
@@ -159,8 +185,8 @@ function StrategyRankTable({
           </thead>
           <tbody>
             {results.map((r) => {
-              const key = `${datasetId}:${r.strategy_name}`
-              const checked = datasetId === compareDatasetId && compareSelection.includes(r.strategy_name)
+              const key = `${symbol}:${r.strategy_name}`
+              const checked = symbol === compareSymbol && compareSelection.includes(r.strategy_name)
               return (
                 <Fragment key={key}>
                   <tr
@@ -171,7 +197,7 @@ function StrategyRankTable({
                       <input
                         type="checkbox"
                         checked={checked}
-                        onChange={() => toggleCompare(datasetId, r.strategy_name)}
+                        onChange={() => toggleCompare(symbol, r.strategy_name)}
                         style={{ accentColor: 'var(--accent)' }}
                       />
                     </td>
@@ -211,22 +237,22 @@ function StrategyRankTable({
   )
 }
 
-function MatrixView({ datasetResults }) {
+function MatrixView({ tickerResults }) {
   // The same strategy_names were requested for every ticker in one run, so
   // the first ticker's own result order is a stable row order for all of them.
-  const strategyOrder = datasetResults[0]?.results.map((r) => ({
+  const strategyOrder = tickerResults[0]?.results.map((r) => ({
     name: r.strategy_name,
     display_name: r.strategy_display_name,
   })) || []
 
-  const scoreFor = (datasetId, strategyName) => {
-    const dataset = datasetResults.find((d) => d.dataset_id === datasetId)
-    return dataset?.results.find((r) => r.strategy_name === strategyName)?.overall_score ?? null
+  const scoreFor = (symbol, strategyName) => {
+    const ticker = tickerResults.find((t) => t.symbol === symbol)
+    return ticker?.results.find((r) => r.strategy_name === strategyName)?.overall_score ?? null
   }
 
   const bestScoreByStrategy = {}
   for (const s of strategyOrder) {
-    const scores = datasetResults.map((d) => scoreFor(d.dataset_id, s.name)).filter((v) => v !== null)
+    const scores = tickerResults.map((t) => scoreFor(t.symbol, s.name)).filter((v) => v !== null)
     bestScoreByStrategy[s.name] = scores.length ? Math.max(...scores) : null
   }
 
@@ -237,9 +263,9 @@ function MatrixView({ datasetResults }) {
           <thead>
             <tr>
               <th className="compare-sticky-col">Strategy</th>
-              {datasetResults.map((d) => (
-                <th key={d.dataset_id} className="align-right">
-                  {d.dataset_name}
+              {tickerResults.map((t) => (
+                <th key={t.symbol} className="align-right">
+                  {t.symbol}
                 </th>
               ))}
             </tr>
@@ -250,11 +276,11 @@ function MatrixView({ datasetResults }) {
                 <td className="compare-sticky-col" style={{ fontWeight: 600 }}>
                   {s.display_name}
                 </td>
-                {datasetResults.map((d) => {
-                  const score = scoreFor(d.dataset_id, s.name)
+                {tickerResults.map((t) => {
+                  const score = scoreFor(t.symbol, s.name)
                   const isBest = score !== null && score === bestScoreByStrategy[s.name]
                   return (
-                    <td key={d.dataset_id} className={`align-right${isBest ? ' best-cell' : ''}`}>
+                    <td key={t.symbol} className={`align-right${isBest ? ' best-cell' : ''}`}>
                       <span className="mono">{score?.toFixed(1) ?? '—'}</span>
                     </td>
                   )

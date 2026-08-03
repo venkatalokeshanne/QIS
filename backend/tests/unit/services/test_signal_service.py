@@ -42,7 +42,7 @@ def _full_bars() -> pd.DataFrame:
 
 
 def _fetch_bars_up_to(timestamp: str):
-    """Fake `fetch_bars` standing in for twelvedata_client -- returns the
+    """Fake `fetch_bars` standing in for tastytrade_client -- returns the
     same raw shape (a "date" column + lowercase OHLCV) the real client
     returns, truncated as if `timestamp` were the freshest available bar."""
 

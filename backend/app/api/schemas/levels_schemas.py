@@ -160,3 +160,6 @@ class DailyLevelsResponse(BaseModel):
     demark_pivots: dict[str, float | None]
     auto_support_resistance: list[float]
     fibonacci_retracement: dict[str, float | None]
+    signal: str  # "buy" | "sell" | "neutral"
+    signal_score: int
+    signal_reasons: list[str]

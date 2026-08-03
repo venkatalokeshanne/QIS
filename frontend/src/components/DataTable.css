@@ -24,6 +24,27 @@
   text-align: right;
 }
 
+.data-table-sortable-th {
+  cursor: pointer;
+  user-select: none;
+  transition: color 0.1s ease;
+}
+
+.data-table-sortable-th:hover {
+  color: var(--text-secondary);
+}
+
+.data-table-sortable-th.sorted {
+  color: var(--accent);
+}
+
+.data-table-sort-indicator {
+  display: inline-block;
+  width: 10px;
+  margin-left: 4px;
+  font-size: 9px;
+}
+
 .data-table tbody td {
   padding: var(--space-3) var(--space-4);
   border-bottom: 1px solid var(--border-hairline);

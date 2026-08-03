@@ -45,7 +45,7 @@
   border-bottom: 1px solid var(--border-hairline);
 }
 
-/* TickerMultiSelect's panel is absolutely positioned/sized for the header's
+/* TickerSelect's panel is absolutely positioned/sized for the header's
    wide-open desktop context -- inside this narrow drawer, expand it inline
    below the trigger instead of as a floating overlay, so it can't overflow
    the drawer's edges. */
