@@ -361,7 +361,7 @@ export default function StrategyDetail() {
                 )}
 
                 {query.data && query.data.today_events.length > 0 && (
-                  <div className="detail-panel" style={{ marginTop: 12 }}>
+                  <div style={{ marginTop: 12 }}>
                     <div className="detail-metric-label" style={{ marginBottom: 8 }}>
                       Today's Signals
                     </div>
