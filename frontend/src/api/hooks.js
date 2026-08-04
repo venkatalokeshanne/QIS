@@ -5,6 +5,7 @@ import { levelsApi } from './levels'
 import { signalsApi } from './signals'
 import { watchesApi } from './watches'
 import { levelWatchesApi } from './levelWatches'
+import { scannerApi } from './scanner'
 
 // --- Catalog ---
 
@@ -109,4 +110,10 @@ export function useDeleteLevelWatch() {
     mutationFn: levelWatchesApi.remove,
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['level-watches'] }),
   })
+}
+
+// --- Scanner ---
+
+export function useRunScanner() {
+  return useMutation({ mutationFn: scannerApi.run })
 }

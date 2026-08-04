@@ -19,6 +19,7 @@ from app.api.routes import (
     catalog_routes,
     level_watch_routes,
     levels_routes,
+    scanner_routes,
     signal_routes,
     watch_routes,
 )
@@ -60,6 +61,7 @@ app.include_router(levels_routes.router)
 app.include_router(watch_routes.router)
 app.include_router(level_watch_routes.router)
 app.include_router(signal_routes.router)
+app.include_router(scanner_routes.router)
 
 
 @app.exception_handler(NotFoundError)

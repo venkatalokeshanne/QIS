@@ -143,6 +143,15 @@ export const useResearchStore = create(
       compareSymbol: null,
       compareSelection: [], // strategy_name[] chosen on the Results page for the Compare page
       setCompareSelection: (symbol, names) => set({ compareSymbol: symbol, compareSelection: names }),
+
+      // Scanner (see Scanner.jsx) -- runs every selected strategy against
+      // every selected symbol and keeps only the recent long/short
+      // signal matches. Results are working state for the current
+      // sitting (not persisted); lookback is a saved preference.
+      scannerLookbackBars: 3,
+      setScannerLookbackBars: (bars) => set({ scannerLookbackBars: bars }),
+      lastScanResults: null, // { signals: [...], failed_symbols: [...] }
+      setLastScanResults: (results) => set({ lastScanResults: results }),
     }),
     {
       name: 'quant-platform-research-store',
@@ -155,6 +164,7 @@ export const useResearchStore = create(
         executionSettings: state.executionSettings,
         strategyParamOverrides: state.strategyParamOverrides,
         breakdownByMonth: state.breakdownByMonth,
+        scannerLookbackBars: state.scannerLookbackBars,
       }),
     }
   )
