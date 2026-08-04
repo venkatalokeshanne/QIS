@@ -72,7 +72,10 @@ def format_notification(result: signal_service.SignalCheck) -> tuple[str, str]:
 
 class Poller:
     def __init__(self, level_watch_repository: LevelWatchRepository | None = None):
-        self._level_watch_repository = level_watch_repository or LevelWatchRepository()
+        # Do not open the database connection while the application is being
+        # imported.  In production that can block on an unavailable Postgres
+        # host before Uvicorn has had a chance to bind Render's $PORT.
+        self._level_watch_repository = level_watch_repository
         self._task: asyncio.Task | None = None
 
     def start(self) -> None:
@@ -103,7 +106,10 @@ class Poller:
         now_utc = datetime.now(timezone.utc)
         if not is_market_hours(now_utc):
             return
-        for level_watch in self._level_watch_repository.list_all():
+        repository = self._level_watch_repository
+        if repository is None:
+            repository = self._level_watch_repository = LevelWatchRepository()
+        for level_watch in repository.list_all():
             if _is_due(level_watch.last_checked_at, _LEVEL_WATCH_INTERVAL_SECONDS, now_utc):
                 self._check_level_watch(level_watch, now_utc)
 

@@ -113,7 +113,10 @@ def merge_live_candle(historical_df: pd.DataFrame, bar_time: pd.Timestamp, ohlcv
 
 class LiveSignalEngine:
     def __init__(self, repository: WatchRepository | None = None):
-        self._repository = repository or WatchRepository()
+        # Repository construction opens its database connection.  Keep that
+        # out of module import so a slow/unreachable DATABASE_URL cannot stop
+        # Uvicorn binding the web-service port during deployment.
+        self._repository = repository
         self._task: asyncio.Task | None = None
         self._loop: asyncio.AbstractEventLoop | None = None
         self._ws = None
@@ -137,12 +140,19 @@ class LiveSignalEngine:
         process (re)started -- watch_routes.py's on_watch_created only
         fires for NEW watches created while the engine is already up."""
         try:
-            watches = await asyncio.to_thread(self._repository.list_all)
+            repository = await self._get_repository()
+            watches = await asyncio.to_thread(repository.list_all)
         except Exception:
             logger.exception("Could not list existing watches on startup")
             return
         for watch in watches:
             await self._ensure_subscribed(watch.symbol, watch.interval)
+
+    async def _get_repository(self) -> WatchRepository:
+        """Lazily create the repository off the event loop."""
+        if self._repository is None:
+            self._repository = await asyncio.to_thread(WatchRepository)
+        return self._repository
 
     async def stop(self) -> None:
         if self._task is not None:
@@ -280,7 +290,8 @@ class LiveSignalEngine:
         pair = (symbol, interval)
         if pair not in self._pairs:
             return
-        watches = await asyncio.to_thread(self._repository.list_all)
+        repository = await self._get_repository()
+        watches = await asyncio.to_thread(repository.list_all)
         still_needed = any(w.symbol == symbol and w.interval == interval for w in watches)
         if still_needed:
             return
@@ -342,7 +353,8 @@ class LiveSignalEngine:
         df = merge_live_candle(state.historical_df, bar_time, ohlcv)
         state.historical_df = df
 
-        watches = await asyncio.to_thread(self._repository.list_all)
+        repository = await self._get_repository()
+        watches = await asyncio.to_thread(repository.list_all)
         matching = [w for w in watches if w.symbol == symbol and w.interval == interval]
         for watch in matching:
             await self._evaluate_watch(watch, df, bar_time)
@@ -373,9 +385,11 @@ class LiveSignalEngine:
             )
             title, body = poller.format_notification(check)
             notification_service.send_telegram_message(f"*{title}*\n{body}")
-            await asyncio.to_thread(self._repository.mark_checked, watch.id, now_iso, notified_bar_time=bar_time_iso)
+            repository = await self._get_repository()
+            await asyncio.to_thread(repository.mark_checked, watch.id, now_iso, notified_bar_time=bar_time_iso)
         else:
-            await asyncio.to_thread(self._repository.mark_checked, watch.id, now_iso)
+            repository = await self._get_repository()
+            await asyncio.to_thread(repository.mark_checked, watch.id, now_iso)
 
     @staticmethod
     def _run_strategy(watch: WatchRecord, df: pd.DataFrame, bar_time: pd.Timestamp):
