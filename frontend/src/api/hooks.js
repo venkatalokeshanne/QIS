@@ -117,3 +117,7 @@ export function useDeleteLevelWatch() {
 export function useRunScanner() {
   return useMutation({ mutationFn: scannerApi.run })
 }
+
+export function useRunDayPrep() {
+  return useMutation({ mutationFn: scannerApi.dayPrep })
+}

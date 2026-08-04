@@ -7,6 +7,8 @@ import EmptyState from '../components/EmptyState'
 import ScoreBar from '../components/ScoreBar'
 import MetricValue from '../components/MetricValue'
 import TradesTable from '../components/TradesTable'
+import MonthlyBreakdownTable from '../components/MonthlyBreakdownTable'
+import Modal from '../components/Modal'
 import SortableTh from '../components/SortableTh'
 import { useSortableData } from '../hooks/useSortableData'
 import { useMetricDefinitions } from '../api/hooks'
@@ -289,6 +291,8 @@ function StrategyRankTable({
                           historicalTradeCount={r.historical_trade_count}
                           historicalPeriodStart={r.historical_period_start}
                           historicalPeriodEnd={r.historical_period_end}
+                          historicalMonthlyMetrics={r.historical_monthly_metrics}
+                          strategyDisplayName={r.strategy_display_name}
                         />
                       </td>
                     </tr>
@@ -385,7 +389,11 @@ function DetailPanel({
   historicalTradeCount,
   historicalPeriodStart,
   historicalPeriodEnd,
+  historicalMonthlyMetrics,
+  strategyDisplayName,
 }) {
+  const [showHistorical, setShowHistorical] = useState(false)
+
   return (
     <div>
       <div className="detail-panel">
@@ -398,32 +406,49 @@ function DetailPanel({
       </div>
 
       {historicalMetrics && (
-        <div style={{ marginTop: 16 }}>
-          <div className="detail-metric-label" style={{ marginBottom: 8 }}>
-            Historical Performance
-            <span
-              title='How this same ticker+strategy has performed over the trailing year, not just the date range requested above -- use this to tell "worked well this month" apart from "has actually held up over time."'
-              style={{
-                display: 'inline-flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                width: 14,
-                height: 14,
-                marginLeft: 6,
-                borderRadius: '50%',
-                border: '1px solid var(--text-muted)',
-                color: 'var(--text-muted)',
-                fontSize: 10,
-                fontWeight: 700,
-                cursor: 'help',
-              }}
-            >
-              i
-            </span>
-            <span style={{ fontWeight: 400, marginLeft: 8 }}>
-              {formatDate(historicalPeriodStart)} – {formatDate(historicalPeriodEnd)} · {historicalTradeCount} trades
-            </span>
-          </div>
+        <button
+          type="button"
+          onClick={() => setShowHistorical(true)}
+          style={{
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: 8,
+            marginTop: 16,
+            background: 'none',
+            border: '1px solid var(--border-hairline-strong)',
+            borderRadius: 999,
+            padding: '4px 12px 4px 4px',
+            color: 'var(--text-secondary)',
+            cursor: 'pointer',
+            fontSize: 12,
+          }}
+        >
+          <span
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              width: 16,
+              height: 16,
+              borderRadius: '50%',
+              border: '1px solid var(--text-secondary)',
+              fontSize: 10,
+              fontWeight: 700,
+            }}
+          >
+            i
+          </span>
+          Historical Performance ({historicalTradeCount} trades)
+        </button>
+      )}
+
+      {historicalMetrics && (
+        <Modal
+          open={showHistorical}
+          onClose={() => setShowHistorical(false)}
+          title={`Historical Performance${strategyDisplayName ? ` — ${strategyDisplayName}` : ''}`}
+          subtitle={`${formatDate(historicalPeriodStart)} – ${formatDate(historicalPeriodEnd)} · ${historicalTradeCount} trades. How this same ticker+strategy has performed over the trailing five years (or as much history as the data source has), not just the date range requested above.`}
+        >
           <div className="detail-panel">
             {HISTORICAL_METRIC_ORDER.map((name) => (
               <div key={name} className="detail-metric">
@@ -441,7 +466,19 @@ function DetailPanel({
               </span>
             </div>
           </div>
-        </div>
+
+          {historicalMonthlyMetrics && (
+            <div style={{ marginTop: 16 }}>
+              <div className="detail-metric-label" style={{ marginBottom: 8 }}>
+                By Month
+                <span style={{ fontWeight: 400, marginLeft: 8 }}>
+                  Consistency across the full historical window, not just one aggregate number.
+                </span>
+              </div>
+              <MonthlyBreakdownTable monthlyMetrics={historicalMonthlyMetrics} />
+            </div>
+          )}
+        </Modal>
       )}
 
       <TradesTable trades={trades} />

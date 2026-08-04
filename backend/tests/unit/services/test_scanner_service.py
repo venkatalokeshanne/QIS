@@ -118,6 +118,11 @@ def test_scan_uses_cached_bars_when_provided_instead_of_fetching():
     df = _bars_with_entry_near_the_end().set_index("date")
     df.index.name = "timestamp"
 
+    # Historical-trust enrichment (see test_scan_attaches_historical_trust_to_matches
+    # below) always does its own separate fetch -- a full trailing year,
+    # unrelated to the live scan's cached bars -- so it's disabled here
+    # to isolate what this test actually checks: the live scan loop
+    # itself doesn't re-fetch when cached bars are already available.
     results, _ = scanner_service.scan_for_signals(
         ["AAPL"],
         "5min",
@@ -125,7 +130,65 @@ def test_scan_uses_cached_bars_when_provided_instead_of_fetching():
         fetch_bars=_fetch,
         lookback_bars=10,
         get_cached_bars=lambda symbol, interval: df,
+        include_historical_trust=False,
     )
 
     assert calls == []
     assert len(results) == 1
+
+
+def test_scan_attaches_historical_trust_to_matches():
+    fetch_bars = _fetch_bars_for({"AAPL": _bars_with_entry_near_the_end()})
+
+    results, _ = scanner_service.scan_for_signals(
+        ["AAPL"], "5min", strategy_names=["sma_cross"], fetch_bars=fetch_bars, lookback_bars=10
+    )
+
+    assert len(results) == 1
+    match = results[0]
+    # sma_cross trades on this fixture (that's the entry the live scan
+    # itself matched on), so the trailing-year re-run should find at
+    # least that one trade and score it, not leave the fields None.
+    assert match.historical_trade_count is not None
+    assert match.historical_trade_count >= 1
+
+
+def test_scan_leaves_historical_trust_none_when_historical_fetch_fails():
+    def _fetch(symbol, interval, outputsize, start_date=None, end_date=None, **kwargs):
+        # The live scan's own fetch (no start_date/end_date) should
+        # still succeed; only the historical-trust fetch (which always
+        # passes start_date/end_date, see scanner_service) fails.
+        if start_date is not None:
+            raise RuntimeError("historical fetch unavailable")
+        return _bars_with_entry_near_the_end()
+
+    results, _ = scanner_service.scan_for_signals(
+        ["AAPL"], "5min", strategy_names=["sma_cross"], fetch_bars=_fetch, lookback_bars=10
+    )
+
+    assert len(results) == 1
+    assert results[0].historical_trade_count is None
+    assert results[0].historical_win_rate is None
+
+
+def test_scan_can_skip_historical_trust_enrichment():
+    calls = []
+
+    def _fetch(symbol, interval, outputsize, start_date=None, **kwargs):
+        calls.append(start_date)
+        return _bars_with_entry_near_the_end()
+
+    results, _ = scanner_service.scan_for_signals(
+        ["AAPL"],
+        "5min",
+        strategy_names=["sma_cross"],
+        fetch_bars=_fetch,
+        lookback_bars=10,
+        include_historical_trust=False,
+    )
+
+    assert len(results) == 1
+    assert results[0].historical_trade_count is None
+    # Only the live scan's own fetch happened (start_date=None) -- no
+    # separate historical-window fetch (which would pass a start_date).
+    assert all(s is None for s in calls)

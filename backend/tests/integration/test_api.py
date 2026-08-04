@@ -113,6 +113,25 @@ def test_run_backtest_with_date_range_also_returns_historical_metrics(client, mo
     assert result["historical_trade_count"] is not None
     assert result["historical_period_start"] is not None
     assert result["historical_period_end"] is not None
+    # The historical window is always sliced by month too, regardless
+    # of whether the request itself asked for a monthly breakdown --
+    # this is what lets Results.jsx show consistency across the whole
+    # historical window, not just one aggregate number.
+    assert result["historical_monthly_metrics"] is not None
+    for month_key, month_metrics in result["historical_monthly_metrics"].items():
+        assert month_key.count("-") == 1  # "YYYY-MM"
+        assert "net_profit" in month_metrics
+
+
+def test_run_backtest_without_date_range_has_no_historical_monthly_metrics(client, mock_backtest_bars):
+    # No explicit range -> no historical fetch happens at all (see
+    # has_explicit_range in backtest_routes).
+    run_resp = client.post(
+        "/api/backtests/run",
+        json={"symbols": ["AAPL"], "interval": "5min", "strategy_names": ["orb_breakout"]},
+    )
+    result = run_resp.json()["ticker_results"][0]["results"][0]
+    assert result["historical_monthly_metrics"] is None
 
 
 def test_run_backtest_breakdown_by_month(client, mock_backtest_bars):
@@ -291,3 +310,50 @@ def test_signal_check_propagates_unknown_strategy_as_404(client, monkeypatch):
         json={"symbol": "AAPL", "interval": "5min", "strategy_name": "not_a_real_strategy", "strategy_params": {}},
     )
     assert resp.status_code == 404
+
+
+def test_day_prep_returns_200_and_well_formed_results(client, monkeypatch):
+    from app.services import day_prep_service
+
+    def fake_fetch_backtest_bars(symbol, interval, start_date=None, end_date=None, **kwargs):
+        return _synthetic_bars()
+
+    monkeypatch.setattr(day_prep_service, "fetch_backtest_bars", fake_fetch_backtest_bars)
+
+    resp = client.post(
+        "/api/scanner/day-prep",
+        json={"symbols": ["AAPL"], "interval": "5min", "strategy_names": ["orb_breakout"]},
+    )
+    assert resp.status_code == 200
+    body = resp.json()
+    assert body["failed_symbols"] == []
+    # orb_breakout may or may not have actually traded on this synthetic
+    # fixture (that depends on its own entry conditions, not something
+    # this test should assume) -- but if it did, AAPL should show up
+    # with a well-formed top_strategies entry, not a crash or garbage.
+    for ticker in body["tickers"]:
+        assert ticker["symbol"] == "AAPL"
+        assert ticker["concentration_score"] >= 0
+        assert len(ticker["top_strategies"]) >= 1
+        assert ticker["top_strategies"][0]["strategy_name"] == "orb_breakout"
+
+
+def test_day_prep_drops_symbol_with_no_trading_history(client, monkeypatch):
+    from app.services import day_prep_service
+
+    def fake_fetch_backtest_bars(symbol, interval, start_date=None, end_date=None, **kwargs):
+        # Flat bars -- no strategy should find an entry here.
+        idx = pd.date_range("2024-01-02 09:30", periods=40, freq="5min")
+        return pd.DataFrame(
+            {"open": [100.0] * 40, "high": [100.1] * 40, "low": [99.9] * 40, "close": [100.0] * 40, "volume": [500] * 40},
+            index=idx,
+        )
+
+    monkeypatch.setattr(day_prep_service, "fetch_backtest_bars", fake_fetch_backtest_bars)
+
+    resp = client.post(
+        "/api/scanner/day-prep",
+        json={"symbols": ["AAPL"], "interval": "5min", "strategy_names": ["orb_breakout"]},
+    )
+    assert resp.status_code == 200
+    assert resp.json()["tickers"] == []

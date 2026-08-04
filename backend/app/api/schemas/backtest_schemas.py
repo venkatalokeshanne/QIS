@@ -77,6 +77,11 @@ class StrategyResultResponse(BaseModel):
     historical_trade_count: int | None = None
     historical_period_start: datetime | None = None
     historical_period_end: datetime | None = None
+    # Same historical window, sliced by calendar month -- shows
+    # whether performance has been consistent across that long window
+    # or concentrated in a few unusual months, which the single
+    # aggregate historical_metrics can't tell apart.
+    historical_monthly_metrics: dict[str, dict[str, float | None]] | None = None
 
 
 class TickerBacktestResult(BaseModel):

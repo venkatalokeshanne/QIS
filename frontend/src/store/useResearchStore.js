@@ -152,6 +152,12 @@ export const useResearchStore = create(
       setScannerLookbackBars: (bars) => set({ scannerLookbackBars: bars }),
       lastScanResults: null, // { signals: [...], failed_symbols: [...] }
       setLastScanResults: (results) => set({ lastScanResults: results }),
+
+      // Day Prep (see Scanner.jsx) -- ranks tickers worth concentrating
+      // on today (activity + historical edge + today's gap), not just
+      // ones with a signal in the last few bars. Working state only.
+      lastDayPrepResults: null, // { tickers: [...], failed_symbols: [...] }
+      setLastDayPrepResults: (results) => set({ lastDayPrepResults: results }),
     }),
     {
       name: 'quant-platform-research-store',

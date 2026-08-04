@@ -14,17 +14,35 @@ from app.api.schemas.backtest_schemas import (
     TradeResponse,
 )
 from app.ranking.models import RankingConfig
-from app.services.backtest_data import fetch_backtest_bars
+from app.services.backtest_data import fetch_backtest_bars, historical_outputsize
 from app.services.strategy_runner import RunRequest, run_strategies
 from app.strategies.execution import ExecutionConfig
 
 router = APIRouter(prefix="/api/backtests", tags=["backtests"])
 
-# "Historical performance" means a full trailing year, not whatever
-# unbounded default fetch_backtest_bars happens to return -- fixing the
-# window keeps the comparison meaningful (same ~year of data every
-# time) instead of drifting with each data source's own default lookback.
-HISTORICAL_LOOKBACK_DAYS = 365
+# "Historical performance" means a full trailing five years, not
+# whatever unbounded default fetch_backtest_bars happens to return --
+# fixing the window keeps the comparison meaningful (same lookback
+# every time) instead of drifting with each data source's own default.
+# Five years (not one or two) so the sample spans as many different
+# market regimes -- bull, bear, choppy -- as the data source can
+# actually provide; a strategy that only worked in one kind of year
+# isn't "historically" validated.
+HISTORICAL_LOOKBACK_DAYS = 1825
+
+# fetch_backtest_bars' plain-backtest default (5000) is tuned for a
+# short, explicit date range -- at 1825 calendar days it would
+# silently truncate an intraday interval's historical fetch down to
+# whatever tiny recent slice fits in 5000 bars (e.g. ~13 trading days
+# for 1min), defeating the entire point of "historical." Request
+# roughly enough bars to cover the full window instead, capped so a
+# single request still completes in fetch_historical_bars' ~20s
+# collection window -- dxfeed's own retention limits (or the cap
+# below) may still return less than the full 5 years for the finest
+# intervals, but StrategyResultResponse.historical_period_start/end
+# always report the ACTUAL span the response covers, so that's honest
+# either way, never silently misleading.
+HISTORICAL_MAX_OUTPUTSIZE = 100_000
 
 
 @router.post("/run", response_model=RunBacktestResponse)
@@ -61,7 +79,7 @@ def run_backtest(payload: RunBacktestRequest):
         results = run_strategies(df, request)
 
         # "How has this strategy actually done on this ticker
-        # historically" -- the SAME run over a fixed trailing year
+        # historically" -- the SAME run over a fixed trailing 5 years
         # ending today (or the requested end_date, if given) rather
         # than just the requested date range. Skipped as a redundant
         # duplicate fetch/run when the request already had no date
@@ -78,8 +96,9 @@ def run_backtest(payload: RunBacktestRequest):
                 historical_end,
                 include_extended_hours=payload.execution.include_extended_hours,
                 include_overnight=payload.execution.include_overnight,
+                outputsize=historical_outputsize(payload.interval, HISTORICAL_LOOKBACK_DAYS, HISTORICAL_MAX_OUTPUTSIZE),
             )
-            historical_request = replace(request, report_start_date=historical_start)
+            historical_request = replace(request, report_start_date=historical_start, breakdown_by_month=True)
             historical_results = run_strategies(historical_df, historical_request)
             historical_by_name = {r.strategy_name: r for r in historical_results}
             historical_period_start = historical_df.index.min()
@@ -122,6 +141,9 @@ def run_backtest(payload: RunBacktestRequest):
                         else None,
                         historical_period_start=historical_period_start,
                         historical_period_end=historical_period_end,
+                        historical_monthly_metrics=historical_by_name[r.strategy_name].monthly_metrics
+                        if r.strategy_name in historical_by_name
+                        else None,
                     )
                     for r in results
                 ],
