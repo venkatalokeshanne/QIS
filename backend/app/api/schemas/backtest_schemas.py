@@ -67,6 +67,17 @@ class StrategyResultResponse(BaseModel):
     rank: int | None
     monthly_metrics: dict[str, dict[str, float | None]] | None = None
 
+    # How this same ticker+strategy performed over the maximum
+    # available history (not just the requested date range) -- lets
+    # you tell "worked well this month" apart from "has actually held
+    # up over a long history." Same as `metrics`/`trade_count` but
+    # None when the requested range already WAS the full history (no
+    # separate fetch needed, see backtest_routes.run_backtest).
+    historical_metrics: dict[str, float | None] | None = None
+    historical_trade_count: int | None = None
+    historical_period_start: datetime | None = None
+    historical_period_end: datetime | None = None
+
 
 class TickerBacktestResult(BaseModel):
     symbol: str

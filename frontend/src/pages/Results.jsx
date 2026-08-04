@@ -11,6 +11,7 @@ import SortableTh from '../components/SortableTh'
 import { useSortableData } from '../hooks/useSortableData'
 import { useMetricDefinitions } from '../api/hooks'
 import { useResearchStore } from '../store/useResearchStore'
+import { formatDate } from '../utils/format'
 import './Compare.css' // shares .compare-table / .compare-sticky-col / .best-cell with MatrixView below
 
 const SUMMARY_METRIC_ORDER = [
@@ -161,8 +162,19 @@ function getStrategyRowValue(r, key) {
   if (key === 'rank') return r.rank
   if (key === 'strategy') return r.strategy_display_name
   if (key === 'overall_score') return r.overall_score
+  if (key === 'wins') return winLossCounts(r.metrics).wins
   return r.metrics[key]
 }
+
+function winLossCounts(metrics) {
+  const total = metrics.total_trades ?? 0
+  const winRate = metrics.win_rate
+  if (!total || winRate == null) return { wins: null, losses: null }
+  const wins = Math.round((winRate / 100) * total)
+  return { wins, losses: total - wins }
+}
+
+const HISTORICAL_METRIC_ORDER = ['average_holding_time', 'max_drawdown', 'profit_factor', 'win_rate']
 
 function StrategyRankTable({
   results,
@@ -197,6 +209,15 @@ function StrategyRankTable({
                   align="right"
                 />
               ))}
+              <SortableTh
+                label="Wins / Losses"
+                sortKey="wins"
+                activeKey={sortKey}
+                dir={sortDir}
+                onSort={toggleSort}
+                align="right"
+              />
+              <th className="align-right">Historical W/L</th>
               <SortableTh
                 label="Overall Score"
                 sortKey="overall_score"
@@ -239,14 +260,36 @@ function StrategyRankTable({
                         <MetricValue value={r.metrics[name]} format={metricFormatByName[name]?.format} />
                       </td>
                     ))}
+                    <td className="align-right mono">
+                      {(() => {
+                        const { wins, losses } = winLossCounts(r.metrics)
+                        return wins == null ? '—' : `${wins} / ${losses}`
+                      })()}
+                    </td>
+                    <td className="align-right mono">
+                      {(() => {
+                        if (!r.historical_metrics) return '—'
+                        const { wins, losses } = winLossCounts(r.historical_metrics)
+                        return wins == null ? '—' : `${wins} / ${losses}`
+                      })()}
+                    </td>
                     <td>
                       <ScoreBar score={r.overall_score} />
                     </td>
                   </tr>
                   {expandedKey === key && (
                     <tr>
-                      <td colSpan={SUMMARY_METRIC_ORDER.length + 4} style={{ padding: 0, background: 'var(--bg-base)' }}>
-                        <DetailPanel metrics={r.metrics} metricDefs={metricDefs} trades={r.trades} />
+                      <td colSpan={SUMMARY_METRIC_ORDER.length + 6} style={{ padding: 0, background: 'var(--bg-base)' }}>
+                        <DetailPanel
+                          metrics={r.metrics}
+                          metricDefs={metricDefs}
+                          metricFormatByName={metricFormatByName}
+                          trades={r.trades}
+                          historicalMetrics={r.historical_metrics}
+                          historicalTradeCount={r.historical_trade_count}
+                          historicalPeriodStart={r.historical_period_start}
+                          historicalPeriodEnd={r.historical_period_end}
+                        />
                       </td>
                     </tr>
                   )}
@@ -333,7 +376,16 @@ function MatrixView({ tickerResults }) {
   )
 }
 
-function DetailPanel({ metrics, metricDefs, trades }) {
+function DetailPanel({
+  metrics,
+  metricDefs,
+  metricFormatByName,
+  trades,
+  historicalMetrics,
+  historicalTradeCount,
+  historicalPeriodStart,
+  historicalPeriodEnd,
+}) {
   return (
     <div>
       <div className="detail-panel">
@@ -344,6 +396,54 @@ function DetailPanel({ metrics, metricDefs, trades }) {
           </div>
         ))}
       </div>
+
+      {historicalMetrics && (
+        <div style={{ marginTop: 16 }}>
+          <div className="detail-metric-label" style={{ marginBottom: 8 }}>
+            Historical Performance
+            <span
+              title='How this same ticker+strategy has performed over the trailing year, not just the date range requested above -- use this to tell "worked well this month" apart from "has actually held up over time."'
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                width: 14,
+                height: 14,
+                marginLeft: 6,
+                borderRadius: '50%',
+                border: '1px solid var(--text-muted)',
+                color: 'var(--text-muted)',
+                fontSize: 10,
+                fontWeight: 700,
+                cursor: 'help',
+              }}
+            >
+              i
+            </span>
+            <span style={{ fontWeight: 400, marginLeft: 8 }}>
+              {formatDate(historicalPeriodStart)} – {formatDate(historicalPeriodEnd)} · {historicalTradeCount} trades
+            </span>
+          </div>
+          <div className="detail-panel">
+            {HISTORICAL_METRIC_ORDER.map((name) => (
+              <div key={name} className="detail-metric">
+                <div className="detail-metric-label">{metricFormatByName[name]?.display_name || name}</div>
+                <MetricValue value={historicalMetrics[name]} format={metricFormatByName[name]?.format} />
+              </div>
+            ))}
+            <div className="detail-metric">
+              <div className="detail-metric-label">Wins / Losses</div>
+              <span className="mono">
+                {(() => {
+                  const { wins, losses } = winLossCounts(historicalMetrics)
+                  return wins == null ? '—' : `${wins} / ${losses}`
+                })()}
+              </span>
+            </div>
+          </div>
+        </div>
+      )}
+
       <TradesTable trades={trades} />
     </div>
   )

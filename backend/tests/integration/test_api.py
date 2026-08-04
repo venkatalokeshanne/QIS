@@ -50,7 +50,7 @@ def mock_backtest_bars(monkeypatch):
     run against a synthetic in-memory frame instead of a real Tastytrade call."""
     from app.api.routes import backtest_routes
 
-    def fake_fetch(symbol, interval, start_date=None, end_date=None):
+    def fake_fetch(symbol, interval, start_date=None, end_date=None, **kwargs):
         return _synthetic_bars()
 
     monkeypatch.setattr(backtest_routes, "fetch_backtest_bars", fake_fetch)
@@ -89,6 +89,30 @@ def test_run_backtest_end_to_end(client, mock_backtest_bars):
     scored = [r for r in ticker_result["results"] if r["overall_score"] is not None]
     if scored:
         assert scored[0]["rank"] == 1
+    # No explicit date range requested -> that request already WAS the
+    # full history, so no redundant historical fetch/run happens.
+    assert all(r["historical_metrics"] is None for r in ticker_result["results"])
+
+
+def test_run_backtest_with_date_range_also_returns_historical_metrics(client, mock_backtest_bars):
+    run_resp = client.post(
+        "/api/backtests/run",
+        json={
+            "symbols": ["AAPL"],
+            "interval": "5min",
+            "strategy_names": ["orb_breakout"],
+            "start_date": "2024-01-02",
+            "end_date": "2024-01-03",
+        },
+    )
+    assert run_resp.status_code == 200
+    result = run_resp.json()["ticker_results"][0]["results"][0]
+
+    assert result["historical_metrics"] is not None
+    assert "net_profit" in result["historical_metrics"]
+    assert result["historical_trade_count"] is not None
+    assert result["historical_period_start"] is not None
+    assert result["historical_period_end"] is not None
 
 
 def test_run_backtest_breakdown_by_month(client, mock_backtest_bars):
