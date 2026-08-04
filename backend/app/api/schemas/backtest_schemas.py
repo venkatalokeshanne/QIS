@@ -14,6 +14,11 @@ class ExecutionSettings(BaseModel):
     force_close_at_session_end: bool = True
     direction_filter: str = "both"  # "long_only" | "short_only" | "both"
 
+    # Data-fetch scope (see ExecutionConfig's matching fields) -- both
+    # False means regular-hours-only bars, the original behavior.
+    include_extended_hours: bool = False
+    include_overnight: bool = False
+
     # Risk management — all disabled (None) unless explicitly set.
     atr_period: int = 14
     stop_loss_atr_multiple: float | None = None

@@ -48,7 +48,7 @@ def _fetch_bars_up_to(timestamp: str):
     same raw shape (a "date" column + lowercase OHLCV) the real client
     returns, truncated as if `timestamp` were the freshest available bar."""
 
-    def _fetch(symbol, interval, outputsize):
+    def _fetch(symbol, interval, outputsize, **kwargs):
         full = _full_bars()
         cutoff = full["date"] <= pd.Timestamp(timestamp)
         return full[cutoff].reset_index(drop=True)

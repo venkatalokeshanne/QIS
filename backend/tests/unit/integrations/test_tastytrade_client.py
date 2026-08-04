@@ -164,6 +164,7 @@ def test_is_real_candle_filters_nan_placeholder():
 
 def test_build_candle_symbol_includes_periodicity_and_trading_hours_flag():
     assert tt.build_candle_symbol("AAPL", "5m") == "AAPL{=5m,tho=true}"
+    assert tt.build_candle_symbol("AAPL", "5m", tho=False) == "AAPL{=5m,tho=false}"
 
 
 def test_from_time_ms_for_outputsize_looks_generously_far_back():
@@ -202,7 +203,7 @@ def test_fetch_historical_bars_builds_expected_shape_and_sort_order(monkeypatch)
     # Candles arrive newest-first from the feed.
     candles = [_fake_candle(1785527700000, 309.03), _fake_candle(1785527400000, 308.87)]
 
-    async def fake_collect(symbol, periodicity, outputsize, from_time_ms):
+    async def fake_collect(symbol, periodicity, outputsize, from_time_ms, tho=True):
         return candles
 
     monkeypatch.setattr(tt, "_collect_candles", fake_collect)
@@ -218,7 +219,7 @@ def test_fetch_historical_bars_builds_expected_shape_and_sort_order(monkeypatch)
 def test_fetch_historical_bars_trims_to_outputsize(monkeypatch):
     candles = [_fake_candle(1785527700000 - i * 300_000, float(i)) for i in range(20)]
 
-    async def fake_collect(symbol, periodicity, outputsize, from_time_ms):
+    async def fake_collect(symbol, periodicity, outputsize, from_time_ms, tho=True):
         return candles
 
     monkeypatch.setattr(tt, "_collect_candles", fake_collect)
@@ -230,7 +231,7 @@ def test_fetch_historical_bars_trims_to_outputsize(monkeypatch):
 
 
 def test_fetch_historical_bars_raises_when_no_candles_come_back(monkeypatch):
-    async def fake_collect(symbol, periodicity, outputsize, from_time_ms):
+    async def fake_collect(symbol, periodicity, outputsize, from_time_ms, tho=True):
         return []
 
     monkeypatch.setattr(tt, "_collect_candles", fake_collect)
@@ -245,7 +246,7 @@ def test_fetch_historical_bars_keeps_same_day_bars_for_date_only_end_date(monkey
         _fake_candle(int(pd.Timestamp("2026-08-03 23:55:00", tz="UTC").timestamp() * 1000), 2.0),
     ]
 
-    async def fake_collect(symbol, periodicity, outputsize, from_time_ms):
+    async def fake_collect(symbol, periodicity, outputsize, from_time_ms, tho=True):
         return candles
 
     monkeypatch.setattr(tt, "_collect_candles", fake_collect)
@@ -258,7 +259,7 @@ def test_fetch_historical_bars_keeps_same_day_bars_for_date_only_end_date(monkey
 
 
 def test_fetch_historical_bars_wraps_unexpected_errors(monkeypatch):
-    async def fake_collect(symbol, periodicity, outputsize, from_time_ms):
+    async def fake_collect(symbol, periodicity, outputsize, from_time_ms, tho=True):
         raise RuntimeError("socket exploded")
 
     monkeypatch.setattr(tt, "_collect_candles", fake_collect)
@@ -272,7 +273,7 @@ def test_fetch_historical_bars_converts_epoch_ms_to_naive_america_new_york(monke
     # 2026-07-30 09:30:00 in America/New_York (the regular session open).
     candles = [_fake_candle(1785418200000, 100.0)]
 
-    async def fake_collect(symbol, periodicity, outputsize, from_time_ms):
+    async def fake_collect(symbol, periodicity, outputsize, from_time_ms, tho=True):
         return candles
 
     monkeypatch.setattr(tt, "_collect_candles", fake_collect)

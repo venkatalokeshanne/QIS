@@ -32,7 +32,7 @@ def test_fetch_backtest_bars_returns_normalized_frame():
 def test_fetch_backtest_bars_passes_symbol_interval_and_dates_through():
     captured = {}
 
-    def fake_fetch(symbol, interval, outputsize, start_date, end_date):
+    def fake_fetch(symbol, interval, outputsize, start_date, end_date, **kwargs):
         captured["symbol"] = symbol
         captured["interval"] = interval
         captured["outputsize"] = outputsize
@@ -51,7 +51,7 @@ def test_fetch_backtest_bars_passes_symbol_interval_and_dates_through():
 def test_fetch_backtest_bars_omits_dates_by_default():
     captured = {}
 
-    def fake_fetch(symbol, interval, outputsize, start_date, end_date):
+    def fake_fetch(symbol, interval, outputsize, start_date, end_date, **kwargs):
         captured["start_date"] = start_date
         captured["end_date"] = end_date
         return _valid_bars_df()

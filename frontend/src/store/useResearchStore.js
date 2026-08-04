@@ -119,6 +119,8 @@ export const useResearchStore = create(
         slippage_pct: 0,
         force_close_at_session_end: true,
         direction_filter: 'long_only', // 'long_only' | 'short_only' | 'both'
+        include_extended_hours: false, // pre-/after-market bars, same trading day
+        include_overnight: false, // bars outside regular + extended hours (20:00-04:00 ET)
         atr_period: 14,
         stop_loss_atr_multiple: 2,
         stop_loss_pct: null, // flat % stop (e.g. 0.01 = 1%); off by default, alternative to ATR-based stop

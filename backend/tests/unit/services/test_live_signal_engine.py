@@ -123,19 +123,21 @@ def test_merge_live_candle_never_mutates_input():
 
 
 def test_ensure_subscribed_populates_pair_and_symbol_map(engine, monkeypatch):
-    monkeypatch.setattr(lse.signal_service, "fetch_symbol_bars", lambda symbol, interval: _historical_df())
+    monkeypatch.setattr(lse.signal_service, "fetch_symbol_bars", lambda symbol, interval, **kwargs: _historical_df())
 
     asyncio.run(engine._ensure_subscribed("AAPL", "5min"))
 
     assert ("AAPL", "5min") in engine._pairs
-    assert "AAPL{=5m,tho=true}" in engine._symbol_to_pair
-    assert engine._symbol_to_pair["AAPL{=5m,tho=true}"] == ("AAPL", "5min")
+    assert "AAPL{=5m,tho=false}" in engine._symbol_to_pair
+    assert engine._symbol_to_pair["AAPL{=5m,tho=false}"] == ("AAPL", "5min")
 
 
 def test_ensure_subscribed_is_idempotent_for_same_pair(engine, monkeypatch):
     calls = []
     monkeypatch.setattr(
-        lse.signal_service, "fetch_symbol_bars", lambda symbol, interval: (calls.append(1), _historical_df())[1]
+        lse.signal_service,
+        "fetch_symbol_bars",
+        lambda symbol, interval, **kwargs: (calls.append(1), _historical_df())[1],
     )
 
     asyncio.run(engine._ensure_subscribed("AAPL", "5min"))
@@ -145,7 +147,7 @@ def test_ensure_subscribed_is_idempotent_for_same_pair(engine, monkeypatch):
 
 
 def test_ensure_subscribed_swallows_fetch_failure(engine, monkeypatch):
-    def _raise(symbol, interval):
+    def _raise(symbol, interval, **kwargs):
         raise RuntimeError("Tastytrade blew up")
 
     monkeypatch.setattr(lse.signal_service, "fetch_symbol_bars", _raise)
@@ -156,17 +158,17 @@ def test_ensure_subscribed_swallows_fetch_failure(engine, monkeypatch):
 
 
 def test_maybe_unsubscribe_removes_pair_when_no_watch_needs_it(engine, monkeypatch):
-    monkeypatch.setattr(lse.signal_service, "fetch_symbol_bars", lambda symbol, interval: _historical_df())
+    monkeypatch.setattr(lse.signal_service, "fetch_symbol_bars", lambda symbol, interval, **kwargs: _historical_df())
     asyncio.run(engine._ensure_subscribed("AAPL", "5min"))
 
     asyncio.run(engine._maybe_unsubscribe("AAPL", "5min"))
 
     assert ("AAPL", "5min") not in engine._pairs
-    assert "AAPL{=5m,tho=true}" not in engine._symbol_to_pair
+    assert "AAPL{=5m,tho=false}" not in engine._symbol_to_pair
 
 
 def test_maybe_unsubscribe_keeps_pair_when_another_watch_still_needs_it(engine, repository, monkeypatch):
-    monkeypatch.setattr(lse.signal_service, "fetch_symbol_bars", lambda symbol, interval: _historical_df())
+    monkeypatch.setattr(lse.signal_service, "fetch_symbol_bars", lambda symbol, interval, **kwargs: _historical_df())
     asyncio.run(engine._ensure_subscribed("AAPL", "5min"))
     repository.create("AAPL", "sma_cross", {}, "5min")  # still-active watch on this pair
 

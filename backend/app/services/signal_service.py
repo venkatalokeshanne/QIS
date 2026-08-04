@@ -67,9 +67,19 @@ class SignalCheck:
 
 
 def fetch_symbol_bars(
-    symbol: str, interval: str, fetch_bars=tastytrade_client.fetch_historical_bars
+    symbol: str,
+    interval: str,
+    fetch_bars=tastytrade_client.fetch_historical_bars,
+    include_extended_hours: bool = False,
+    include_overnight: bool = False,
 ) -> pd.DataFrame:
-    raw = fetch_bars(symbol, interval=interval, outputsize=OUTPUTSIZE)
+    raw = fetch_bars(
+        symbol,
+        interval=interval,
+        outputsize=OUTPUTSIZE,
+        include_extended_hours=include_extended_hours,
+        include_overnight=include_overnight,
+    )
     detection = detect_columns(raw)
     normalized = normalize_ohlcv(raw, detection)
     report = validate_ohlcv(normalized)
@@ -188,9 +198,25 @@ def check_signal(
     interval), is used instead of opening a brand-new short-lived
     DXLink connection via fetch_bars -- avoids hammering Tastytrade
     with a fresh connection on every single poll for symbols already
-    being tracked live.
+    being tracked live. That cache always holds the full (regular +
+    extended + overnight) superset regardless of any one watch's own
+    session settings -- see live_signal_engine's docstring -- so it's
+    narrowed down here to whatever `execution_config` actually wants.
     """
-    df = cached_df if cached_df is not None else fetch_symbol_bars(symbol, interval, fetch_bars=fetch_bars)
+    if cached_df is not None:
+        config_for_session = execution_config or ExecutionConfig()
+        df = tastytrade_client.filter_by_session(
+            cached_df, config_for_session.include_extended_hours, config_for_session.include_overnight
+        )
+    else:
+        config_for_session = execution_config or ExecutionConfig()
+        df = fetch_symbol_bars(
+            symbol,
+            interval,
+            fetch_bars=fetch_bars,
+            include_extended_hours=config_for_session.include_extended_hours,
+            include_overnight=config_for_session.include_overnight,
+        )
     strategy = get_strategy(strategy_name)
     params = strategy.validate_params(strategy_params)
     config = replace(execution_config or ExecutionConfig(), force_close_at_session_end=False)

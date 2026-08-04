@@ -17,6 +17,7 @@ TASTYTRADE_REFRESH_TOKEN set (backend/.env) -- see backend/.env.example.
 import asyncio
 import json
 import time
+from datetime import time as time_cls
 
 import pandas as pd
 import requests
@@ -156,13 +157,53 @@ def periodicity_for_interval(interval: str) -> str:
         ) from None
 
 
-def build_candle_symbol(symbol: str, periodicity: str) -> str:
+def build_candle_symbol(symbol: str, periodicity: str, tho: bool = True) -> str:
     """dxFeed compound symbol for a Candle subscription, e.g. "AAPL{=5m,tho=true}".
     tho=true (trading hours only) -- confirmed against a live connection:
-    without it, candles include pre-/after-market data. Shared by this
-    module's one-shot backfill and live_signal_engine's long-lived feed
-    so both see identical bar boundaries/timestamps."""
-    return f"{symbol}{{={periodicity},tho=true}}"
+    without it, candles include pre-/after-market and overnight data.
+    Shared by this module's one-shot backfill and live_signal_engine's
+    long-lived feed so both see identical bar boundaries/timestamps.
+    Pass tho=False to request the full (regular + extended + overnight)
+    feed -- see filter_by_session for splitting that back out by session."""
+    return f"{symbol}{{={periodicity},tho={'true' if tho else 'false'}}}"
+
+
+# Regular US equity session, America/New_York (naive, since every bar
+# timestamp in this app is already tz-localized to NY and stripped --
+# see fetch_historical_bars/live_signal_engine.parse_live_candle).
+_SESSION_REGULAR_START = time_cls(9, 30)
+_SESSION_REGULAR_END = time_cls(16, 0)
+# Pre-/after-market, same calendar day as the regular session either side of it.
+_SESSION_EXTENDED_START = time_cls(4, 0)
+_SESSION_EXTENDED_END = time_cls(20, 0)
+# Overnight is everything NOT regular or extended, i.e. 20:00-04:00.
+
+
+def filter_by_session(df: pd.DataFrame, include_extended_hours: bool, include_overnight: bool) -> pd.DataFrame:
+    """Bars are always fetched with tho=false when either flag is set
+    (see fetch_historical_bars) so this can independently include/
+    exclude pre-/after-market vs. overnight bars from the same fetch --
+    dxFeed's own tho flag can only toggle regular-only vs. everything,
+    not the two apart. Regular-session bars are always kept. No-op
+    (returns df unchanged) when both flags are True, since the fetch
+    already contains exactly that superset with nothing further to drop.
+    """
+    if include_extended_hours and include_overnight:
+        return df
+    # Raw (pre-normalize) frames carry timestamps in a "date" column;
+    # already-normalized frames (e.g. live_signal_engine's cached_df)
+    # carry them as the DatetimeIndex instead -- support both shapes.
+    times = df["date"].dt.time if "date" in df.columns else pd.Series(df.index, index=df.index).dt.time
+    is_regular = (times >= _SESSION_REGULAR_START) & (times < _SESSION_REGULAR_END)
+    is_extended = ((times >= _SESSION_EXTENDED_START) & (times < _SESSION_REGULAR_START)) | (
+        (times >= _SESSION_REGULAR_END) & (times < _SESSION_EXTENDED_END)
+    )
+    keep = is_regular.copy()
+    if include_extended_hours:
+        keep |= is_extended
+    if include_overnight:
+        keep |= ~(is_regular | is_extended)
+    return df[keep] if "date" not in df.columns else df[keep].reset_index(drop=True)
 
 
 def is_real_candle(event: dict) -> bool:
@@ -182,9 +223,11 @@ def _from_time_ms_for_outputsize(interval: str, outputsize: int) -> int:
     return int((time.time() - 86400 * calendar_days_back) * 1000)
 
 
-async def _collect_candles(symbol: str, periodicity: str, outputsize: int, from_time_ms: int) -> list[dict]:
+async def _collect_candles(
+    symbol: str, periodicity: str, outputsize: int, from_time_ms: int, tho: bool = True
+) -> list[dict]:
     quote_token = get_quote_token()
-    dxfeed_symbol = build_candle_symbol(symbol, periodicity)
+    dxfeed_symbol = build_candle_symbol(symbol, periodicity, tho=tho)
 
     async with websockets.connect(quote_token["dxlink-url"]) as ws:
         await dxlink.handshake(ws, quote_token["token"], {"Candle": CANDLE_FIELDS})
@@ -227,6 +270,8 @@ def fetch_historical_bars(
     outputsize: int = 5000,
     start_date: str | None = None,
     end_date: str | None = None,
+    include_extended_hours: bool = False,
+    include_overnight: bool = False,
 ) -> pd.DataFrame:
     """
     Fetch historical bars for `symbol` via Tastytrade's DXLink feed and
@@ -235,6 +280,11 @@ def fetch_historical_bars(
     ready for the same detect -> normalize -> validate pipeline every
     bar consumer in this app (levels_service, signal_service,
     backtest_data) runs it through.
+
+    `include_extended_hours`/`include_overnight` default to False (the
+    original, regular-hours-only behavior). Setting either requests the
+    full tho=false feed from dxFeed and then filter_by_session narrows
+    it back down to exactly the requested session(s).
 
     Unlike a simple REST call, this opens a short-lived DXLink WebSocket
     connection, subscribes to a Candle feed with a `fromTime` backfill
@@ -256,8 +306,12 @@ def fetch_historical_bars(
     else:
         from_time_ms = _from_time_ms_for_outputsize(interval, outputsize)
 
+    # dxFeed's tho flag can only toggle regular-only vs. everything --
+    # request the full feed whenever either extended-hours or overnight
+    # bars are wanted, then filter_by_session narrows it back down.
+    tho = not (include_extended_hours or include_overnight)
     try:
-        candles = asyncio.run(_collect_candles(symbol, periodicity, outputsize, from_time_ms))
+        candles = asyncio.run(_collect_candles(symbol, periodicity, outputsize, from_time_ms, tho=tho))
     except TastytradeError:
         raise
     except Exception as exc:
@@ -276,6 +330,9 @@ def fetch_historical_bars(
     for col in ("open", "high", "low", "close", "volume"):
         df[col] = pd.to_numeric(df[col])
     df = df[["date", "open", "high", "low", "close", "volume"]].sort_values("date").reset_index(drop=True)
+
+    if not tho:
+        df = filter_by_session(df, include_extended_hours, include_overnight)
 
     if end_date:
         end_dt = pd.Timestamp(end_date)

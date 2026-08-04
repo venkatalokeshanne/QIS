@@ -40,6 +40,8 @@ def fetch_backtest_bars(
     interval: str,
     start_date: str | None = None,
     end_date: str | None = None,
+    include_extended_hours: bool = False,
+    include_overnight: bool = False,
     fetch_bars=tastytrade_client.fetch_historical_bars,
 ) -> pd.DataFrame:
     """
@@ -51,11 +53,22 @@ def fetch_backtest_bars(
     Run Backtests stay optional rather than required. When `start_date`
     IS given, bars are actually fetched from WARMUP_CALENDAR_DAYS
     earlier -- see that constant's comment.
+
+    `include_extended_hours`/`include_overnight` are passed straight
+    through to fetch_bars -- see tastytrade_client.filter_by_session.
     """
     fetch_start_date = start_date
     if start_date:
         fetch_start_date = (pd.Timestamp(start_date) - pd.Timedelta(days=WARMUP_CALENDAR_DAYS)).date().isoformat()
-    raw = fetch_bars(symbol, interval=interval, outputsize=5000, start_date=fetch_start_date, end_date=end_date)
+    raw = fetch_bars(
+        symbol,
+        interval=interval,
+        outputsize=5000,
+        start_date=fetch_start_date,
+        end_date=end_date,
+        include_extended_hours=include_extended_hours,
+        include_overnight=include_overnight,
+    )
     detection = detect_columns(raw)
     normalized = normalize_ohlcv(raw, detection)
     report = validate_ohlcv(normalized)

@@ -80,6 +80,24 @@ export default function Settings() {
           />
           <span>Force close at session end</span>
         </label>
+
+        <label className="checkbox-row">
+          <input
+            type="checkbox"
+            checked={executionSettings.include_extended_hours}
+            onChange={(e) => setExecutionSettings({ include_extended_hours: e.target.checked })}
+          />
+          <span>Include extended hours (pre-/after-market)</span>
+        </label>
+
+        <label className="checkbox-row">
+          <input
+            type="checkbox"
+            checked={executionSettings.include_overnight}
+            onChange={(e) => setExecutionSettings({ include_overnight: e.target.checked })}
+          />
+          <span>Include overnight session</span>
+        </label>
       </Card>
 
       <Card style={{ maxWidth: 480, marginTop: 16 }}>

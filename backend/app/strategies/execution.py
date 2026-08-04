@@ -31,6 +31,14 @@ class ExecutionConfig:
     slippage_pct: float = 0.0  # fraction of price, applied unfavorably on fills
     force_close_at_session_end: bool = True
 
+    # Data-fetch scope, NOT execution behavior -- carried here only so
+    # these travel through the same Settings/watch-snapshot plumbing as
+    # every other execution setting. Actually applied by
+    # app.integrations.tastytrade_client.fetch_historical_bars (and its
+    # filter_by_session helper), not by anything in this module.
+    include_extended_hours: bool = False
+    include_overnight: bool = False
+
     # Global trade-direction filter, applied uniformly on top of whatever
     # a strategy's own params allow (e.g. ORB's "direction" param). Lives
     # here rather than per-strategy so "only take longs" works the same

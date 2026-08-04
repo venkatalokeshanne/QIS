@@ -39,7 +39,14 @@ def run_backtest(payload: RunBacktestRequest):
     for symbol in payload.symbols:
         # Each ticker is scored/ranked independently -- "rank 1" means
         # best strategy for THAT ticker, not across the whole batch.
-        df = fetch_backtest_bars(symbol, payload.interval, payload.start_date, payload.end_date)
+        df = fetch_backtest_bars(
+            symbol,
+            payload.interval,
+            payload.start_date,
+            payload.end_date,
+            include_extended_hours=payload.execution.include_extended_hours,
+            include_overnight=payload.execution.include_overnight,
+        )
         results = run_strategies(df, request)
 
         ticker_results.append(

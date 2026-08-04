@@ -229,14 +229,25 @@ class LiveSignalEngine:
         if pair in self._pairs:
             return
         try:
-            historical_df = await asyncio.to_thread(signal_service.fetch_symbol_bars, symbol, interval)
+            # Always cache the full (regular + extended + overnight)
+            # superset -- different watches on the same symbol+interval
+            # can each want different session settings, and there's only
+            # one shared cache per pair, so narrowing happens per-watch
+            # at evaluation time instead (see _run_strategy).
+            historical_df = await asyncio.to_thread(
+                signal_service.fetch_symbol_bars,
+                symbol,
+                interval,
+                include_extended_hours=True,
+                include_overnight=True,
+            )
         except Exception:
             logger.exception("Could not fetch initial historical bars for %s %s", symbol, interval)
             return
 
         self._pairs[pair] = _PairState(historical_df)
         periodicity = tastytrade_client.periodicity_for_interval(interval)
-        compound_symbol = tastytrade_client.build_candle_symbol(symbol, periodicity)
+        compound_symbol = tastytrade_client.build_candle_symbol(symbol, periodicity, tho=False)
         self._symbol_to_pair[compound_symbol] = pair
 
         if self._ws is not None:
@@ -284,7 +295,13 @@ class LiveSignalEngine:
     async def _resync_all_pairs(self) -> None:
         for symbol, interval in list(self._pairs):
             try:
-                historical_df = await asyncio.to_thread(signal_service.fetch_symbol_bars, symbol, interval)
+                historical_df = await asyncio.to_thread(
+                    signal_service.fetch_symbol_bars,
+                    symbol,
+                    interval,
+                    include_extended_hours=True,
+                    include_overnight=True,
+                )
             except Exception:
                 logger.exception("Resync failed for %s %s -- keeping previously cached bars", symbol, interval)
                 continue
@@ -369,7 +386,13 @@ class LiveSignalEngine:
         # for watches created before that snapshot existed.
         base_config = ExecutionConfig(**watch.execution_settings) if watch.execution_settings else ExecutionConfig()
         execution_config = replace(base_config, force_close_at_session_end=False)
-        trades = strategy.run(df, params, execution_config)
+        # `df` is the shared pair's full (regular + extended + overnight)
+        # cache -- narrow it down to whatever session(s) this particular
+        # watch actually wants before running its strategy.
+        session_df = tastytrade_client.filter_by_session(
+            df, execution_config.include_extended_hours, execution_config.include_overnight
+        )
+        trades = strategy.run(session_df, params, execution_config)
         event, direction, exit_reason = signal_service.event_for_bar(trades, bar_time)
         return event, direction, exit_reason, trades
 
