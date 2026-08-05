@@ -69,6 +69,18 @@ class Settings(BaseSettings):
     telegram_bot_token: str = ""
     telegram_chat_id: str = ""
 
+    # How many separate OS processes run strategy computation
+    # concurrently (see backtest_routes.py) -- each worker is a full
+    # extra Python interpreter (pandas/numpy/the whole strategy
+    # registry loaded again), real memory per worker, not just CPU.
+    # Deliberately NOT os.cpu_count(): a container's reported core
+    # count often doesn't reflect its actual resource allocation (e.g.
+    # Render's free tier is ~0.1 vCPU / 512MB total), and over-
+    # provisioning workers there risks an out-of-memory kill, worse
+    # than running fewer workers slower. Override via env var on a
+    # host that actually has the RAM/cores to spare.
+    strategy_worker_processes: int = 2
+
     def ensure_dirs(self) -> None:
         self.data_dir.mkdir(parents=True, exist_ok=True)
 

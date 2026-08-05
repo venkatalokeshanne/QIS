@@ -1,5 +1,9 @@
 """Backtest routes — thin wrapper around app.services.strategy_runner."""
 
+import asyncio
+import logging
+import time
+from concurrent.futures import ProcessPoolExecutor
 from datetime import date
 
 import pandas as pd
@@ -14,12 +18,56 @@ from app.api.schemas.backtest_schemas import (
     TickerBacktestResult,
     TradeResponse,
 )
+from app.config.settings import settings
 from app.ranking.models import RankingConfig
 from app.services.backtest_data import fetch_backtest_bars, historical_outputsize
 from app.services.strategy_runner import RunRequest, run_strategies
 from app.strategies.execution import ExecutionConfig
 
+_logger = logging.getLogger("quant_platform")
+
 router = APIRouter(prefix="/api/backtests", tags=["backtests"])
+
+# Strategy execution is CPU-bound pandas/numpy work, not I/O wait --
+# threads don't give real parallelism for that (Python's GIL means
+# only one thread runs Python bytecode at a time). Confirmed by
+# measurement: letting every ticker's 35-strategy computation run
+# unbounded (even capped) in THREADS ballooned each one from ~15s in
+# isolation to 90-125s+ under load, and one run even 502'd outright --
+# capping the thread count only stopped the crash, it never made the
+# CPU-bound work itself faster, because threads fundamentally can't
+# use more than one core for pure-Python/pandas work at a time.
+#
+# A process pool actually does: each worker is a separate OS process
+# with its own GIL, so run_strategies calls genuinely run in parallel
+# across cores. The cost is real memory per worker -- each one is a
+# full fresh Python interpreter that has to import pandas/numpy/the
+# whole strategy registry again. Sized conservatively via settings
+# .strategy_worker_processes (default 2) rather than os.cpu_count():
+# a container's reported core count often doesn't reflect its actual
+# allocation (e.g. Render's free tier is ~0.1 vCPU on 512MB total), and
+# spawning too many full-interpreter workers there risks an out-of-
+# memory kill -- worse than running fewer workers slower. Bump the env
+# var on a host that actually has the cores/RAM to spare.
+#
+# Created once at app startup (see main.py's lifespan calling
+# start_strategy_pool/stop_strategy_pool) and reused across requests --
+# spawning a fresh process pool per request would be far too slow,
+# since process startup itself is the dominant cost for a short-lived
+# pool.
+_strategy_pool: ProcessPoolExecutor | None = None
+
+
+def start_strategy_pool() -> None:
+    global _strategy_pool
+    _strategy_pool = ProcessPoolExecutor(max_workers=settings.strategy_worker_processes)
+
+
+def stop_strategy_pool() -> None:
+    global _strategy_pool
+    if _strategy_pool is not None:
+        _strategy_pool.shutdown(wait=False, cancel_futures=True)
+        _strategy_pool = None
 
 # "Historical performance" uses a fixed trailing three-month window,
 # rather than the data source's drifting default lookback. This keeps
@@ -42,9 +90,88 @@ HISTORICAL_LOOKBACK_DAYS = 90
 # way, never silently misleading.
 HISTORICAL_MAX_OUTPUTSIZE = 100_000
 
+# Each ticker's bar fetch opens its own short-lived DXLink connection.
+# The real bottleneck there is Tastytrade's own per-connection backfill
+# pacing, not this app's CPU or network bandwidth -- an I/O wait, which
+# concurrency genuinely helps with. This caps how many fetches run at
+# once instead of unboundedly blasting every symbol at once (which
+# risks tripping a per-account connection limit on Tastytrade's side --
+# unconfirmed exact number, so this stays conservative).
+_MAX_CONCURRENT_TICKER_FETCHES = 8
+
+async def _run_backtest_for_symbol(
+    symbol: str,
+    payload: RunBacktestRequest,
+    request: RunRequest,
+    fetch_semaphore: asyncio.Semaphore,
+) -> TickerBacktestResult:
+    t_queued = time.monotonic()
+    async with fetch_semaphore:
+        t_fetch_start = time.monotonic()
+        df = await asyncio.to_thread(
+            fetch_backtest_bars,
+            symbol,
+            payload.interval,
+            payload.start_date,
+            payload.end_date,
+            include_extended_hours=payload.execution.include_extended_hours,
+            include_overnight=payload.execution.include_overnight,
+        )
+        t_fetch_done = time.monotonic()
+    t_strategies_start = time.monotonic()
+    loop = asyncio.get_running_loop()
+    # Runs in _strategy_pool (a real process pool, see its own comment
+    # above) -- genuine parallel CPU execution across workers, not just
+    # concurrent scheduling. Falls back to the current thread if the
+    # pool hasn't been started (e.g. a test that builds the app without
+    # running its lifespan) so this never silently no-ops.
+    if _strategy_pool is not None:
+        results = await loop.run_in_executor(_strategy_pool, run_strategies, df, request)
+    else:
+        results = await asyncio.to_thread(run_strategies, df, request)
+    t_strategies_done = time.monotonic()
+    _logger.info(
+        "backtest %s: fetch=%.1fs strategy_wait=%.1fs strategies=%.1fs total=%.1fs (%d bars)",
+        symbol,
+        t_fetch_done - t_fetch_start,
+        t_strategies_start - t_fetch_done,
+        t_strategies_done - t_strategies_start,
+        t_strategies_done - t_queued,
+        len(df),
+    )
+
+    return TickerBacktestResult(
+        symbol=symbol.upper(),
+        results=[
+            StrategyResultResponse(
+                strategy_name=r.strategy_name,
+                strategy_display_name=r.strategy_display_name,
+                metrics=r.metrics,
+                trade_count=r.trade_count,
+                overall_score=r.overall_score,
+                trades=[
+                    TradeResponse(
+                        entry_time=t.entry_time,
+                        exit_time=t.exit_time,
+                        direction=t.direction.value,
+                        entry_price=t.entry_price,
+                        exit_price=t.exit_price,
+                        quantity=t.quantity,
+                        pnl=t.pnl,
+                        exit_reason=t.exit_reason,
+                    )
+                    for t in r.trades
+                ],
+                rank=r.rank,
+                monthly_metrics=r.monthly_metrics,
+            )
+            for r in results
+        ],
+    )
+
 
 @router.post("/run", response_model=RunBacktestResponse)
-def run_backtest(payload: RunBacktestRequest):
+async def run_backtest(payload: RunBacktestRequest):
     # ExecutionSettings' fields are named identically to ExecutionConfig's --
     # a plain spread is exact, no field-by-field mapping needed.
     execution_config = ExecutionConfig(**payload.execution.model_dump())
@@ -61,52 +188,22 @@ def run_backtest(payload: RunBacktestRequest):
         report_start_date=payload.start_date,
     )
 
-    ticker_results = []
-    for symbol in payload.symbols:
-        # Each ticker is scored/ranked independently -- "rank 1" means
-        # best strategy for THAT ticker, not across the whole batch.
-        df = fetch_backtest_bars(
-            symbol,
-            payload.interval,
-            payload.start_date,
-            payload.end_date,
-            include_extended_hours=payload.execution.include_extended_hours,
-            include_overnight=payload.execution.include_overnight,
+    # Each ticker is scored/ranked independently -- "rank 1" means best
+    # strategy for THAT ticker, not across the whole batch. Fetching is
+    # concurrency-capped here (I/O wait, see _MAX_CONCURRENT_TICKER_FETCHES);
+    # strategy computation is capped by _strategy_pool's own worker
+    # count instead (CPU-bound, a different resource entirely -- see
+    # its comment above). gather preserves payload.symbols' order
+    # regardless of completion order.
+    fetch_semaphore = asyncio.Semaphore(_MAX_CONCURRENT_TICKER_FETCHES)
+    ticker_results = await asyncio.gather(
+        *(
+            _run_backtest_for_symbol(symbol, payload, request, fetch_semaphore)
+            for symbol in payload.symbols
         )
-        results = run_strategies(df, request)
+    )
 
-        ticker_results.append(
-            TickerBacktestResult(
-                symbol=symbol.upper(),
-                results=[
-                    StrategyResultResponse(
-                        strategy_name=r.strategy_name,
-                        strategy_display_name=r.strategy_display_name,
-                        metrics=r.metrics,
-                        trade_count=r.trade_count,
-                        overall_score=r.overall_score,
-                        trades=[
-                            TradeResponse(
-                                entry_time=t.entry_time,
-                                exit_time=t.exit_time,
-                                direction=t.direction.value,
-                                entry_price=t.entry_price,
-                                exit_price=t.exit_price,
-                                quantity=t.quantity,
-                                pnl=t.pnl,
-                                exit_reason=t.exit_reason,
-                            )
-                            for t in r.trades
-                        ],
-                        rank=r.rank,
-                        monthly_metrics=r.monthly_metrics,
-                    )
-                    for r in results
-                ],
-            )
-        )
-
-    return RunBacktestResponse(ticker_results=ticker_results)
+    return RunBacktestResponse(ticker_results=list(ticker_results))
 
 
 @router.post("/historical-performance", response_model=HistoricalPerformanceResponse)

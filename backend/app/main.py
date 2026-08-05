@@ -23,6 +23,7 @@ from app.api.routes import (
     signal_routes,
     watch_routes,
 )
+from app.api.routes.backtest_routes import start_strategy_pool, stop_strategy_pool
 from app.config.settings import settings
 from app.core.exceptions import AppError, DataValidationError, NotFoundError, TastytradeError
 from app.services.live_signal_engine import engine as live_signal_engine
@@ -37,12 +38,14 @@ logger = logging.getLogger("quant_platform")
 async def lifespan(app: FastAPI):
     settings.ensure_dirs()
     discover_strategies()
+    start_strategy_pool()
     poller = Poller()
     poller.start()
     live_signal_engine.start()
     yield
     await live_signal_engine.stop()
     await poller.stop()
+    stop_strategy_pool()
 
 
 app = FastAPI(title="Quant Strategy Research Platform API", version="0.1.0", lifespan=lifespan)

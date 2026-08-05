@@ -176,6 +176,73 @@ def test_run_backtest_breakdown_by_month(client, mock_backtest_bars):
         assert "total_trades" in month_metrics
 
 
+def test_run_backtest_fetches_multiple_symbols_concurrently(client, monkeypatch):
+    """The whole point of the concurrent fetch -- confirm two ticker
+    fetches actually overlap in time, not just that the response is
+    still correct (test_run_backtest_multiple_symbols_... below covers
+    correctness/ordering already)."""
+    import time
+
+    from app.api.routes import backtest_routes
+
+    active = []
+    max_concurrent = []
+
+    def fake_fetch(symbol, interval, start_date=None, end_date=None, **kwargs):
+        active.append(symbol)
+        max_concurrent.append(len(active))
+        time.sleep(0.1)  # long enough for other concurrent fetches to overlap
+        active.remove(symbol)
+        return _synthetic_bars()
+
+    monkeypatch.setattr(backtest_routes, "fetch_backtest_bars", fake_fetch)
+
+    resp = client.post(
+        "/api/backtests/run",
+        json={
+            "symbols": ["AAPL", "MSFT", "TSLA", "QCOM"],
+            "interval": "5min",
+            "strategy_names": ["orb_breakout"],
+        },
+    )
+
+    assert resp.status_code == 200
+    assert len(resp.json()["ticker_results"]) == 4
+    assert max(max_concurrent) > 1  # at least two fetches were in flight at once
+
+
+def test_run_backtest_computes_strategies_via_the_process_pool(client, mock_backtest_bars):
+    """Strategy execution is CPU-bound, unlike the fetch above -- letting
+    it run unbounded in THREADS alongside 8 concurrent fetches is what
+    caused the 90-125s-per-ticker thrashing (and an outright 502) that
+    this process pool fixes (threads can't give real parallelism for
+    CPU-bound work; separate processes can). A worker's own closures
+    can't cross the process boundary (unlike the thread-based version
+    this replaced), so this checks pool wiring/correctness end-to-end
+    with the real run_strategies instead of tracking a monkeypatched one."""
+    from app.api.routes import backtest_routes
+    from app.config.settings import settings
+
+    assert backtest_routes._strategy_pool is not None
+    assert backtest_routes._strategy_pool._max_workers == settings.strategy_worker_processes
+
+    resp = client.post(
+        "/api/backtests/run",
+        json={
+            "symbols": ["AAPL", "MSFT", "TSLA", "QCOM", "NVDA", "AMD"],
+            "interval": "5min",
+            "strategy_names": ["orb_breakout"],
+        },
+    )
+
+    assert resp.status_code == 200
+    body = resp.json()
+    assert len(body["ticker_results"]) == 6
+    for ticker_result in body["ticker_results"]:
+        assert len(ticker_result["results"]) == 1
+        assert ticker_result["results"][0]["strategy_name"] == "orb_breakout"
+
+
 def test_run_backtest_multiple_symbols_returns_one_result_set_per_symbol(client, mock_backtest_bars):
     run_resp = client.post(
         "/api/backtests/run",
