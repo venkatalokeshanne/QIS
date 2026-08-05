@@ -89,49 +89,64 @@ def test_run_backtest_end_to_end(client, mock_backtest_bars):
     scored = [r for r in ticker_result["results"] if r["overall_score"] is not None]
     if scored:
         assert scored[0]["rank"] == 1
-    # No explicit date range requested -> that request already WAS the
-    # full history, so no redundant historical fetch/run happens.
-    assert all(r["historical_metrics"] is None for r in ticker_result["results"])
+    # /run no longer computes historical performance at all -- that's
+    # the whole point of making it lazy (see
+    # test_historical_performance_* below) -- so the field shouldn't
+    # even be on this response anymore.
+    assert "historical_metrics" not in ticker_result["results"][0]
 
 
-def test_run_backtest_with_date_range_also_returns_historical_metrics(client, mock_backtest_bars):
-    run_resp = client.post(
-        "/api/backtests/run",
+def test_historical_performance_returns_a_three_month_window(client, mock_backtest_bars):
+    resp = client.post(
+        "/api/backtests/historical-performance",
         json={
-            "symbols": ["AAPL"],
+            "symbol": "AAPL",
             "interval": "5min",
-            "strategy_names": ["orb_breakout"],
-            "start_date": "2024-01-02",
-            "end_date": "2024-01-03",
+            "strategy_name": "orb_breakout",
+            "end_date": "2026-08-03",
         },
     )
-    assert run_resp.status_code == 200
-    result = run_resp.json()["ticker_results"][0]["results"][0]
+    assert resp.status_code == 200
+    body = resp.json()
 
-    assert result["historical_metrics"] is not None
-    assert "net_profit" in result["historical_metrics"]
-    assert result["historical_trade_count"] is not None
-    assert result["historical_period_start"] is not None
-    assert result["historical_period_end"] is not None
-    # The historical window is always sliced by month too, regardless
-    # of whether the request itself asked for a monthly breakdown --
-    # this is what lets Results.jsx show consistency across the whole
-    # historical window, not just one aggregate number.
-    assert result["historical_monthly_metrics"] is not None
-    for month_key, month_metrics in result["historical_monthly_metrics"].items():
+    assert body["historical_metrics"] is not None
+    assert "net_profit" in body["historical_metrics"]
+    assert body["historical_trade_count"] is not None
+    assert body["historical_period_start"] is not None
+    assert body["historical_period_end"] is not None
+    # Always sliced by month -- this is what lets Results.jsx show
+    # consistency across the window, not just one aggregate number.
+    assert body["historical_monthly_metrics"] is not None
+    for month_key, month_metrics in body["historical_monthly_metrics"].items():
         assert month_key.count("-") == 1  # "YYYY-MM"
         assert "net_profit" in month_metrics
 
 
-def test_run_backtest_without_date_range_has_no_historical_monthly_metrics(client, mock_backtest_bars):
-    # No explicit range -> no historical fetch happens at all (see
-    # has_explicit_range in backtest_routes).
-    run_resp = client.post(
-        "/api/backtests/run",
-        json={"symbols": ["AAPL"], "interval": "5min", "strategy_names": ["orb_breakout"]},
+def test_historical_performance_fetches_only_a_three_month_window(client, monkeypatch):
+    """Keep the on-demand comparison fetch bounded, and confirm it's
+    exactly ONE fetch (see backtest_routes -- this is the whole reason
+    it moved off the eager /run path)."""
+    from app.api.routes import backtest_routes
+
+    calls = []
+
+    def fake_fetch(symbol, interval, start_date=None, end_date=None, **kwargs):
+        calls.append((start_date, end_date))
+        return _synthetic_bars()
+
+    monkeypatch.setattr(backtest_routes, "fetch_backtest_bars", fake_fetch)
+    response = client.post(
+        "/api/backtests/historical-performance",
+        json={
+            "symbol": "AAPL",
+            "interval": "5min",
+            "strategy_name": "orb_breakout",
+            "end_date": "2026-08-03",
+        },
     )
-    result = run_resp.json()["ticker_results"][0]["results"][0]
-    assert result["historical_monthly_metrics"] is None
+
+    assert response.status_code == 200
+    assert calls == [("2026-05-05", "2026-08-03")]  # exactly one, 90-day, fetch
 
 
 def test_run_backtest_breakdown_by_month(client, mock_backtest_bars):

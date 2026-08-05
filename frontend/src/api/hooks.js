@@ -31,6 +31,28 @@ export function useRunBacktest() {
   return useMutation({ mutationFn: backtestsApi.run })
 }
 
+// Fetched lazily -- only when the Historical Performance popup for a
+// specific strategy is actually open (see Results.jsx) -- computing
+// this for every strategy on every backtest run doubled the request's
+// network cost (two ~20s-capped fetches instead of one) for 34
+// strategies nobody ever looks at.
+export function useHistoricalPerformance({ symbol, interval, strategyName, strategyParams, execution, endDate, enabled }) {
+  return useQuery({
+    queryKey: ['historical-performance', symbol, interval, strategyName, strategyParams, execution, endDate],
+    queryFn: () =>
+      backtestsApi.historicalPerformance({
+        symbol,
+        interval,
+        strategy_name: strategyName,
+        strategy_params: strategyParams,
+        execution,
+        end_date: endDate,
+      }),
+    enabled,
+    staleTime: 5 * 60 * 1000,
+  })
+}
+
 // --- Daily Levels ---
 
 export function useDailyLevels() {

@@ -67,22 +67,6 @@ class StrategyResultResponse(BaseModel):
     rank: int | None
     monthly_metrics: dict[str, dict[str, float | None]] | None = None
 
-    # How this same ticker+strategy performed over the maximum
-    # available history (not just the requested date range) -- lets
-    # you tell "worked well this month" apart from "has actually held
-    # up over a long history." Same as `metrics`/`trade_count` but
-    # None when the requested range already WAS the full history (no
-    # separate fetch needed, see backtest_routes.run_backtest).
-    historical_metrics: dict[str, float | None] | None = None
-    historical_trade_count: int | None = None
-    historical_period_start: datetime | None = None
-    historical_period_end: datetime | None = None
-    # Same historical window, sliced by calendar month -- shows
-    # whether performance has been consistent across that long window
-    # or concentrated in a few unusual months, which the single
-    # aggregate historical_metrics can't tell apart.
-    historical_monthly_metrics: dict[str, dict[str, float | None]] | None = None
-
 
 class TickerBacktestResult(BaseModel):
     symbol: str
@@ -91,3 +75,27 @@ class TickerBacktestResult(BaseModel):
 
 class RunBacktestResponse(BaseModel):
     ticker_results: list[TickerBacktestResult]
+
+
+class HistoricalPerformanceRequest(BaseModel):
+    """Fetched lazily, one strategy at a time, only when the user opens
+    the Historical Performance popup for it -- see backtest_routes.py.
+    Doing this for every strategy on every /run call was the eager
+    version's real cost: two ~20s-capped network fetches (requested
+    range + historical window) instead of one, paid even for the other
+    34 strategies nobody ever looks at."""
+
+    symbol: str
+    interval: str = Field(description="Bar interval to fetch live, e.g. '5min'.")
+    strategy_name: str
+    strategy_params: dict[str, Any] | None = None
+    execution: ExecutionSettings = ExecutionSettings()
+    end_date: str | None = Field(default=None, description="Historical window ends here; omit for today.")
+
+
+class HistoricalPerformanceResponse(BaseModel):
+    historical_metrics: dict[str, float | None] | None = None
+    historical_trade_count: int | None = None
+    historical_period_start: datetime | None = None
+    historical_period_end: datetime | None = None
+    historical_monthly_metrics: dict[str, dict[str, float | None]] | None = None
