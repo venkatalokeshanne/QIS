@@ -96,6 +96,64 @@ def test_run_backtest_end_to_end(client, mock_backtest_bars):
     assert "historical_metrics" not in ticker_result["results"][0]
 
 
+def test_run_backtest_isolates_one_failed_ticker_from_the_rest(client, monkeypatch):
+    """A bad/unlucky ticker's fetch failure shouldn't take down the
+    whole batch response -- confirm the other tickers still come back
+    successfully and the bad one is reported in failed_symbols instead
+    of the whole request erroring out."""
+    from app.api.routes import backtest_routes
+
+    monkeypatch.setattr(backtest_routes, "_FETCH_RETRY_DELAY_SECONDS", 0)
+
+    def fake_fetch(symbol, interval, start_date=None, end_date=None, **kwargs):
+        if symbol == "BADTICKER":
+            raise RuntimeError("no data for this symbol")
+        return _synthetic_bars()
+
+    monkeypatch.setattr(backtest_routes, "fetch_backtest_bars", fake_fetch)
+
+    resp = client.post(
+        "/api/backtests/run",
+        json={"symbols": ["AAPL", "BADTICKER", "MSFT"], "interval": "5min", "strategy_names": ["orb_breakout"]},
+    )
+
+    assert resp.status_code == 200
+    body = resp.json()
+    assert body["failed_symbols"] == ["BADTICKER"]
+    assert {t["symbol"] for t in body["ticker_results"]} == {"AAPL", "MSFT"}
+
+
+def test_run_backtest_retries_a_transient_fetch_failure(client, monkeypatch):
+    """Concurrent connections make a one-off dropped/rate-limited fetch
+    more likely than the old one-at-a-time code ever saw -- confirm a
+    symbol that fails once but succeeds on retry still makes it into
+    the results, not into failed_symbols."""
+    from app.api.routes import backtest_routes
+
+    monkeypatch.setattr(backtest_routes, "_FETCH_RETRY_DELAY_SECONDS", 0)
+
+    attempts = {"count": 0}
+
+    def flaky_fetch(symbol, interval, start_date=None, end_date=None, **kwargs):
+        attempts["count"] += 1
+        if attempts["count"] == 1:
+            raise RuntimeError("transient connection drop")
+        return _synthetic_bars()
+
+    monkeypatch.setattr(backtest_routes, "fetch_backtest_bars", flaky_fetch)
+
+    resp = client.post(
+        "/api/backtests/run",
+        json={"symbols": ["AAPL"], "interval": "5min", "strategy_names": ["orb_breakout"]},
+    )
+
+    assert resp.status_code == 200
+    body = resp.json()
+    assert body["failed_symbols"] == []
+    assert body["ticker_results"][0]["symbol"] == "AAPL"
+    assert attempts["count"] == 2
+
+
 def test_historical_performance_returns_a_three_month_window(client, mock_backtest_bars):
     resp = client.post(
         "/api/backtests/historical-performance",

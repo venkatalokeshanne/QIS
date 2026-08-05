@@ -75,6 +75,11 @@ class TickerBacktestResult(BaseModel):
 
 class RunBacktestResponse(BaseModel):
     ticker_results: list[TickerBacktestResult]
+    # Symbols whose bars couldn't be fetched (bad ticker, no data, or a
+    # network/connection failure that survived a retry -- see
+    # backtest_routes._run_backtest_for_symbol) -- reported here rather
+    # than one bad ticker failing the entire batch response.
+    failed_symbols: list[str] = []
 
 
 class HistoricalPerformanceRequest(BaseModel):

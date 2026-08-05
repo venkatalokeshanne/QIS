@@ -124,6 +124,12 @@ export default function Results() {
         }
       />
 
+      {lastRunResults.failed_symbols?.length > 0 && (
+        <div className="error-banner" style={{ marginBottom: 16 }}>
+          Couldn't fetch bars for: {lastRunResults.failed_symbols.join(', ')}. The rest of the batch still ran.
+        </div>
+      )}
+
       {(!isMultiTicker || view === 'grouped') && (
         <>
           {isMultiTicker && (

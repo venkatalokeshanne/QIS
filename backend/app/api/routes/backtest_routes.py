@@ -99,25 +99,62 @@ HISTORICAL_MAX_OUTPUTSIZE = 100_000
 # unconfirmed exact number, so this stays conservative).
 _MAX_CONCURRENT_TICKER_FETCHES = 8
 
+# Concurrent fetches mean more simultaneous DXLink connections than the
+# old one-at-a-time code ever had -- confirmed in practice: symbols
+# that fetch fine in isolation can intermittently come back with zero
+# candles under concurrent load (a dropped/rate-limited connection, not
+# a real "no data for this symbol"). One retry after a short pause
+# recovers most of these; it does NOT change how a genuinely bad ticker
+# behaves (still fails after the retry, same as before).
+_FETCH_RETRY_ATTEMPTS = 2
+_FETCH_RETRY_DELAY_SECONDS = 2.0
+
+
+async def _fetch_bars_with_retry(symbol: str, payload: RunBacktestRequest) -> pd.DataFrame:
+    last_error: Exception | None = None
+    for attempt in range(1, _FETCH_RETRY_ATTEMPTS + 1):
+        try:
+            return await asyncio.to_thread(
+                fetch_backtest_bars,
+                symbol,
+                payload.interval,
+                payload.start_date,
+                payload.end_date,
+                include_extended_hours=payload.execution.include_extended_hours,
+                include_overnight=payload.execution.include_overnight,
+            )
+        except Exception as exc:
+            last_error = exc
+            if attempt < _FETCH_RETRY_ATTEMPTS:
+                _logger.warning("backtest %s: fetch attempt %d failed (%s), retrying", symbol, attempt, exc)
+                await asyncio.sleep(_FETCH_RETRY_DELAY_SECONDS)
+    raise last_error
+
+
 async def _run_backtest_for_symbol(
     symbol: str,
     payload: RunBacktestRequest,
     request: RunRequest,
     fetch_semaphore: asyncio.Semaphore,
-) -> TickerBacktestResult:
+) -> TickerBacktestResult | None:
+    """None means this ticker's BARS couldn't be fetched (bad symbol,
+    fetch error surviving a retry, etc.) -- the caller reports it in
+    failed_symbols rather than letting one bad ticker take down the
+    whole batch response. Deliberately narrow: only the fetch is
+    guarded here, NOT strategy execution -- an unknown strategy name is
+    a request-validation problem uniform across every ticker (still
+    NotFoundError -> 404 for the whole request, same as before), not a
+    per-ticker data issue to silently swallow."""
     t_queued = time.monotonic()
-    async with fetch_semaphore:
-        t_fetch_start = time.monotonic()
-        df = await asyncio.to_thread(
-            fetch_backtest_bars,
-            symbol,
-            payload.interval,
-            payload.start_date,
-            payload.end_date,
-            include_extended_hours=payload.execution.include_extended_hours,
-            include_overnight=payload.execution.include_overnight,
-        )
-        t_fetch_done = time.monotonic()
+    try:
+        async with fetch_semaphore:
+            t_fetch_start = time.monotonic()
+            df = await _fetch_bars_with_retry(symbol, payload)
+            t_fetch_done = time.monotonic()
+    except Exception:
+        _logger.exception("backtest %s: fetch failed, excluding from results", symbol)
+        return None
+
     t_strategies_start = time.monotonic()
     loop = asyncio.get_running_loop()
     # Runs in _strategy_pool (a real process pool, see its own comment
@@ -196,14 +233,20 @@ async def run_backtest(payload: RunBacktestRequest):
     # its comment above). gather preserves payload.symbols' order
     # regardless of completion order.
     fetch_semaphore = asyncio.Semaphore(_MAX_CONCURRENT_TICKER_FETCHES)
-    ticker_results = await asyncio.gather(
+    raw_results = await asyncio.gather(
         *(
             _run_backtest_for_symbol(symbol, payload, request, fetch_semaphore)
             for symbol in payload.symbols
         )
     )
 
-    return RunBacktestResponse(ticker_results=list(ticker_results))
+    # A None means that symbol failed (see _run_backtest_for_symbol) --
+    # reported separately rather than failing the whole batch over one
+    # bad/unlucky ticker.
+    ticker_results = [r for r in raw_results if r is not None]
+    failed_symbols = [symbol.upper() for symbol, r in zip(payload.symbols, raw_results) if r is None]
+
+    return RunBacktestResponse(ticker_results=ticker_results, failed_symbols=failed_symbols)
 
 
 @router.post("/historical-performance", response_model=HistoricalPerformanceResponse)
