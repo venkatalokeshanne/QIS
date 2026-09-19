@@ -1,3 +1,4 @@
+import { strategySelectionApi } from './strategySelection'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { catalogApi } from './catalog'
 import { backtestsApi } from './backtests'
@@ -87,4 +88,10 @@ export function useRunDailySelection() {
 
 export function useRunSelectionBacktest() {
   return useMutation({ mutationFn: dailySelectionApi.backtest })
+}
+
+// --- Strategy Selection Engine ---
+
+export function useStrategySelection() {
+  return useMutation({ mutationFn: strategySelectionApi.select })
 }

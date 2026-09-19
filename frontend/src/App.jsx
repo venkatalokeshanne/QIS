@@ -8,6 +8,7 @@ import Compare from './pages/Compare'
 import Scanner from './pages/Scanner'
 import DailySelector from './pages/DailySelector'
 import Settings from './pages/Settings'
+import StrategySelection from './pages/StrategySelection'
 
 export default function App() {
   return (
@@ -21,6 +22,7 @@ export default function App() {
         <Route path="/compare" element={<Compare />} />
         <Route path="/scanner" element={<Scanner />} />
         <Route path="/daily-selector" element={<DailySelector />} />
+        <Route path="/strategy-selection" element={<StrategySelection />} />
         <Route path="/settings" element={<Settings />} />
       </Route>
     </Routes>

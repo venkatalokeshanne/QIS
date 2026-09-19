@@ -20,6 +20,7 @@ from app.api.routes import (
     daily_selection_routes,
     levels_routes,
     scanner_routes,
+    strategy_selection_routes,
 )
 from app.api.routes.backtest_routes import start_strategy_pool, stop_strategy_pool
 from app.config.settings import settings
@@ -54,6 +55,7 @@ app.include_router(backtest_routes.router)
 app.include_router(levels_routes.router)
 app.include_router(scanner_routes.router)
 app.include_router(daily_selection_routes.router)
+app.include_router(strategy_selection_routes.router)
 
 
 @app.exception_handler(NotFoundError)

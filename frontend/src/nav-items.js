@@ -7,5 +7,6 @@ export const NAV_ITEMS = [
   { to: '/compare', label: 'Compare' },
   { to: '/scanner', label: 'Scanner' },
   { to: '/daily-selector', label: 'Daily Selector' },
+  { to: '/strategy-selection', label: 'Strategy Selection' },
   { to: '/settings', label: 'Settings' },
 ]
