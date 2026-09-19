@@ -26,6 +26,7 @@ from dataclasses import asdict, dataclass, field
 
 import pandas as pd
 
+from app.strategy_engine.evaluation import point_in_time_performance, utc
 from app.strategy_engine.historical import ANY, EngineDB
 from app.strategy_engine.models import StrategyMeta, Timeframe
 from app.strategy_engine.thresholds import QUALIFICATION_CONFIG, config_version
@@ -96,7 +97,11 @@ class StrategyQualificationEngine:
         self.cfg = {**QUALIFICATION_CONFIG, **(config or {})}
 
     def qualify(self, ticker: str, strategy: StrategyMeta, timeframe: Timeframe, market_regime: str | None,
-                ticker_regime: str | None, premarket_regime: str | None = None) -> QualificationResult:
+                ticker_regime: str | None, premarket_regime: str | None = None,
+                as_of: pd.Timestamp | None = None) -> QualificationResult:
+        """`as_of` = the decision time. When it precedes the end of the stored
+        evaluation, every statistic is rebuilt from the trades that had CLOSED
+        by then (point-in-time), so a replay never sees later trades."""
         cfg = self.cfg
         res = QualificationResult(ticker=ticker.upper(), timeframe=str(timeframe), strategy_id=strategy.id,
                                   strategy=strategy.name, family=str(strategy.family), qualification_status=NOT_EVALUATED)
@@ -108,10 +113,19 @@ class StrategyQualificationEngine:
             return res
         d = base["details"]
         run = self.db.latest_run(ticker, strategy.id, str(timeframe)) or {}
+        pit = None
+        if as_of is not None and d.get("bars_to") and utc(as_of) < utc(d["bars_to"]):
+            perf, pit = point_in_time_performance(self.db, ticker, strategy, str(timeframe), pd.Timestamp(as_of), d, cfg)
+            base = _row(perf, "ALL_TIME") if not perf.empty else None
+            if base is None:
+                res.reasons = [f"no history before {pd.Timestamp(as_of)} -- the evaluation window starts at {d.get('bars_from')}"]
+                return res
+            d = base["details"]
         res.evaluation = {"run_id": base.get("run_id"), "evaluated_at": base.get("last_updated"),
                           "bars_from": d.get("bars_from"), "bars_to": d.get("bars_to"), "span_years": d.get("span_years"),
                           "data_version": run.get("data_version"), "evaluation_config_version": run.get("config_version"),
-                          "current_config_version": config_version()}
+                          "current_config_version": config_version(),
+                          "point_in_time": pit is not None, **({"as_of": str(pd.Timestamp(as_of)), **pit} if pit else {})}
         res.historical = {k: base.get(k) for k in ("trade_count", "win_rate", "profit_factor", "expectancy", "sharpe", "max_drawdown")}
         res.out_of_sample = d.get("out_of_sample", {})
         res.walk_forward = {k: v for k, v in (d.get("walk_forward") or {}).items()}
@@ -178,6 +192,9 @@ class StrategyQualificationEngine:
         res.qualification_status = QUALIFIED if not failed else NOT_QUALIFIED
         res.reasons = ([f"{c.name}: {c.value} (required {c.threshold})" + (f" -- {c.note}" if c.note else "") for c in failed]
                        or ["all qualification checks passed"])
+        if pit is not None and not pit["parameter_stability_point_in_time"]:
+            res.reasons.append("note: parameter stability comes from the full evaluation window (neighbour trades were "
+                               "not stored by that run); re-run the evaluation to make it point-in-time too")
         if res.evaluation.get("evaluation_config_version") not in (None, res.evaluation["current_config_version"]):
             res.reasons.append("note: evaluated under a different configuration version; re-run the evaluation to refresh")
         return res

@@ -98,11 +98,52 @@ def test_premarket_before_the_open_only_sees_elapsed_minutes():
         assert pd.Timestamp(through) <= pd.Timestamp("2026-09-02 08:00", tz=NY)
 
 
-def test_replay_flags_non_point_in_time_qualification():
+def test_replay_qualification_is_point_in_time():
     store = _store()
     sel = StrategySelector(store=store, db=EngineDB(), log=False)
     r = sel.select(TICKER, Timeframe.M5, pd.Timestamp("2026-06-02 10:00", tz=NY))
-    evaluated = [v for v in r.rejected_strategies if (v.get("qualification") or {}).get("evaluation", {}).get("bars_to")]
-    if not evaluated and not r.qualified_strategies:
+    evals = [(v.get("qualification") or {}).get("evaluation") or {} for v in r.rejected_strategies]
+    evals = [e for e in evals if e.get("bars_to")]
+    if not evals:
         pytest.skip("no evaluations stored for the replay ticker")
-    assert any(n.startswith("REPLAY_NOT_POINT_IN_TIME") for n in r.notes)
+    assert all(e["point_in_time"] and e["trades_closed_before"] <= e["trades_total"] for e in evals)
+    assert any(n.startswith("POINT_IN_TIME_REPLAY") for n in r.notes)
+
+
+def test_point_in_time_equals_an_evaluation_run_at_that_moment(tmp_path):
+    """The gold standard: statistics rebuilt from stored trades closed before T
+    must equal a fresh evaluation on bars that end at T -- same trades, same
+    prices, same PF / OOS / walk-forward / parameter stability."""
+    import json
+    import shutil
+
+    from app.strategy_engine.evaluation import StrategyEvaluator, point_in_time_performance
+    from app.strategy_engine.registry import default_registry
+
+    store = _store()
+    s = default_registry().get("ts_macd_momentum_strategy")
+    tf, as_of = Timeframe.parse("1h"), pd.Timestamp("2025-12-01 10:00", tz=NY)
+    if store.load(TICKER, tf, source="twelvedata").empty:
+        pytest.skip(f"no {TICKER} 1h bars")
+    full_db = EngineDB(tmp_path / "full.sqlite")
+    shutil.copy(EngineDB().path, full_db.path)          # regime histories for trade tagging
+    StrategyEvaluator(store=store, db=full_db).evaluate(TICKER, s, tf)
+    cut_db = EngineDB(tmp_path / "cut.sqlite")
+    shutil.copy(full_db.path, cut_db.path)
+    StrategyEvaluator(store=CutoffStore(store, as_of), db=cut_db).evaluate(TICKER, s, tf)
+
+    perf = full_db.load_performance(TICKER, s.id, str(tf))
+    details = json.loads(perf[perf.scope == "ALL_TIME"].iloc[0]["details"])
+    pit, info = point_in_time_performance(full_db, TICKER, s, str(tf), as_of, details)
+    assert info["parameter_stability_point_in_time"]
+    cut = cut_db.load_performance(TICKER, s.id, str(tf))
+    a, b = pit[pit.scope == "ALL_TIME"].iloc[0], cut[cut.scope == "ALL_TIME"].iloc[0]
+    for k in ("trade_count", "profit_factor", "oos_profit_factor", "walk_forward_pass_rate", "parameter_stability",
+              "slippage_robustness", "max_drawdown"):
+        assert a[k] == b[k], k
+
+    closed = full_db.load_trades(TICKER, s.id, str(tf))
+    closed = closed[closed.exit_time < as_of.timestamp()].reset_index(drop=True)
+    fresh = cut_db.load_trades(TICKER, s.id, str(tf)).reset_index(drop=True)
+    cols = ["entry_time", "exit_time", "entry_price", "exit_price"]
+    pd.testing.assert_frame_equal(closed[cols], fresh[cols])     # the strategy itself never peeks ahead

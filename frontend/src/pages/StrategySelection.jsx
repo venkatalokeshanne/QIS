@@ -99,6 +99,14 @@ export default function StrategySelection() {
               {result.ticker} · {result.timeframe} · decision {result.decision_ts}
               {result.log_id != null && ` · log #${result.log_id}`}
             </span>
+            {(result.notes || []).some((n) => n.startsWith('POINT_IN_TIME_REPLAY')) && (
+              <span
+                className="ss-pill ss-pill-accent"
+                title="Statistics were rebuilt from trades that had closed by the decision time"
+              >
+                Point-in-time replay
+              </span>
+            )}
           </div>
 
           <StrategySelectionFlow result={result} />

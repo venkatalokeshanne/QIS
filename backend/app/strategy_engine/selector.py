@@ -167,18 +167,21 @@ class StrategySelector:
         res.family_rules, res.family_notes = fam.fired_rules, fam.notes
 
         pm_label = premarket.premarket_regime if premarket else "NOT_EVALUATED"
+        self._as_of = ts
         verdicts = [self._judge(s, ticker, tf, fam, market, ticker_r, premarket, pm_label) for s in self.registry.all()]
         qualified = [v for v in verdicts if v.status == QUALIFIED]
         qualified.sort(key=self._strength, reverse=True)
-        # Regimes above are point-in-time, but the stored evaluations are not:
-        # replaying a past moment scores strategies with trades from after it.
-        after = sorted({str((v.qualification or {}).get("evaluation", {}).get("bars_to")) for v in verdicts
-                        if (v.qualification or {}).get("evaluation", {}).get("bars_to")
-                        and str(v.qualification["evaluation"]["bars_to"])[:10] > ts.date().isoformat()})
-        if after:
-            res.notes.append(f"REPLAY_NOT_POINT_IN_TIME: regimes use only data before {ts.date()}, but the qualification "
-                             f"statistics come from evaluations that run to {after[-1][:10]}, so they include trades after "
-                             f"the decision time")
+        # Replays: statistics are rebuilt from trades closed before the decision
+        # time; parameter stability can only be too if the run stored neighbour trades.
+        evals = [(v.qualification or {}).get("evaluation") or {} for v in verdicts]
+        pit = [e for e in evals if e.get("point_in_time")]
+        if pit:
+            res.notes.append(f"POINT_IN_TIME_REPLAY: qualification statistics for {len(pit)} strategies were rebuilt "
+                             f"from trades closed before {ts}")
+            stale = [e for e in pit if not e.get("parameter_stability_point_in_time")]
+            if stale:
+                res.notes.append(f"PARAMETER_STABILITY_NOT_POINT_IN_TIME: {len(stale)} evaluations predate stored "
+                                 f"neighbour trades; their parameter stability uses the full window -- re-run them")
         res.qualified_strategies = [self._summary(v) for v in qualified]
         res.rejected_strategies = [asdict(v) for v in verdicts if v.status != QUALIFIED]
         res.status = QUALIFIED_AVAILABLE if qualified else NO_QUALIFIED
@@ -226,7 +229,7 @@ class StrategySelector:
             v.status, v.reason = "FAMILY_NOT_APPLICABLE", freason
             return v
         q = self.qualifier.qualify(ticker, s, tf, market.market_regime, ticker_r.ticker_regime,
-                                   pm_label if s.uses_premarket else None)
+                                   pm_label if s.uses_premarket else None, as_of=self._as_of)
         v.qualification = q.to_dict()
         v.status = q.qualification_status
         v.reason = "; ".join(q.reasons)
