@@ -13,6 +13,7 @@ modeling benefit every strategy at once.
 """
 
 from dataclasses import dataclass
+from datetime import time as time_cls
 
 import pandas as pd
 
@@ -27,14 +28,33 @@ class ExecutionConfig:
 
     capital: float = 10_000.0
     quantity: float = 1.0
-    commission_per_trade: float = 0.0  # flat, applied once per round-trip
-    slippage_pct: float = 0.0  # fraction of price, applied unfavorably on fills
+    commission_per_trade: float = 0.0  # flat, applied once per round-trip -- 0 is realistic for most commission-free retail brokers today
+    # 0.05% per fill (~0.1% round-trip) -- a conservative stand-in for
+    # bid-ask spread/market-impact cost that a raw close-price fill
+    # otherwise assumes away for free. Real cost varies a lot by
+    # instrument liquidity; override per backtest if you have a better
+    # estimate for what you actually trade.
+    slippage_pct: float = 0.0005  # fraction of price, applied unfavorably on fills
     force_close_at_session_end: bool = True
 
+    # Which price a signal actually fills at.
+    #   "close"     -- fill on the signal bar's own close (this engine's
+    #                  original behaviour; kept as the default so every
+    #                  pre-existing strategy and test is unaffected).
+    #   "next_open" -- the signal is confirmed at the signal bar's close
+    #                  and filled at the NEXT bar's open. This is what
+    #                  TrendSpider does (its strategies carry
+    #                  priceSource: "open"), so the ported TrendSpider
+    #                  strategies must use it or every entry and exit
+    #                  price is wrong. It is also the more honest model
+    #                  in general: you cannot transact at a close you
+    #                  only know once the bar has already ended.
+    fill_at: str = "close"  # "close" | "next_open"
+
     # Data-fetch scope, NOT execution behavior -- carried here only so
-    # these travel through the same Settings/watch-snapshot plumbing as
+    # these travel through the same execution-settings plumbing as
     # every other execution setting. Actually applied by
-    # app.integrations.tastytrade_client.fetch_historical_bars (and its
+    # app.integrations.twelvedata_client.fetch_historical_bars (and its
     # filter_by_session helper), not by anything in this module.
     include_extended_hours: bool = False
     include_overnight: bool = False
@@ -45,13 +65,34 @@ class ExecutionConfig:
     # way for every strategy without each one reimplementing it.
     direction_filter: str = "both"  # "long_only" | "short_only" | "both"
 
+    # Global entry-time-of-day gate, same "applied uniformly on top of
+    # the strategy's own signals" idea as direction_filter -- suppress
+    # entries taken outside a clock window (e.g. "only the first two
+    # hours of the session") without each strategy reimplementing it.
+    # Both None (the default) is a no-op; both must be set together.
+    # "HH:MM", America/New_York, matching every other session time in
+    # this app (see app.integrations.twelvedata_client's session
+    # constants). Exits are never affected -- a position opened inside
+    # the window is still managed/exited normally if it's still open
+    # once the clock moves past entry_time_end.
+    entry_time_start: str | None = None
+    entry_time_end: str | None = None
+
     # Risk management — all disabled by default (None) so existing
     # behavior is unchanged unless a caller opts in.
     atr_period: int = 14  # inert unless a *_atr_multiple field below is set
     stop_loss_atr_multiple: float | None = None
     stop_loss_pct: float | None = None  # flat % of entry price; e.g. 0.01 = 1%
     take_profit_atr_multiple: float | None = None
+    take_profit_pct: float | None = None  # flat % of entry price, same idea as stop_loss_pct
     trailing_stop_atr_multiple: float | None = None  # if set, takes precedence over stop_loss_atr_multiple/stop_loss_pct
+    trailing_stop_pct: float | None = None  # flat-%-of-entry-price trailing distance, same precedence tier as trailing_stop_atr_multiple
+    # Exit after this many bars in the trade, regardless of P&L or any
+    # other exit condition -- a plain time stop (e.g. TrendSpider's
+    # "Exit after N candles, for any PnL"). Independent of every other
+    # field here: checked alongside force_close_at_session_end, not as
+    # part of the stop/target intrabar risk check.
+    max_holding_bars: int | None = None
     risk_per_trade_pct: float | None = None  # requires a stop (atr_multiple, pct, or trailing) to be set
     # Cap quantity so entry position value never exceeds capital * this
     # (1.0 = full capital, i.e. no leverage). Applied to BOTH fixed and
@@ -60,9 +101,22 @@ class ExecutionConfig:
     max_position_value_pct: float | None = None
 
     # Priority when multiple stop mechanisms are configured at once:
-    # trailing_stop_atr_multiple > stop_loss_pct > stop_loss_atr_multiple.
-    # stop_loss_pct is intentionally independent of ATR — it never needs
-    # a valid ATR reading, unlike the two ATR-based mechanisms above.
+    # (trailing_stop_atr_multiple or trailing_stop_pct) > stop_loss_pct
+    # > stop_loss_atr_multiple -- a trailing stop, ATR- or pct-based,
+    # still fully SUBSUMES a fixed stop the moment both are set (it
+    # governs alone from entry, not "whichever is tighter"); set only
+    # one of the two trailing fields, and only one of the two fixed-stop
+    # fields, per backtest. stop_loss_pct/take_profit_pct/
+    # trailing_stop_pct are intentionally independent of ATR — they
+    # never need a valid ATR reading, unlike the *_atr_multiple fields.
+
+
+def _parse_time(value: str, field_name: str) -> time_cls:
+    try:
+        hour_str, minute_str = value.split(":")
+        return time_cls(int(hour_str), int(minute_str))
+    except (ValueError, AttributeError) as exc:
+        raise ValueError(f"{field_name} must be an 'HH:MM' string (got {value!r}).") from exc
 
 
 def _risk_management_enabled(config: ExecutionConfig) -> bool:
@@ -70,7 +124,9 @@ def _risk_management_enabled(config: ExecutionConfig) -> bool:
         config.stop_loss_atr_multiple is not None
         or config.stop_loss_pct is not None
         or config.take_profit_atr_multiple is not None
+        or config.take_profit_pct is not None
         or config.trailing_stop_atr_multiple is not None
+        or config.trailing_stop_pct is not None
     )
 
 
@@ -80,18 +136,35 @@ def _validate_config(config: ExecutionConfig) -> None:
         and config.stop_loss_atr_multiple is None
         and config.stop_loss_pct is None
         and config.trailing_stop_atr_multiple is None
+        and config.trailing_stop_pct is None
     ):
         raise ValueError(
-            "risk_per_trade_pct requires stop_loss_atr_multiple, stop_loss_pct, or trailing_stop_atr_multiple to be set."
+            "risk_per_trade_pct requires stop_loss_atr_multiple, stop_loss_pct, "
+            "trailing_stop_atr_multiple, or trailing_stop_pct to be set."
         )
     if config.stop_loss_pct is not None and config.stop_loss_pct <= 0:
         raise ValueError(f"stop_loss_pct must be > 0 (got {config.stop_loss_pct!r}).")
+    if config.take_profit_pct is not None and config.take_profit_pct <= 0:
+        raise ValueError(f"take_profit_pct must be > 0 (got {config.take_profit_pct!r}).")
+    if config.trailing_stop_pct is not None and config.trailing_stop_pct <= 0:
+        raise ValueError(f"trailing_stop_pct must be > 0 (got {config.trailing_stop_pct!r}).")
+    if config.max_holding_bars is not None and config.max_holding_bars <= 0:
+        raise ValueError(f"max_holding_bars must be > 0 (got {config.max_holding_bars!r}).")
     if config.max_position_value_pct is not None and config.max_position_value_pct <= 0:
         raise ValueError(f"max_position_value_pct must be > 0 (got {config.max_position_value_pct!r}).")
     if config.direction_filter not in ("long_only", "short_only", "both"):
         raise ValueError(
             f"direction_filter must be 'long_only', 'short_only', or 'both' (got {config.direction_filter!r})."
         )
+    if (config.entry_time_start is None) != (config.entry_time_end is None):
+        raise ValueError("entry_time_start and entry_time_end must both be set, or both left unset.")
+    if config.entry_time_start is not None:
+        start = _parse_time(config.entry_time_start, "entry_time_start")
+        end = _parse_time(config.entry_time_end, "entry_time_end")
+        if start >= end:
+            raise ValueError(
+                f"entry_time_start must be before entry_time_end (got {config.entry_time_start!r}, {config.entry_time_end!r})."
+            )
 
 
 def _apply_direction_filter(entries: pd.Series, direction_filter: str) -> pd.Series:
@@ -108,6 +181,22 @@ def _apply_direction_filter(entries: pd.Series, direction_filter: str) -> pd.Ser
         return entries
     disallowed = TradeDirection.SHORT if direction_filter == "long_only" else TradeDirection.LONG
     return entries.map(lambda v: None if v == disallowed else v).astype(object)
+
+
+def _apply_time_window_filter(entries: pd.Series, df: pd.DataFrame, config: ExecutionConfig) -> pd.Series:
+    """Drop entry signals taken outside [entry_time_start, entry_time_end),
+    leaving everything else (including exits) untouched. Same shape as
+    _apply_direction_filter, and a no-op when both are unset (the default).
+    """
+    if config.entry_time_start is None:
+        return entries
+    if not isinstance(df.index, pd.DatetimeIndex):
+        return entries
+    start = _parse_time(config.entry_time_start, "entry_time_start")
+    end = _parse_time(config.entry_time_end, "entry_time_end")
+    times = pd.Series(df.index, index=df.index).dt.time
+    in_window = (times >= start) & (times < end)
+    return entries.where(in_window, None).astype(object)
 
 
 def _fill_price(price: float, direction: TradeDirection, *, entering: bool, slippage_pct: float) -> float:
@@ -159,6 +248,23 @@ def simulate_trades(
 
     _validate_config(config)
     entries = _apply_direction_filter(entries, config.direction_filter)
+    entries = _apply_time_window_filter(entries, df, config)
+
+    # "Signal at bar i's close, fill at bar i+1's open" is expressed by
+    # shifting the signals forward one bar and reading the OPEN column:
+    # the shifted signal now sits on the bar it actually fills in, so the
+    # rest of the loop (stops, targets, session close, holding period)
+    # measures from the real fill bar without any special-casing.
+    if config.fill_at == "next_open":
+        if "open" not in df.columns:
+            raise ValueError('fill_at="next_open" requires an "open" column.')
+        entries = entries.shift(1)
+        exits = exits.shift(1).fillna(False).astype(bool)
+        fill_reference = df["open"]
+    elif config.fill_at == "close":
+        fill_reference = df["close"]
+    else:
+        raise ValueError(f'fill_at must be "close" or "next_open" (got {config.fill_at!r}).')
 
     forced_close = (
         is_last_bar_of_session(df.index)
@@ -197,7 +303,10 @@ def simulate_trades(
         open_target_price = None
 
     for i, ts in enumerate(df.index):
-        close_price = df["close"].iloc[i]
+        # The price a fill on THIS bar happens at: the bar's close under
+        # fill_at="close", or its open under fill_at="next_open" (where
+        # the signals were already shifted onto this bar).
+        close_price = fill_reference.iloc[i]
 
         if open_direction is not None:
             # 1. Intrabar stop-loss / take-profit / trailing-stop check (never on the entry bar itself).
@@ -259,10 +368,19 @@ def simulate_trades(
                 _reset_open_state()
                 continue  # don't re-enter on the same bar we just exited
 
-            # 2. Signal exit / forced session close (intrabar risk exits above take priority).
-            exit_now = bool(exits.iloc[i]) or bool(forced_close.iloc[i])
+            # 2. Signal exit / forced session close / max-holding-bars time stop
+            #    (intrabar risk exits above take priority over all three of these).
+            max_hold_exceeded = (
+                config.max_holding_bars is not None and (i - open_entry_index) >= config.max_holding_bars
+            )
+            exit_now = bool(exits.iloc[i]) or bool(forced_close.iloc[i]) or max_hold_exceeded
             if exit_now:
-                reason = "forced_session_close" if forced_close.iloc[i] and not exits.iloc[i] else "signal_exit"
+                if exits.iloc[i]:
+                    reason = "signal_exit"
+                elif forced_close.iloc[i]:
+                    reason = "forced_session_close"
+                else:
+                    reason = "max_holding_bars_exceeded"
                 fill = _fill_price(close_price, open_direction, entering=False, slippage_pct=config.slippage_pct)
                 pnl = _pnl(open_direction, open_entry_price, fill, open_quantity) - config.commission_per_trade
                 trades.append(
@@ -308,6 +426,14 @@ def simulate_trades(
                             else open_entry_price + open_trailing_distance
                         )
                         stop_distance_for_sizing = open_trailing_distance
+                    elif config.trailing_stop_pct is not None:
+                        open_trailing_distance = open_entry_price * config.trailing_stop_pct
+                        open_trailing_price = (
+                            open_entry_price - open_trailing_distance
+                            if signal == TradeDirection.LONG
+                            else open_entry_price + open_trailing_distance
+                        )
+                        stop_distance_for_sizing = open_trailing_distance
                     elif config.stop_loss_pct is not None:
                         stop_distance = open_entry_price * config.stop_loss_pct
                         open_stop_price = (
@@ -327,6 +453,13 @@ def simulate_trades(
 
                     if config.take_profit_atr_multiple is not None and atr_valid:
                         target_distance = entry_atr * config.take_profit_atr_multiple
+                        open_target_price = (
+                            open_entry_price + target_distance
+                            if signal == TradeDirection.LONG
+                            else open_entry_price - target_distance
+                        )
+                    elif config.take_profit_pct is not None:
+                        target_distance = open_entry_price * config.take_profit_pct
                         open_target_price = (
                             open_entry_price + target_distance
                             if signal == TradeDirection.LONG

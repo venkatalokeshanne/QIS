@@ -34,6 +34,11 @@ class LiquiditySweepReversal(Strategy):
             category="price_action",
             indicators_used=["liquidity_sweep"],
             default_params={"swing_lookback": 20, "direction": "both"},
+            live_caution=(
+                "The setup requires catching a wick-through-and-reclaim within the SAME bar -- waiting "
+                "for that bar to close (as a backtest silently does) means the reversal has already "
+                "played out; real-time entries need intrabar reaction a periodic manual check can't give."
+            ),
         )
 
     def prepare(self, df: pd.DataFrame, params: dict[str, Any]) -> pd.DataFrame:

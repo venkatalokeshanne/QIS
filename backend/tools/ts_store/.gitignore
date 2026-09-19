@@ -1,0 +1,8 @@
+node_modules/
+out_py/
+clean/
+oracle/work/
+oracle/*.log
+oracle/tmp_report.json
+oracle/prof.out
+inventory.txt

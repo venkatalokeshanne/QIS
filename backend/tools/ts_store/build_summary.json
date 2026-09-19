@@ -1,0 +1,2305 @@
+{
+ "1hr_opening_range_TS": {
+  "module": "ts_1hr_opening_range_ts",
+  "parity": "aapl_d: both-error, syn_5m: OK",
+  "requires": [],
+  "outputs": 0,
+  "metadata_run_error": "JSError: not applicable to \"D\" charts"
+ },
+ "2_rsi_s_dynamic_TS": {
+  "module": "ts_2_rsi_s_dynamic_ts",
+  "parity": "exact",
+  "requires": [
+   "history"
+  ],
+  "outputs": 2,
+  "metadata_run_error": null
+ },
+ "multi_oscillator_consensus_momentum_score_TS": {
+  "module": "multi_oscillator_consensus_momentum_score_ts",
+  "parity": "exact",
+  "requires": [],
+  "outputs": 4,
+  "metadata_run_error": null
+ },
+ "dss_blau_with_bb_v2_TS": {
+  "module": "dss_blau_with_bb_v2_ts",
+  "parity": "exact",
+  "requires": [],
+  "outputs": 4,
+  "metadata_run_error": null
+ },
+ "example_of_a_pure_custom_js_strategy_TS": {
+  "module": "example_of_a_pure_custom_js_strategy_ts",
+  "parity": "exact",
+  "requires": [],
+  "outputs": 4,
+  "metadata_run_error": null
+ },
+ "vbp_from_earnings_indicator_TS": {
+  "module": "vbp_from_earnings_indicator_ts",
+  "parity": "exact",
+  "requires": [
+   "earnings"
+  ],
+  "outputs": 43,
+  "metadata_run_error": null
+ },
+ "capitulation_finder_TS": {
+  "module": "capitulation_finder_ts",
+  "parity": "exact",
+  "requires": [],
+  "outputs": 6,
+  "metadata_run_error": null
+ },
+ "swing_detector_TS": {
+  "module": "swing_detector_ts",
+  "parity": "exact",
+  "requires": [],
+  "outputs": 3,
+  "metadata_run_error": null
+ },
+ "ichimoku_tk_crossover_candle_coloring_TS": {
+  "module": "ichimoku_tk_crossover_candle_coloring_ts",
+  "parity": "exact",
+  "requires": [],
+  "outputs": 5,
+  "metadata_run_error": null
+ },
+ "spx_circuit_breaker_levels_TS": {
+  "module": "spx_circuit_breaker_levels_ts",
+  "parity": "exact",
+  "requires": [],
+  "outputs": 3,
+  "metadata_run_error": null
+ },
+ "turtle_trading_strategy_long_only_TS": {
+  "module": "turtle_trading_strategy_long_only_ts",
+  "parity": "exact",
+  "requires": [],
+  "outputs": 14,
+  "metadata_run_error": null
+ },
+ "earnings_bubbles_TS": {
+  "module": "earnings_bubbles_ts",
+  "parity": "exact",
+  "requires": [
+   "earnings"
+  ],
+  "outputs": 4,
+  "metadata_run_error": null
+ },
+ "earnings_tracker_TS": {
+  "module": "earnings_tracker_ts",
+  "parity": "exact",
+  "requires": [
+   "earnings"
+  ],
+  "outputs": 0,
+  "metadata_run_error": null
+ },
+ "fundamentals_strip_TS": {
+  "module": "fundamentals_strip_ts",
+  "parity": "aapl_d: OK, syn_5m: both-error",
+  "requires": [
+   "earnings",
+   "fundamental",
+   "history",
+   "insider_trading"
+  ],
+  "outputs": 0,
+  "metadata_run_error": null
+ },
+ "multi_oscillator_average_TS": {
+  "module": "multi_oscillator_average_ts",
+  "parity": "exact",
+  "requires": [],
+  "outputs": 4,
+  "metadata_run_error": null
+ },
+ "hurst_exponent_TS": {
+  "module": "hurst_exponent_ts",
+  "parity": "exact",
+  "requires": [],
+  "outputs": 5,
+  "metadata_run_error": null
+ },
+ "candle_streak_analysis_TS": {
+  "module": "candle_streak_analysis_ts",
+  "parity": "exact",
+  "requires": [],
+  "outputs": 0,
+  "metadata_run_error": null
+ },
+ "rsi_divergences_TS": {
+  "module": "rsi_divergences_ts",
+  "parity": "exact",
+  "requires": [],
+  "outputs": 10,
+  "metadata_run_error": null
+ },
+ "lrs_fib_squeeze_TS": {
+  "module": "lrs_fib_squeeze_ts",
+  "parity": "exact",
+  "requires": [],
+  "outputs": 21,
+  "metadata_run_error": null
+ },
+ "trend_strength_candles_TS": {
+  "module": "trend_strength_candles_ts",
+  "parity": "exact",
+  "requires": [],
+  "outputs": 1,
+  "metadata_run_error": null
+ },
+ "pairs_spread_z_score_TS": {
+  "module": "pairs_spread_z_score_ts",
+  "parity": "exact",
+  "requires": [
+   "history"
+  ],
+  "outputs": 9,
+  "metadata_run_error": null
+ },
+ "inversion_fair_value_gaps_ifvg_TS": {
+  "module": "inversion_fair_value_gaps_ifvg_ts",
+  "parity": "exact",
+  "requires": [],
+  "outputs": 13,
+  "metadata_run_error": null
+ },
+ "bias_bands_TS": {
+  "module": "bias_bands_ts",
+  "parity": "exact",
+  "requires": [],
+  "outputs": 11,
+  "metadata_run_error": null
+ },
+ "dynamo_cloud_TS": {
+  "module": "dynamo_cloud_ts",
+  "parity": "exact",
+  "requires": [],
+  "outputs": 11,
+  "metadata_run_error": null
+ },
+ "razorline_v1_intraday_inverted_momentum_concept_TS": {
+  "module": "razorline_v1_intraday_inverted_momentum_concept_ts",
+  "parity": "exact",
+  "requires": [],
+  "outputs": 19,
+  "metadata_run_error": null
+ },
+ "flowbot_unusual_options_7_14_dte_TS": {
+  "module": "flowbot_unusual_options_7_14_dte_ts",
+  "parity": "exact",
+  "requires": [
+   "unusual_options"
+  ],
+  "outputs": 0,
+  "metadata_run_error": null
+ },
+ "linkline_TS": {
+  "module": "linkline_ts",
+  "parity": "exact",
+  "requires": [],
+  "outputs": 3,
+  "metadata_run_error": null
+ },
+ "returns_distribution_TS": {
+  "module": "returns_distribution_ts",
+  "parity": "exact",
+  "requires": [],
+  "outputs": 0,
+  "metadata_run_error": null
+ },
+ "goldbach_shelves_TS": {
+  "module": "goldbach_shelves_ts",
+  "parity": "exact",
+  "requires": [],
+  "outputs": 14,
+  "metadata_run_error": null
+ },
+ "gap_zones_TS": {
+  "module": "gap_zones_ts",
+  "parity": "aapl_d: OK, syn_5m: both-error",
+  "requires": [
+   "history"
+  ],
+  "outputs": 15,
+  "metadata_run_error": null
+ },
+ "has_options_fixed_TS": {
+  "module": "has_options_fixed_ts",
+  "parity": "exact",
+  "requires": [
+   "unusual_options"
+  ],
+  "outputs": 2,
+  "metadata_run_error": null
+ },
+ "triple_stochastic_rsi_TS": {
+  "module": "triple_stochastic_rsi_ts",
+  "parity": "exact",
+  "requires": [],
+  "outputs": 27,
+  "metadata_run_error": null
+ },
+ "mavilimw_mtf_TS": {
+  "module": "mavilimw_mtf_ts",
+  "parity": "exact",
+  "requires": [
+   "history"
+  ],
+  "outputs": 1,
+  "metadata_run_error": null
+ },
+ "t3_moving_average_TS": {
+  "module": "t3_moving_average_ts",
+  "parity": "exact",
+  "requires": [],
+  "outputs": 1,
+  "metadata_run_error": null
+ },
+ "alma_trend_TS": {
+  "module": "alma_trend_ts",
+  "parity": "exact",
+  "requires": [],
+  "outputs": 2,
+  "metadata_run_error": null
+ },
+ "autofib_bands_TS": {
+  "module": "autofib_bands_ts",
+  "parity": "exact",
+  "requires": [],
+  "outputs": 7,
+  "metadata_run_error": null
+ },
+ "fringe_TS": {
+  "module": "fringe_ts",
+  "parity": "exact",
+  "requires": [],
+  "outputs": 9,
+  "metadata_run_error": null
+ },
+ "bearish_doji_candle_identifier_TS": {
+  "module": "bearish_doji_candle_identifier_ts",
+  "parity": "exact",
+  "requires": [],
+  "outputs": 2,
+  "metadata_run_error": null
+ },
+ "timeframe_progressive_range_TS": {
+  "module": "timeframe_progressive_range_ts",
+  "parity": "exact",
+  "requires": [],
+  "outputs": 12,
+  "metadata_run_error": null
+ },
+ "unusual_options_table_TS": {
+  "module": "unusual_options_table_ts",
+  "parity": "exact",
+  "requires": [
+   "unusual_options"
+  ],
+  "outputs": 0,
+  "metadata_run_error": null
+ },
+ "trend_bars_with_okuninushi_filter_TS": {
+  "module": "trend_bars_with_okuninushi_filter_ts",
+  "parity": "exact",
+  "requires": [],
+  "outputs": 2,
+  "metadata_run_error": null
+ },
+ "kri_TS": {
+  "module": "kri_ts",
+  "parity": "exact",
+  "requires": [],
+  "outputs": 3,
+  "metadata_run_error": null
+ },
+ "volatility_fractal_heatmap_TS": {
+  "module": "volatility_fractal_heatmap_ts",
+  "parity": "exact",
+  "requires": [],
+  "outputs": 6,
+  "metadata_run_error": null
+ },
+ "liquidity_map_avwap_TS": {
+  "module": "liquidity_map_avwap_ts",
+  "parity": "exact",
+  "requires": [],
+  "outputs": 13,
+  "metadata_run_error": null
+ },
+ "fractal_energy_oscillator_TS": {
+  "module": "fractal_energy_oscillator_ts",
+  "parity": "exact",
+  "requires": [],
+  "outputs": 8,
+  "metadata_run_error": null
+ },
+ "mtf_compass_pro_TS": {
+  "module": "mtf_compass_pro_ts",
+  "parity": "exact",
+  "requires": [],
+  "outputs": 5,
+  "metadata_run_error": null
+ },
+ "options_gravity_map_pin_risk_magneto_flow_TS": {
+  "module": "options_gravity_map_pin_risk_magneto_flow_ts",
+  "parity": "exact",
+  "requires": [
+   "unusual_options"
+  ],
+  "outputs": 21,
+  "metadata_run_error": null
+ },
+ "atr_table_TS": {
+  "module": "atr_table_ts",
+  "parity": "exact",
+  "requires": [],
+  "outputs": 0,
+  "metadata_run_error": null
+ },
+ "lri_pivot_TS": {
+  "module": "lri_pivot_ts",
+  "parity": "exact",
+  "requires": [],
+  "outputs": 3,
+  "metadata_run_error": null
+ },
+ "timeframe_atr_bands_TS": {
+  "module": "timeframe_atr_bands_ts",
+  "parity": "exact",
+  "requires": [
+   "history"
+  ],
+  "outputs": 5,
+  "metadata_run_error": null
+ },
+ "liquidity_zone_scanner_TS": {
+  "module": "liquidity_zone_scanner_ts",
+  "parity": "aapl_d: both-error, syn_5m: both-error",
+  "requires": [],
+  "outputs": 65,
+  "metadata_run_error": null
+ },
+ "analyst_ratings_table_TS": {
+  "module": "analyst_ratings_table_ts",
+  "parity": "exact",
+  "requires": [
+   "analyst_ratings"
+  ],
+  "outputs": 0,
+  "metadata_run_error": null
+ },
+ "volatility_stop_multi_timeframe_TS": {
+  "module": "volatility_stop_multi_timeframe_ts",
+  "parity": "aapl_d: OK, syn_5m: both-error",
+  "requires": [
+   "history"
+  ],
+  "outputs": 4,
+  "metadata_run_error": null
+ },
+ "cmf_divergences_TS": {
+  "module": "cmf_divergences_ts",
+  "parity": "exact",
+  "requires": [],
+  "outputs": 10,
+  "metadata_run_error": null
+ },
+ "atr_percentage_TS": {
+  "module": "atr_percentage_ts",
+  "parity": "exact",
+  "requires": [],
+  "outputs": 3,
+  "metadata_run_error": null
+ },
+ "atr_based_profit_target_TS": {
+  "module": "atr_based_profit_target_ts",
+  "parity": "exact",
+  "requires": [],
+  "outputs": 1,
+  "metadata_run_error": null
+ },
+ "volume_weighted_adaptive_momentum_oscillator_vwamo_TS": {
+  "module": "volume_weighted_adaptive_momentum_oscillator_vwamo_ts",
+  "parity": "exact",
+  "requires": [],
+  "outputs": 8,
+  "metadata_run_error": null
+ },
+ "intermarket_strength_heatmap_TS": {
+  "module": "intermarket_strength_heatmap_ts",
+  "parity": "exact",
+  "requires": [
+   "history"
+  ],
+  "outputs": 0,
+  "metadata_run_error": null
+ },
+ "federal_reserve_impact_indicator_frii_TS": {
+  "module": "federal_reserve_impact_indicator_frii_ts",
+  "parity": "exact",
+  "requires": [],
+  "outputs": 9,
+  "metadata_run_error": null
+ },
+ "futures_pre_market_range_by_smallsteps_TS": {
+  "module": "futures_pre_market_range_by_smallsteps_ts",
+  "parity": "aapl_d: both-error, syn_5m: OK",
+  "requires": [],
+  "outputs": 0,
+  "metadata_run_error": "JSError: This indicator only supports chart resolutions less than 120 minutes."
+ },
+ "futures_gap_labels_by_smallsteps_TS": {
+  "module": "futures_gap_labels_by_smallsteps_ts",
+  "parity": "aapl_d: both-error, syn_5m: OK",
+  "requires": [],
+  "outputs": 0,
+  "metadata_run_error": "JSError: This indicator only supports chart resolutions 5, 10 , 15 and 30 minutes."
+ },
+ "cross_asset_momentum_divergence_TS": {
+  "module": "cross_asset_momentum_divergence_ts",
+  "parity": "aapl_d: MISMATCH, syn_5m: MISMATCH",
+  "requires": [],
+  "outputs": 7,
+  "metadata_run_error": null
+ },
+ "fractal_support_resistance_TS": {
+  "module": "fractal_support_resistance_ts",
+  "parity": "exact",
+  "requires": [],
+  "outputs": 60,
+  "metadata_run_error": null
+ },
+ "market_structure_breaks_TS": {
+  "module": "market_structure_breaks_ts",
+  "parity": "exact",
+  "requires": [],
+  "outputs": 27,
+  "metadata_run_error": null
+ },
+ "aeris_TS": {
+  "module": "aeris_ts",
+  "parity": "exact",
+  "requires": [],
+  "outputs": 14,
+  "metadata_run_error": null
+ },
+ "flow_gex_scalper_v3_gamma_exposure_proxy_TS": {
+  "module": "flow_gex_scalper_v3_gamma_exposure_proxy_ts",
+  "parity": "exact",
+  "requires": [
+   "unusual_options"
+  ],
+  "outputs": 0,
+  "metadata_run_error": null
+ },
+ "adt_lower_TS": {
+  "module": "adt_lower_ts",
+  "parity": "exact",
+  "requires": [],
+  "outputs": 6,
+  "metadata_run_error": null
+ },
+ "options_term_structure_hunter_v1_TS": {
+  "module": "options_term_structure_hunter_v1_ts",
+  "parity": "aapl_d: both-error, syn_5m: both-error",
+  "requires": [
+   "http"
+  ],
+  "outputs": 0,
+  "metadata_run_error": "JSError: No data for AAPL"
+ },
+ "pattern_analysis_overlay_TS": {
+  "module": "pattern_analysis_overlay_ts",
+  "parity": "exact",
+  "requires": [],
+  "outputs": 12,
+  "metadata_run_error": null
+ },
+ "valuation_dashboard_TS": {
+  "module": "valuation_dashboard_ts",
+  "parity": "aapl_d: both-error, syn_5m: both-error",
+  "requires": [
+   "http"
+  ],
+  "outputs": 0,
+  "metadata_run_error": "JSError: Alpha Vantage OVERVIEW failed or quota hit."
+ },
+ "earnings_momentum_nvda_TS": {
+  "module": "earnings_momentum_nvda_ts",
+  "parity": "exact",
+  "requires": [],
+  "outputs": 4,
+  "metadata_run_error": null
+ },
+ "bottom_catcher_signal_htf_TS": {
+  "module": "bottom_catcher_signal_htf_ts",
+  "parity": "exact",
+  "requires": [],
+  "outputs": 2,
+  "metadata_run_error": null
+ },
+ "antr_crossover_TS": {
+  "module": "antr_crossover_ts",
+  "parity": "exact",
+  "requires": [],
+  "outputs": 2,
+  "metadata_run_error": null
+ },
+ "nvda_earnings_emo_csv_TS": {
+  "module": "nvda_earnings_emo_csv_ts",
+  "parity": "exact",
+  "requires": [],
+  "outputs": 4,
+  "metadata_run_error": null
+ },
+ "normalized_range_crossover_TS": {
+  "module": "normalized_range_crossover_ts",
+  "parity": "exact",
+  "requires": [],
+  "outputs": 2,
+  "metadata_run_error": null
+ },
+ "at_a_glance_overlay_TS": {
+  "module": "at_a_glance_overlay_ts",
+  "parity": "exact",
+  "requires": [
+   "history"
+  ],
+  "outputs": 0,
+  "metadata_run_error": null
+ },
+ "fractal_pressure_levels_TS": {
+  "module": "fractal_pressure_levels_ts",
+  "parity": "exact",
+  "requires": [],
+  "outputs": 12,
+  "metadata_run_error": null
+ },
+ "red_dragon_mcdx_TS": {
+  "module": "red_dragon_mcdx_ts",
+  "parity": "exact",
+  "requires": [],
+  "outputs": 7,
+  "metadata_run_error": null
+ },
+ "kdj_j_cross_TS": {
+  "module": "kdj_j_cross_ts",
+  "parity": "exact",
+  "requires": [],
+  "outputs": 3,
+  "metadata_run_error": null
+ },
+ "minervini_trend_template_TS": {
+  "module": "minervini_trend_template_ts",
+  "parity": "exact",
+  "requires": [
+   "history",
+   "relative_performance"
+  ],
+  "outputs": 14,
+  "metadata_run_error": null
+ },
+ "october_open_level_with_momentum_TS": {
+  "module": "october_open_level_with_momentum_ts",
+  "parity": "exact",
+  "requires": [],
+  "outputs": 2,
+  "metadata_run_error": null
+ },
+ "alma_channels_with_signals_TS": {
+  "module": "alma_channels_with_signals_ts",
+  "parity": "exact",
+  "requires": [],
+  "outputs": 15,
+  "metadata_run_error": null
+ },
+ "trading_activity_index_zeiierman_TS": {
+  "module": "trading_activity_index_zeiierman_ts",
+  "parity": "exact",
+  "requires": [],
+  "outputs": 5,
+  "metadata_run_error": null
+ },
+ "relative_trend_index_rti_zeiierman_TS": {
+  "module": "relative_trend_index_rti_zeiierman_ts",
+  "parity": "exact",
+  "requires": [],
+  "outputs": 7,
+  "metadata_run_error": null
+ },
+ "correlation_weighted_rsi_predictor_zeiierman_TS": {
+  "module": "correlation_weighted_rsi_predictor_zeiierman_ts",
+  "parity": "exact",
+  "requires": [],
+  "outputs": 13,
+  "metadata_run_error": null
+ },
+ "dynamic_swing_anchored_vwap_zeiierman_TS": {
+  "module": "dynamic_swing_anchored_vwap_zeiierman_ts",
+  "parity": "exact",
+  "requires": [],
+  "outputs": 4,
+  "metadata_run_error": null
+ },
+ "pivot_path_TS": {
+  "module": "pivot_path_ts",
+  "parity": "exact",
+  "requires": [],
+  "outputs": 1,
+  "metadata_run_error": null
+ },
+ "atr_based_support_and_resistance_TS": {
+  "module": "atr_based_support_and_resistance_ts",
+  "parity": "exact",
+  "requires": [],
+  "outputs": 7,
+  "metadata_run_error": null
+ },
+ "fearzone_contrarian_indicator_zeiierman_TS": {
+  "module": "fearzone_contrarian_indicator_zeiierman_ts",
+  "parity": "exact",
+  "requires": [],
+  "outputs": 3,
+  "metadata_run_error": null
+ },
+ "rate_of_change_with_ma_TS": {
+  "module": "rate_of_change_with_ma_ts",
+  "parity": "exact",
+  "requires": [],
+  "outputs": 3,
+  "metadata_run_error": null
+ },
+ "pre_market_high_low_TS": {
+  "module": "pre_market_high_low_ts",
+  "parity": "aapl_d: both-error, syn_5m: OK",
+  "requires": [
+   "history"
+  ],
+  "outputs": 0,
+  "metadata_run_error": "JSError: This indicator only supports chart resolutions less than 120 minutes."
+ },
+ "vol_accelerated_directional_energy_ratio_TS": {
+  "module": "vol_accelerated_directional_energy_ratio_ts",
+  "parity": "exact",
+  "requires": [],
+  "outputs": 9,
+  "metadata_run_error": null
+ },
+ "volatility_regime_classifier_TS": {
+  "module": "volatility_regime_classifier_ts",
+  "parity": "exact",
+  "requires": [],
+  "outputs": 21,
+  "metadata_run_error": null
+ },
+ "ripster_mtf_clouds_TS": {
+  "module": "ripster_mtf_clouds_ts",
+  "parity": "exact",
+  "requires": [
+   "history"
+  ],
+  "outputs": 30,
+  "metadata_run_error": null
+ },
+ "ripster_candle_rvol_TS": {
+  "module": "ripster_candle_rvol_ts",
+  "parity": "exact",
+  "requires": [],
+  "outputs": 0,
+  "metadata_run_error": null
+ },
+ "ripster_dtr_vs_atr_TS": {
+  "module": "ripster_dtr_vs_atr_ts",
+  "parity": "exact",
+  "requires": [
+   "history"
+  ],
+  "outputs": 0,
+  "metadata_run_error": null
+ },
+ "ripster_trend_labels_TS": {
+  "module": "ripster_trend_labels_ts",
+  "parity": "exact",
+  "requires": [
+   "history"
+  ],
+  "outputs": 6,
+  "metadata_run_error": null
+ },
+ "ema_stacked_TS": {
+  "module": "ema_stacked_ts",
+  "parity": "exact",
+  "requires": [],
+  "outputs": 6,
+  "metadata_run_error": null
+ },
+ "ripster_rvol_label_TS": {
+  "module": "ripster_rvol_label_ts",
+  "parity": "exact",
+  "requires": [
+   "history"
+  ],
+  "outputs": 0,
+  "metadata_run_error": null
+ },
+ "previous_2_days_hi_lo_TS": {
+  "module": "previous_2_days_hi_lo_ts",
+  "parity": "exact",
+  "requires": [
+   "history"
+  ],
+  "outputs": 6,
+  "metadata_run_error": null
+ },
+ "ultimate_key_levels_TS": {
+  "module": "ultimate_key_levels_ts",
+  "parity": "aapl_d: both-error, syn_5m: OK",
+  "requires": [
+   "history"
+  ],
+  "outputs": 0,
+  "metadata_run_error": "JSError: not applicable to \"D\" charts"
+ },
+ "sector_rotation_matrix_TS": {
+  "module": "sector_rotation_matrix_ts",
+  "parity": "exact",
+  "requires": [
+   "history"
+  ],
+  "outputs": 6,
+  "metadata_run_error": null
+ },
+ "market_absorption_efficiency_classifier_TS": {
+  "module": "market_absorption_efficiency_classifier_ts",
+  "parity": "exact",
+  "requires": [],
+  "outputs": 14,
+  "metadata_run_error": null
+ },
+ "after_hours_chng_TS": {
+  "module": "after_hours_chng_ts",
+  "parity": "exact",
+  "requires": [
+   "history"
+  ],
+  "outputs": 1,
+  "metadata_run_error": null
+ },
+ "chart_resolution_and_candle_label_TS": {
+  "module": "chart_resolution_and_candle_label_ts",
+  "parity": "exact",
+  "requires": [],
+  "outputs": 0,
+  "metadata_run_error": null
+ },
+ "ma_channel_TS": {
+  "module": "ma_channel_ts",
+  "parity": "exact",
+  "requires": [],
+  "outputs": 7,
+  "metadata_run_error": null
+ },
+ "orb_trading_strategy_indicator_TS": {
+  "module": "orb_trading_strategy_indicator_ts",
+  "parity": "aapl_d: both-error, syn_5m: OK",
+  "requires": [],
+  "outputs": 0,
+  "metadata_run_error": "JSError: This indicator requires an intraday chart (minute-based timeframe)."
+ },
+ "insider_trades_TS": {
+  "module": "insider_trades_ts",
+  "parity": "exact",
+  "requires": [
+   "insider_trading"
+  ],
+  "outputs": 0,
+  "metadata_run_error": null
+ },
+ "dollar_index_emulator_dxy_TS": {
+  "module": "dollar_index_emulator_dxy_ts",
+  "parity": "aapl_d: OK, syn_5m: ULP",
+  "requires": [
+   "history"
+  ],
+  "outputs": 1,
+  "metadata_run_error": null
+ },
+ "change_label_TS": {
+  "module": "change_label_ts",
+  "parity": "exact",
+  "requires": [
+   "history"
+  ],
+  "outputs": 1,
+  "metadata_run_error": null
+ },
+ "price_rate_spread_meta_ratio_TS": {
+  "module": "price_rate_spread_meta_ratio_ts",
+  "parity": "exact",
+  "requires": [
+   "history"
+  ],
+  "outputs": 6,
+  "metadata_run_error": null
+ },
+ "smartvol_supertrend_alpha_scope_TS": {
+  "module": "smartvol_supertrend_alpha_scope_ts",
+  "parity": "exact",
+  "requires": [],
+  "outputs": 6,
+  "metadata_run_error": null
+ },
+ "25_75_percentile_supertrend_TS": {
+  "module": "ts_25_75_percentile_supertrend_ts",
+  "parity": "exact",
+  "requires": [],
+  "outputs": 4,
+  "metadata_run_error": null
+ },
+ "sector_rotation_chart_TS": {
+  "module": "sector_rotation_chart_ts",
+  "parity": "exact",
+  "requires": [
+   "history"
+  ],
+  "outputs": 0,
+  "metadata_run_error": null
+ },
+ "darvas_box_indicator_TS": {
+  "module": "darvas_box_indicator_ts",
+  "parity": "exact",
+  "requires": [],
+  "outputs": 9,
+  "metadata_run_error": null
+ },
+ "bottom_catcher_performance_TS": {
+  "module": "bottom_catcher_performance_ts",
+  "parity": "exact",
+  "requires": [],
+  "outputs": 3,
+  "metadata_run_error": null
+ },
+ "put_call_ratio_TS": {
+  "module": "put_call_ratio_ts",
+  "parity": "exact",
+  "requires": [
+   "options_data_for_all_expirations"
+  ],
+  "outputs": 0,
+  "metadata_run_error": null
+ },
+ "expected_move_from_options_TS": {
+  "module": "expected_move_from_options_ts",
+  "parity": "aapl_d: both-error, syn_5m: both-error",
+  "requires": [
+   "options_data_for_all_expirations",
+   "options_schedule"
+  ],
+  "outputs": 0,
+  "metadata_run_error": "JSError: Could not calculate expected moves from available options"
+ },
+ "daily_pivot_breakout_TS": {
+  "module": "daily_pivot_breakout_ts",
+  "parity": "aapl_d: OK, syn_5m: both-error",
+  "requires": [
+   "history"
+  ],
+  "outputs": 6,
+  "metadata_run_error": null
+ },
+ "harmonic_flow_velocity_alpha_scope_TS": {
+  "module": "harmonic_flow_velocity_alpha_scope_ts",
+  "parity": "exact",
+  "requires": [
+   "history"
+  ],
+  "outputs": 6,
+  "metadata_run_error": null
+ },
+ "robust_scaled_dema_alpha_scope_TS": {
+  "module": "robust_scaled_dema_alpha_scope_ts",
+  "parity": "exact",
+  "requires": [],
+  "outputs": 3,
+  "metadata_run_error": null
+ },
+ "sma_mad_supertrend_alpha_scope_TS": {
+  "module": "sma_mad_supertrend_alpha_scope_ts",
+  "parity": "exact",
+  "requires": [],
+  "outputs": 6,
+  "metadata_run_error": null
+ },
+ "mean_reversion_momentum_hybrid_alpha_scope_TS": {
+  "module": "mean_reversion_momentum_hybrid_alpha_scope_ts",
+  "parity": "exact",
+  "requires": [],
+  "outputs": 8,
+  "metadata_run_error": null
+ },
+ "options_max_pain_TS": {
+  "module": "options_max_pain_ts",
+  "parity": "exact",
+  "requires": [
+   "options_data_for_expiration",
+   "options_schedule"
+  ],
+  "outputs": 1,
+  "metadata_run_error": null
+ },
+ "pivot_high_and_low_TS": {
+  "module": "pivot_high_and_low_ts",
+  "parity": "exact",
+  "requires": [],
+  "outputs": 2,
+  "metadata_run_error": null
+ },
+ "options_contract_chart_overlay_TS": {
+  "module": "options_contract_chart_overlay_ts",
+  "parity": "exact",
+  "requires": [
+   "history",
+   "options_data_for_expiration",
+   "options_schedule"
+  ],
+  "outputs": 1,
+  "metadata_run_error": null
+ },
+ "true_daily_sma_pack_TS": {
+  "module": "true_daily_sma_pack_ts",
+  "parity": "exact",
+  "requires": [
+   "history"
+  ],
+  "outputs": 5,
+  "metadata_run_error": null
+ },
+ "superscalper_w_rollover_TS": {
+  "module": "superscalper_w_rollover_ts",
+  "parity": "exact",
+  "requires": [],
+  "outputs": 12,
+  "metadata_run_error": null
+ },
+ "hi_low_of_the_day_rth_TS": {
+  "module": "hi_low_of_the_day_rth_ts",
+  "parity": "exact",
+  "requires": [],
+  "outputs": 6,
+  "metadata_run_error": null
+ },
+ "underlying_chart_overlay_TS": {
+  "module": "underlying_chart_overlay_ts",
+  "parity": "exact",
+  "requires": [
+   "history",
+   "options_data_for_expiration"
+  ],
+  "outputs": 1,
+  "metadata_run_error": null
+ },
+ "expected_options_move_daily_weekly_monthly_TS": {
+  "module": "expected_options_move_daily_weekly_monthly_ts",
+  "parity": "exact",
+  "requires": [
+   "options_data_for_expiration",
+   "options_schedule"
+  ],
+  "outputs": 6,
+  "metadata_run_error": null
+ },
+ "cnn_fear_greed_index_TS": {
+  "module": "cnn_fear_greed_index_ts",
+  "parity": "aapl_d: both-error, syn_5m: both-error",
+  "requires": [
+   "http"
+  ],
+  "outputs": 0,
+  "metadata_run_error": "JSError: Cannot read properties of undefined (reading 'data')"
+ },
+ "breadth_snapshot_with_5_day_comparison_indexes_TS": {
+  "module": "breadth_snapshot_with_5_day_comparison_indexes_ts",
+  "parity": "exact",
+  "requires": [
+   "history"
+  ],
+  "outputs": 0,
+  "metadata_run_error": null
+ },
+ "ath_atl_levels_TS": {
+  "module": "ath_atl_levels_ts",
+  "parity": "exact",
+  "requires": [
+   "history"
+  ],
+  "outputs": 2,
+  "metadata_run_error": null
+ },
+ "vix_candle_coloring_TS": {
+  "module": "vix_candle_coloring_ts",
+  "parity": "exact",
+  "requires": [
+   "history"
+  ],
+  "outputs": 1,
+  "metadata_run_error": null
+ },
+ "consecutive_candles_TS": {
+  "module": "consecutive_candles_ts",
+  "parity": "exact",
+  "requires": [],
+  "outputs": 2,
+  "metadata_run_error": null
+ },
+ "drawdown_from_ath_TS": {
+  "module": "drawdown_from_ath_ts",
+  "parity": "exact",
+  "requires": [],
+  "outputs": 2,
+  "metadata_run_error": null
+ },
+ "returns_overlay_table_TS": {
+  "module": "returns_overlay_table_ts",
+  "parity": "exact",
+  "requires": [
+   "history"
+  ],
+  "outputs": 0,
+  "metadata_run_error": null
+ },
+ "options_chain_grid_TS": {
+  "module": "options_chain_grid_ts",
+  "parity": "exact",
+  "requires": [
+   "options_data_for_expiration",
+   "options_schedule"
+  ],
+  "outputs": 1,
+  "metadata_run_error": null
+ },
+ "dollar_volume_TS": {
+  "module": "dollar_volume_ts",
+  "parity": "exact",
+  "requires": [],
+  "outputs": 1,
+  "metadata_run_error": null
+ },
+ "mtf_support_resistance_TS": {
+  "module": "mtf_support_resistance_ts",
+  "parity": "exact",
+  "requires": [
+   "history"
+  ],
+  "outputs": 30,
+  "metadata_run_error": null
+ },
+ "greedzone_contrarian_indicator_zeiierman_TS": {
+  "module": "greedzone_contrarian_indicator_zeiierman_ts",
+  "parity": "exact",
+  "requires": [],
+  "outputs": 3,
+  "metadata_run_error": null
+ },
+ "spy_spx_es_price_converter_pt_TS": {
+  "module": "spy_spx_es_price_converter_pt_ts",
+  "parity": "exact",
+  "requires": [
+   "history"
+  ],
+  "outputs": 63,
+  "metadata_run_error": null
+ },
+ "wikipedia_page_views_TS": {
+  "module": "wikipedia_page_views_ts",
+  "parity": "aapl_d: both-error, syn_5m: both-error",
+  "requires": [
+   "http"
+  ],
+  "outputs": 0,
+  "metadata_run_error": "JSError: Cannot read properties of undefined (reading 'map')"
+ },
+ "underlying_asset_price_TS": {
+  "module": "underlying_asset_price_ts",
+  "parity": "exact",
+  "requires": [
+   "history"
+  ],
+  "outputs": 1,
+  "metadata_run_error": null
+ },
+ "zenalgo_adx_TS": {
+  "module": "zenalgo_adx_ts",
+  "parity": "exact",
+  "requires": [],
+  "outputs": 39,
+  "metadata_run_error": null
+ },
+ "aurora_divergence_dafe_TS": {
+  "module": "aurora_divergence_dafe_ts",
+  "parity": "exact",
+  "requires": [],
+  "outputs": 6,
+  "metadata_run_error": null
+ },
+ "pivot_levels_candle_color_dark_theme_TS": {
+  "module": "pivot_levels_candle_color_dark_theme_ts",
+  "parity": "exact",
+  "requires": [],
+  "outputs": 5,
+  "metadata_run_error": null
+ },
+ "thompson_enhanced_derivative_pattern_engine_TS": {
+  "module": "thompson_enhanced_derivative_pattern_engine_ts",
+  "parity": "exact",
+  "requires": [],
+  "outputs": 21,
+  "metadata_run_error": null
+ },
+ "slim_ribbon_TS": {
+  "module": "slim_ribbon_ts",
+  "parity": "exact",
+  "requires": [],
+  "outputs": 10,
+  "metadata_run_error": null
+ },
+ "world_bank_indicators_agriculture_rural_development_TS": {
+  "module": "world_bank_indicators_agriculture_rural_development_ts",
+  "parity": "exact",
+  "requires": [
+   "http"
+  ],
+  "outputs": 1,
+  "metadata_run_error": null
+ },
+ "world_bank_indicators_aid_effectiveness_TS": {
+  "module": "world_bank_indicators_aid_effectiveness_ts",
+  "parity": "exact",
+  "requires": [
+   "http"
+  ],
+  "outputs": 1,
+  "metadata_run_error": null
+ },
+ "world_bank_indicators_energy_mining_TS": {
+  "module": "world_bank_indicators_energy_mining_ts",
+  "parity": "exact",
+  "requires": [
+   "http"
+  ],
+  "outputs": 1,
+  "metadata_run_error": null
+ },
+ "world_bank_indicators_poverty_TS": {
+  "module": "world_bank_indicators_poverty_ts",
+  "parity": "exact",
+  "requires": [
+   "http"
+  ],
+  "outputs": 1,
+  "metadata_run_error": null
+ },
+ "world_bank_indicators_private_sector_TS": {
+  "module": "world_bank_indicators_private_sector_ts",
+  "parity": "exact",
+  "requires": [
+   "http"
+  ],
+  "outputs": 1,
+  "metadata_run_error": null
+ },
+ "world_bank_indicators_infrastructure_TS": {
+  "module": "world_bank_indicators_infrastructure_ts",
+  "parity": "exact",
+  "requires": [
+   "http"
+  ],
+  "outputs": 1,
+  "metadata_run_error": null
+ },
+ "world_bank_indicators_social_protection_labor_TS": {
+  "module": "world_bank_indicators_social_protection_labor_ts",
+  "parity": "exact",
+  "requires": [
+   "http"
+  ],
+  "outputs": 1,
+  "metadata_run_error": null
+ },
+ "world_bank_indicators_environment_TS": {
+  "module": "world_bank_indicators_environment_ts",
+  "parity": "exact",
+  "requires": [
+   "http"
+  ],
+  "outputs": 1,
+  "metadata_run_error": null
+ },
+ "world_bank_indicators_financial_sector_TS": {
+  "module": "world_bank_indicators_financial_sector_ts",
+  "parity": "exact",
+  "requires": [
+   "http"
+  ],
+  "outputs": 1,
+  "metadata_run_error": null
+ },
+ "world_bank_indicators_health_TS": {
+  "module": "world_bank_indicators_health_ts",
+  "parity": "exact",
+  "requires": [
+   "http"
+  ],
+  "outputs": 1,
+  "metadata_run_error": null
+ },
+ "world_bank_indicators_urban_development_TS": {
+  "module": "world_bank_indicators_urban_development_ts",
+  "parity": "exact",
+  "requires": [
+   "http"
+  ],
+  "outputs": 1,
+  "metadata_run_error": null
+ },
+ "world_bank_indicators_gender_TS": {
+  "module": "world_bank_indicators_gender_ts",
+  "parity": "exact",
+  "requires": [
+   "http"
+  ],
+  "outputs": 1,
+  "metadata_run_error": null
+ },
+ "world_bank_indicators_millennium_development_goals_TS": {
+  "module": "world_bank_indicators_millennium_development_goals_ts",
+  "parity": "exact",
+  "requires": [
+   "http"
+  ],
+  "outputs": 1,
+  "metadata_run_error": null
+ },
+ "world_bank_indicators_climate_change_TS": {
+  "module": "world_bank_indicators_climate_change_ts",
+  "parity": "exact",
+  "requires": [
+   "http"
+  ],
+  "outputs": 1,
+  "metadata_run_error": null
+ },
+ "world_bank_indicators_external_debt_TS": {
+  "module": "world_bank_indicators_external_debt_ts",
+  "parity": "exact",
+  "requires": [
+   "http"
+  ],
+  "outputs": 1,
+  "metadata_run_error": null
+ },
+ "world_bank_indicators_trade_TS": {
+  "module": "world_bank_indicators_trade_ts",
+  "parity": "exact",
+  "requires": [
+   "http"
+  ],
+  "outputs": 1,
+  "metadata_run_error": null
+ },
+ "market_sentiment_indicator_TS": {
+  "module": "market_sentiment_indicator_ts",
+  "parity": "exact",
+  "requires": [],
+  "outputs": 3,
+  "metadata_run_error": null
+ },
+ "prior_day_high_low_fib_levels_v2_6_TS": {
+  "module": "prior_day_high_low_fib_levels_v2_6_ts",
+  "parity": "aapl_d: both-error, syn_5m: OK",
+  "requires": [
+   "history"
+  ],
+  "outputs": 0,
+  "metadata_run_error": "JSError: not applicable to \"D\" charts"
+ },
+ "world_bank_indicators_economy_growth_TS": {
+  "module": "world_bank_indicators_economy_growth_ts",
+  "parity": "exact",
+  "requires": [
+   "http"
+  ],
+  "outputs": 1,
+  "metadata_run_error": null
+ },
+ "world_bank_indicators_public_sector_TS": {
+  "module": "world_bank_indicators_public_sector_ts",
+  "parity": "exact",
+  "requires": [
+   "http"
+  ],
+  "outputs": 1,
+  "metadata_run_error": null
+ },
+ "world_bank_indicators_social_development_TS": {
+  "module": "world_bank_indicators_social_development_ts",
+  "parity": "exact",
+  "requires": [
+   "http"
+  ],
+  "outputs": 1,
+  "metadata_run_error": null
+ },
+ "rsi_mtf_stack_TS": {
+  "module": "rsi_mtf_stack_ts",
+  "parity": "exact",
+  "requires": [
+   "history"
+  ],
+  "outputs": 0,
+  "metadata_run_error": null
+ },
+ "current_market_cap_multi_ticker_TS": {
+  "module": "current_market_cap_multi_ticker_ts",
+  "parity": "exact",
+  "requires": [
+   "fundamental",
+   "history"
+  ],
+  "outputs": 5,
+  "metadata_run_error": null
+ },
+ "2_timeframe_heikin_ashi_consensus_TS": {
+  "module": "ts_2_timeframe_heikin_ashi_consensus_ts",
+  "parity": "exact",
+  "requires": [
+   "history"
+  ],
+  "outputs": 4,
+  "metadata_run_error": null
+ },
+ "neal_or_no_deal_TS": {
+  "module": "neal_or_no_deal_ts",
+  "parity": "exact",
+  "requires": [
+   "options_schedule",
+   "unusual_options"
+  ],
+  "outputs": 14,
+  "metadata_run_error": null
+ },
+ "vectr_TS": {
+  "module": "vectr_ts",
+  "parity": "exact",
+  "requires": [
+   "history"
+  ],
+  "outputs": 45,
+  "metadata_run_error": null
+ },
+ "daily_ema_8_21_50_band_rkpdtrade5_TS": {
+  "module": "daily_ema_8_21_50_band_rkpdtrade5_ts",
+  "parity": "exact",
+  "requires": [
+   "history"
+  ],
+  "outputs": 9,
+  "metadata_run_error": null
+ },
+ "convexity_guard_by_zxzinn_TS": {
+  "module": "convexity_guard_by_zxzinn_ts",
+  "parity": "exact",
+  "requires": [
+   "http"
+  ],
+  "outputs": 4,
+  "metadata_run_error": null
+ },
+ "zenalgo_mars_TS": {
+  "module": "zenalgo_mars_ts",
+  "parity": "exact",
+  "requires": [
+   "history"
+  ],
+  "outputs": 37,
+  "metadata_run_error": null
+ },
+ "analyst_estimates_and_consensus_TS": {
+  "module": "analyst_estimates_and_consensus_ts",
+  "parity": "exact",
+  "requires": [
+   "analyst_ratings"
+  ],
+  "outputs": 3,
+  "metadata_run_error": null
+ },
+ "analyst_estimates_history_TS": {
+  "module": "analyst_estimates_history_ts",
+  "parity": "exact",
+  "requires": [
+   "analyst_ratings"
+  ],
+  "outputs": 4,
+  "metadata_run_error": null
+ },
+ "analyst_ratings_on_chart_TS": {
+  "module": "analyst_ratings_on_chart_ts",
+  "parity": "exact",
+  "requires": [
+   "analyst_ratings"
+  ],
+  "outputs": 3,
+  "metadata_run_error": null
+ },
+ "analyst_estimates_analyst_consensus_TS": {
+  "module": "analyst_estimates_analyst_consensus_ts",
+  "parity": "exact",
+  "requires": [
+   "analyst_ratings"
+  ],
+  "outputs": 3,
+  "metadata_run_error": null
+ },
+ "analyst_targets_by_price_TS": {
+  "module": "analyst_targets_by_price_ts",
+  "parity": "exact",
+  "requires": [
+   "analyst_ratings"
+  ],
+  "outputs": 41,
+  "metadata_run_error": null
+ },
+ "anchored_percentile_line_TS": {
+  "module": "anchored_percentile_line_ts",
+  "parity": "exact",
+  "requires": [],
+  "outputs": 5,
+  "metadata_run_error": null
+ },
+ "atr_distribution_TS": {
+  "module": "atr_distribution_ts",
+  "parity": "exact",
+  "requires": [],
+  "outputs": 7,
+  "metadata_run_error": null
+ },
+ "atr_multiple_from_ma_TS": {
+  "module": "atr_multiple_from_ma_ts",
+  "parity": "exact",
+  "requires": [],
+  "outputs": 5,
+  "metadata_run_error": null
+ },
+ "atr_support_and_resistance_levels_TS": {
+  "module": "atr_support_and_resistance_levels_ts",
+  "parity": "exact",
+  "requires": [
+   "history"
+  ],
+  "outputs": 4,
+  "metadata_run_error": null
+ },
+ "auto_fib_TS": {
+  "module": "auto_fib_ts",
+  "parity": "exact",
+  "requires": [],
+  "outputs": 18,
+  "metadata_run_error": null
+ },
+ "average_daily_range_adr_with_timeframe_lock_TS": {
+  "module": "average_daily_range_adr_with_timeframe_lock_ts",
+  "parity": "exact",
+  "requires": [
+   "history"
+  ],
+  "outputs": 4,
+  "metadata_run_error": null
+ },
+ "bollinger_band_momentum_TS": {
+  "module": "bollinger_band_momentum_ts",
+  "parity": "exact",
+  "requires": [],
+  "outputs": 3,
+  "metadata_run_error": null
+ },
+ "breakout_fakeout_candle_coloring_TS": {
+  "module": "breakout_fakeout_candle_coloring_ts",
+  "parity": "exact",
+  "requires": [],
+  "outputs": 7,
+  "metadata_run_error": null
+ },
+ "bull_bear_power_TS": {
+  "module": "bull_bear_power_ts",
+  "parity": "exact",
+  "requires": [],
+  "outputs": 1,
+  "metadata_run_error": null
+ },
+ "candlestick_pattern_detection_emojis_TS": {
+  "module": "candlestick_pattern_detection_emojis_ts",
+  "parity": "exact",
+  "requires": [],
+  "outputs": 3,
+  "metadata_run_error": null
+ },
+ "candlestick_pattern_detection_labeling_TS": {
+  "module": "candlestick_pattern_detection_labeling_ts",
+  "parity": "exact",
+  "requires": [],
+  "outputs": 3,
+  "metadata_run_error": null
+ },
+ "cci_and_atr_strategy_TS": {
+  "module": "cci_and_atr_strategy_ts",
+  "parity": "exact",
+  "requires": [],
+  "outputs": 4,
+  "metadata_run_error": null
+ },
+ "combined_rsi_ensemble_TS": {
+  "module": "combined_rsi_ensemble_ts",
+  "parity": "exact",
+  "requires": [],
+  "outputs": 8,
+  "metadata_run_error": null
+ },
+ "company_profile_TS": {
+  "module": "company_profile_ts",
+  "parity": "aapl_d: OK, syn_5m: both-error",
+  "requires": [
+   "analyst_ratings",
+   "earnings",
+   "fundamental",
+   "history",
+   "insider_trading",
+   "relative_performance"
+  ],
+  "outputs": 0,
+  "metadata_run_error": null
+ },
+ "composite_index_TS": {
+  "module": "composite_index_ts",
+  "parity": "exact",
+  "requires": [],
+  "outputs": 3,
+  "metadata_run_error": null
+ },
+ "composite_symbol_macd_TS": {
+  "module": "composite_symbol_macd_ts",
+  "parity": "exact",
+  "requires": [
+   "history"
+  ],
+  "outputs": 3,
+  "metadata_run_error": null
+ },
+ "cumulative_intraday_volume_TS": {
+  "module": "cumulative_intraday_volume_ts",
+  "parity": "exact",
+  "requires": [],
+  "outputs": 1,
+  "metadata_run_error": null
+ },
+ "customizable_candle_range_TS": {
+  "module": "customizable_candle_range_ts",
+  "parity": "exact",
+  "requires": [],
+  "outputs": 2,
+  "metadata_run_error": null
+ },
+ "daily_atr_support_and_resistance_levels_TS": {
+  "module": "daily_atr_support_and_resistance_levels_ts",
+  "parity": "exact",
+  "requires": [
+   "history"
+  ],
+  "outputs": 4,
+  "metadata_run_error": null
+ },
+ "daily_candles_over_intraday_candles_TS": {
+  "module": "daily_candles_over_intraday_candles_ts",
+  "parity": "aapl_d: both-error, syn_5m: OK",
+  "requires": [],
+  "outputs": 0,
+  "metadata_run_error": "JSError: to_index must be greater than from_index"
+ },
+ "dividend_anchored_vwap_TS": {
+  "module": "dividend_anchored_vwap_ts",
+  "parity": "exact",
+  "requires": [
+   "dividends"
+  ],
+  "outputs": 1,
+  "metadata_run_error": null
+ },
+ "dividend_efficiency_indicator_TS": {
+  "module": "dividend_efficiency_indicator_ts",
+  "parity": "exact",
+  "requires": [
+   "fundamental"
+  ],
+  "outputs": 1,
+  "metadata_run_error": null
+ },
+ "dmw_levels_TS": {
+  "module": "dmw_levels_ts",
+  "parity": "exact",
+  "requires": [
+   "history"
+  ],
+  "outputs": 5,
+  "metadata_run_error": null
+ },
+ "dorsey_relative_strength_TS": {
+  "module": "dorsey_relative_strength_ts",
+  "parity": "exact",
+  "requires": [
+   "history"
+  ],
+  "outputs": 1,
+  "metadata_run_error": null
+ },
+ "dual_rsi_with_color_cloud_TS": {
+  "module": "dual_rsi_with_color_cloud_ts",
+  "parity": "exact",
+  "requires": [],
+  "outputs": 6,
+  "metadata_run_error": null
+ },
+ "ehlers_decycler_TS": {
+  "module": "ehlers_decycler_ts",
+  "parity": "exact",
+  "requires": [],
+  "outputs": 3,
+  "metadata_run_error": null
+ },
+ "elegant_oscillator_TS": {
+  "module": "elegant_oscillator_ts",
+  "parity": "exact",
+  "requires": [],
+  "outputs": 4,
+  "metadata_run_error": null
+ },
+ "ema_crossover_candle_colors_TS": {
+  "module": "ema_crossover_candle_colors_ts",
+  "parity": "exact",
+  "requires": [],
+  "outputs": 5,
+  "metadata_run_error": null
+ },
+ "ema_crossover_with_buy_signal_TS": {
+  "module": "ema_crossover_with_buy_signal_ts",
+  "parity": "exact",
+  "requires": [],
+  "outputs": 6,
+  "metadata_run_error": null
+ },
+ "engulfing_bands_TS": {
+  "module": "engulfing_bands_ts",
+  "parity": "exact",
+  "requires": [],
+  "outputs": 10,
+  "metadata_run_error": null
+ },
+ "equal_weighted_index_TS": {
+  "module": "equal_weighted_index_ts",
+  "parity": "exact",
+  "requires": [
+   "history"
+  ],
+  "outputs": 1,
+  "metadata_run_error": null
+ },
+ "fair_value_gap_with_labels_TS": {
+  "module": "fair_value_gap_with_labels_ts",
+  "parity": "exact",
+  "requires": [],
+  "outputs": 23,
+  "metadata_run_error": null
+ },
+ "fractal_channel_TS": {
+  "module": "fractal_channel_ts",
+  "parity": "exact",
+  "requires": [],
+  "outputs": 11,
+  "metadata_run_error": null
+ },
+ "fractal_labels_TS": {
+  "module": "fractal_labels_ts",
+  "parity": "exact",
+  "requires": [],
+  "outputs": 2,
+  "metadata_run_error": null
+ },
+ "full_timeframe_continuity_candle_colors_TS": {
+  "module": "full_timeframe_continuity_candle_colors_ts",
+  "parity": "aapl_d: both-error, syn_5m: OK",
+  "requires": [],
+  "outputs": 0,
+  "metadata_run_error": "JSError: This indicator only works for time frames <= 30 minutes"
+ },
+ "fundamental_strength_with_weightings_TS": {
+  "module": "fundamental_strength_with_weightings_ts",
+  "parity": "exact",
+  "requires": [
+   "fundamental"
+  ],
+  "outputs": 1,
+  "metadata_run_error": null
+ },
+ "global_market_session_TS": {
+  "module": "global_market_session_ts",
+  "parity": "exact",
+  "requires": [],
+  "outputs": 11,
+  "metadata_run_error": null
+ },
+ "golden_death_cross_painter_TS": {
+  "module": "golden_death_cross_painter_ts",
+  "parity": "exact",
+  "requires": [],
+  "outputs": 6,
+  "metadata_run_error": null
+ },
+ "highest_volume_candle_TS": {
+  "module": "highest_volume_candle_ts",
+  "parity": "exact",
+  "requires": [],
+  "outputs": 3,
+  "metadata_run_error": null
+ },
+ "htf_open_levels_TS": {
+  "module": "htf_open_levels_ts",
+  "parity": "exact",
+  "requires": [
+   "history"
+  ],
+  "outputs": 4,
+  "metadata_run_error": null
+ },
+ "inside_candle_highlighter_TS": {
+  "module": "inside_candle_highlighter_ts",
+  "parity": "exact",
+  "requires": [],
+  "outputs": 2,
+  "metadata_run_error": null
+ },
+ "insider_trades_on_chart_TS": {
+  "module": "insider_trades_on_chart_ts",
+  "parity": "exact",
+  "requires": [
+   "insider_trading"
+  ],
+  "outputs": 6,
+  "metadata_run_error": null
+ },
+ "institutional_supply_and_demand_zones_TS": {
+  "module": "institutional_supply_and_demand_zones_ts",
+  "parity": "exact",
+  "requires": [],
+  "outputs": 20,
+  "metadata_run_error": null
+ },
+ "intraday_high_and_low_TS": {
+  "module": "intraday_high_and_low_ts",
+  "parity": "exact",
+  "requires": [],
+  "outputs": 2,
+  "metadata_run_error": null
+ },
+ "jerry_mcguire_TS": {
+  "module": "jerry_mcguire_ts",
+  "parity": "exact",
+  "requires": [],
+  "outputs": 1,
+  "metadata_run_error": null
+ },
+ "keltner_channels_mtf_TS": {
+  "module": "keltner_channels_mtf_ts",
+  "parity": "exact",
+  "requires": [
+   "history"
+  ],
+  "outputs": 14,
+  "metadata_run_error": null
+ },
+ "liquidity_levels_TS": {
+  "module": "liquidity_levels_ts",
+  "parity": "exact",
+  "requires": [],
+  "outputs": 10,
+  "metadata_run_error": null
+ },
+ "ma_distance_with_price_source_TS": {
+  "module": "ma_distance_with_price_source_ts",
+  "parity": "exact",
+  "requires": [],
+  "outputs": 1,
+  "metadata_run_error": null
+ },
+ "ma_slope_strategy_TS": {
+  "module": "ma_slope_strategy_ts",
+  "parity": "exact",
+  "requires": [],
+  "outputs": 4,
+  "metadata_run_error": null
+ },
+ "macd_and_rsi_momentum_TS": {
+  "module": "macd_and_rsi_momentum_ts",
+  "parity": "exact",
+  "requires": [],
+  "outputs": 5,
+  "metadata_run_error": null
+ },
+ "mansfield_relative_strength_TS": {
+  "module": "mansfield_relative_strength_ts",
+  "parity": "exact",
+  "requires": [
+   "history"
+  ],
+  "outputs": 6,
+  "metadata_run_error": null
+ },
+ "market_structure_break_msb_indicator_TS": {
+  "module": "market_structure_break_msb_indicator_ts",
+  "parity": "exact",
+  "requires": [],
+  "outputs": 7,
+  "metadata_run_error": null
+ },
+ "midpoint_of_prior_candle_body_TS": {
+  "module": "midpoint_of_prior_candle_body_ts",
+  "parity": "exact",
+  "requires": [],
+  "outputs": 2,
+  "metadata_run_error": null
+ },
+ "momentum_metrics_table_TS": {
+  "module": "momentum_metrics_table_ts",
+  "parity": "exact",
+  "requires": [],
+  "outputs": 0,
+  "metadata_run_error": null
+ },
+ "momentum_with_bands_TS": {
+  "module": "momentum_with_bands_ts",
+  "parity": "exact",
+  "requires": [],
+  "outputs": 3,
+  "metadata_run_error": null
+ },
+ "momentum_with_moving_average_TS": {
+  "module": "momentum_with_moving_average_ts",
+  "parity": "exact",
+  "requires": [],
+  "outputs": 6,
+  "metadata_run_error": null
+ },
+ "moon_phases_TS": {
+  "module": "moon_phases_ts",
+  "parity": "exact",
+  "requires": [],
+  "outputs": 5,
+  "metadata_run_error": null
+ },
+ "distance_between_ma_s_TS": {
+  "module": "distance_between_ma_s_ts",
+  "parity": "exact",
+  "requires": [],
+  "outputs": 1,
+  "metadata_run_error": null
+ },
+ "moving_average_trend_identifier_TS": {
+  "module": "moving_average_trend_identifier_ts",
+  "parity": "exact",
+  "requires": [],
+  "outputs": 4,
+  "metadata_run_error": null
+ },
+ "multi_timeframe_bull_bear_table_example_TS": {
+  "module": "multi_timeframe_bull_bear_table_example_ts",
+  "parity": "exact",
+  "requires": [
+   "history"
+  ],
+  "outputs": 0,
+  "metadata_run_error": null
+ },
+ "multi_timeframe_high_low_levels_TS": {
+  "module": "multi_timeframe_high_low_levels_ts",
+  "parity": "exact",
+  "requires": [],
+  "outputs": 10,
+  "metadata_run_error": null
+ },
+ "multi_timeframe_moving_average_TS": {
+  "module": "multi_timeframe_moving_average_ts",
+  "parity": "exact",
+  "requires": [
+   "history"
+  ],
+  "outputs": 8,
+  "metadata_run_error": null
+ },
+ "nancy_pelosi_insider_trades_TS": {
+  "module": "nancy_pelosi_insider_trades_ts",
+  "parity": "exact",
+  "requires": [
+   "congress_trading"
+  ],
+  "outputs": 4,
+  "metadata_run_error": null
+ },
+ "news_articles_per_daily_candle_TS": {
+  "module": "news_articles_per_daily_candle_ts",
+  "parity": "aapl_d: OK, syn_5m: both-error",
+  "requires": [
+   "news"
+  ],
+  "outputs": 2,
+  "metadata_run_error": null
+ },
+ "opening_range_breakout_strategy_TS": {
+  "module": "opening_range_breakout_strategy_ts",
+  "parity": "exact",
+  "requires": [],
+  "outputs": 8,
+  "metadata_run_error": null
+ },
+ "pe_ratio_indicator_TS": {
+  "module": "pe_ratio_indicator_ts",
+  "parity": "exact",
+  "requires": [
+   "earnings"
+  ],
+  "outputs": 1,
+  "metadata_run_error": null
+ },
+ "pe_ratio_comparison_indicator_TS": {
+  "module": "pe_ratio_comparison_indicator_ts",
+  "parity": "exact",
+  "requires": [
+   "earnings",
+   "history"
+  ],
+  "outputs": 8,
+  "metadata_run_error": null
+ },
+ "per_session_volume_by_price_vbp_TS": {
+  "module": "per_session_volume_by_price_vbp_ts",
+  "parity": "aapl_d: both-error, syn_5m: OK",
+  "requires": [
+   "history"
+  ],
+  "outputs": 0,
+  "metadata_run_error": "JSError: Only supported for intraday time frames"
+ },
+ "post_market_change_anchored_TS": {
+  "module": "post_market_change_anchored_ts",
+  "parity": "exact",
+  "requires": [],
+  "outputs": 2,
+  "metadata_run_error": null
+ },
+ "pre_market_range_TS": {
+  "module": "pre_market_range_ts",
+  "parity": "exact",
+  "requires": [
+   "history"
+  ],
+  "outputs": 2,
+  "metadata_run_error": null
+ },
+ "previous_day_levels_TS": {
+  "module": "previous_day_levels_ts",
+  "parity": "exact",
+  "requires": [
+   "history"
+  ],
+  "outputs": 3,
+  "metadata_run_error": null
+ },
+ "range_close_coloring_TS": {
+  "module": "range_close_coloring_ts",
+  "parity": "exact",
+  "requires": [],
+  "outputs": 2,
+  "metadata_run_error": null
+ },
+ "relative_performance_candle_coloring_TS": {
+  "module": "relative_performance_candle_coloring_ts",
+  "parity": "exact",
+  "requires": [
+   "relative_performance"
+  ],
+  "outputs": 4,
+  "metadata_run_error": null
+ },
+ "relative_performance_table_TS": {
+  "module": "relative_performance_table_ts",
+  "parity": "exact",
+  "requires": [
+   "relative_performance"
+  ],
+  "outputs": 0,
+  "metadata_run_error": null
+ },
+ "relative_performance_with_ma_TS": {
+  "module": "relative_performance_with_ma_ts",
+  "parity": "exact",
+  "requires": [
+   "relative_performance"
+  ],
+  "outputs": 7,
+  "metadata_run_error": null
+ },
+ "rsi_ensemble_TS": {
+  "module": "rsi_ensemble_ts",
+  "parity": "exact",
+  "requires": [],
+  "outputs": 3,
+  "metadata_run_error": null
+ },
+ "rsi_macd_confluence_TS": {
+  "module": "rsi_macd_confluence_ts",
+  "parity": "exact",
+  "requires": [],
+  "outputs": 4,
+  "metadata_run_error": null
+ },
+ "rsi_with_seasonality_TS": {
+  "module": "rsi_with_seasonality_ts",
+  "parity": "exact",
+  "requires": [
+   "seasonality"
+  ],
+  "outputs": 3,
+  "metadata_run_error": null
+ },
+ "rsi_with_sma_TS": {
+  "module": "rsi_with_sma_ts",
+  "parity": "exact",
+  "requires": [],
+  "outputs": 5,
+  "metadata_run_error": null
+ },
+ "rvol_color_coded_volume_TS": {
+  "module": "rvol_color_coded_volume_ts",
+  "parity": "exact",
+  "requires": [],
+  "outputs": 6,
+  "metadata_run_error": null
+ },
+ "seasonality_moving_average_TS": {
+  "module": "seasonality_moving_average_ts",
+  "parity": "aapl_d: both-error, syn_5m: both-error",
+  "requires": [
+   "seasonality"
+  ],
+  "outputs": 0,
+  "metadata_run_error": "JSError: Cannot read properties of undefined (reading 'map')"
+ },
+ "seasonality_overlay_TS": {
+  "module": "seasonality_overlay_ts",
+  "parity": "aapl_d: both-error, syn_5m: both-error",
+  "requires": [
+   "seasonality"
+  ],
+  "outputs": 0,
+  "metadata_run_error": "JSError: Cannot read properties of undefined (reading 'map')"
+ },
+ "sector_industry_market_cap_change_metrics_TS": {
+  "module": "sector_industry_market_cap_change_metrics_ts",
+  "parity": "exact",
+  "requires": [
+   "fundamental",
+   "history"
+  ],
+  "outputs": 0,
+  "metadata_run_error": null
+ },
+ "smoothed_fisher_transform_TS": {
+  "module": "smoothed_fisher_transform_ts",
+  "parity": "exact",
+  "requires": [],
+  "outputs": 3,
+  "metadata_run_error": null
+ },
+ "smoothed_heiken_ashi_oscillator_TS": {
+  "module": "smoothed_heiken_ashi_oscillator_ts",
+  "parity": "exact",
+  "requires": [],
+  "outputs": 1,
+  "metadata_run_error": null
+ },
+ "smoothed_heikin_ashi_TS": {
+  "module": "smoothed_heikin_ashi_ts",
+  "parity": "exact",
+  "requires": [],
+  "outputs": 1,
+  "metadata_run_error": null
+ },
+ "squeeze_labels_TS": {
+  "module": "squeeze_labels_ts",
+  "parity": "exact",
+  "requires": [],
+  "outputs": 1,
+  "metadata_run_error": null
+ },
+ "stochastic_rsi_volume_TS": {
+  "module": "stochastic_rsi_volume_ts",
+  "parity": "exact",
+  "requires": [],
+  "outputs": 5,
+  "metadata_run_error": null
+ },
+ "trend_directional_force_index_TS": {
+  "module": "trend_directional_force_index_ts",
+  "parity": "aapl_d: ULP, syn_5m: ULP",
+  "requires": [],
+  "outputs": 5,
+  "metadata_run_error": null
+ },
+ "trend_momentum_colorwave_TS": {
+  "module": "trend_momentum_colorwave_ts",
+  "parity": "exact",
+  "requires": [],
+  "outputs": 1,
+  "metadata_run_error": null
+ },
+ "trend_strength_oscillator_tso_TS": {
+  "module": "trend_strength_oscillator_tso_ts",
+  "parity": "exact",
+  "requires": [],
+  "outputs": 6,
+  "metadata_run_error": null
+ },
+ "triple_rsi_with_overbought_oversold_shading_TS": {
+  "module": "triple_rsi_with_overbought_oversold_shading_ts",
+  "parity": "exact",
+  "requires": [],
+  "outputs": 10,
+  "metadata_run_error": null
+ },
+ "typical_volume_by_time_of_day_TS": {
+  "module": "typical_volume_by_time_of_day_ts",
+  "parity": "aapl_d: both-error, syn_5m: OK",
+  "requires": [],
+  "outputs": 0,
+  "metadata_run_error": "JSError: This indicator can only work on intraday charts"
+ },
+ "typical_volume_time_of_day_day_of_week_TS": {
+  "module": "typical_volume_time_of_day_day_of_week_ts",
+  "parity": "aapl_d: both-error, syn_5m: OK",
+  "requires": [],
+  "outputs": 0,
+  "metadata_run_error": "JSError: This indicator can only work on intraday charts"
+ },
+ "unusual_options_labels_TS": {
+  "module": "unusual_options_labels_ts",
+  "parity": "exact",
+  "requires": [
+   "unusual_options"
+  ],
+  "outputs": 6,
+  "metadata_run_error": null
+ },
+ "upper_and_lower_wick_of_total_range_TS": {
+  "module": "upper_and_lower_wick_of_total_range_ts",
+  "parity": "exact",
+  "requires": [],
+  "outputs": 3,
+  "metadata_run_error": null
+ },
+ "congress_trades_on_chart_TS": {
+  "module": "congress_trades_on_chart_ts",
+  "parity": "exact",
+  "requires": [
+   "congress_trading"
+  ],
+  "outputs": 4,
+  "metadata_run_error": null
+ },
+ "balloon_raindrop_painter_TS": {
+  "module": "balloon_raindrop_painter_ts",
+  "parity": "exact",
+  "requires": [],
+  "outputs": 3,
+  "metadata_run_error": null
+ },
+ "volatility_based_stop_loss_TS": {
+  "module": "volatility_based_stop_loss_ts",
+  "parity": "exact",
+  "requires": [],
+  "outputs": 1,
+  "metadata_run_error": null
+ },
+ "volume_driven_momentum_TS": {
+  "module": "volume_driven_momentum_ts",
+  "parity": "exact",
+  "requires": [],
+  "outputs": 3,
+  "metadata_run_error": null
+ },
+ "volume_flow_indicator_TS": {
+  "module": "volume_flow_indicator_ts",
+  "parity": "exact",
+  "requires": [],
+  "outputs": 7,
+  "metadata_run_error": null
+ },
+ "volume_trend_confluence_TS": {
+  "module": "volume_trend_confluence_ts",
+  "parity": "exact",
+  "requires": [],
+  "outputs": 4,
+  "metadata_run_error": null
+ },
+ "volume_with_bollinger_bands_TS": {
+  "module": "volume_with_bollinger_bands_ts",
+  "parity": "exact",
+  "requires": [],
+  "outputs": 6,
+  "metadata_run_error": null
+ },
+ "vwap_from_earnings_TS": {
+  "module": "vwap_from_earnings_ts",
+  "parity": "aapl_d: both-error, syn_5m: OK",
+  "requires": [
+   "earnings"
+  ],
+  "outputs": 0,
+  "metadata_run_error": "JSError: Error calculating \"vwap\": vwap(): \"toIndex\" must be greater than \"fromIndex\""
+ },
+ "weekly_fibonacci_levels_TS": {
+  "module": "weekly_fibonacci_levels_ts",
+  "parity": "exact",
+  "requires": [
+   "history"
+  ],
+  "outputs": 16,
+  "metadata_run_error": null
+ },
+ "weinstein_stage_analysis_TS": {
+  "module": "weinstein_stage_analysis_ts",
+  "parity": "exact",
+  "requires": [
+   "history"
+  ],
+  "outputs": 6,
+  "metadata_run_error": null
+ },
+ "zig_zag_channel_with_settings_TS": {
+  "module": "zig_zag_channel_with_settings_ts",
+  "parity": "exact",
+  "requires": [],
+  "outputs": 6,
+  "metadata_run_error": null
+ }
+}

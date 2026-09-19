@@ -24,7 +24,10 @@ class ExecutionSettings(BaseModel):
     stop_loss_atr_multiple: float | None = None
     stop_loss_pct: float | None = None  # flat % of entry price; e.g. 0.01 = 1%
     take_profit_atr_multiple: float | None = None
+    take_profit_pct: float | None = None  # flat % of entry price
     trailing_stop_atr_multiple: float | None = None
+    trailing_stop_pct: float | None = None  # flat % of entry price
+    max_holding_bars: int | None = None  # exit after this many bars, regardless of P&L
     risk_per_trade_pct: float | None = None
     max_position_value_pct: float | None = None  # cap position value at capital * this; 1.0 = no leverage
 

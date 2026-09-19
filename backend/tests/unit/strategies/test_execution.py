@@ -31,7 +31,9 @@ def test_long_trade_pnl_without_costs():
     entries = pd.Series([TradeDirection.LONG, None, None, None], index=df.index)
     exits = pd.Series([False, False, True, False], index=df.index)
 
-    trades = simulate_trades(df, entries, exits, ExecutionConfig(quantity=2, force_close_at_session_end=False))
+    trades = simulate_trades(
+        df, entries, exits, ExecutionConfig(quantity=2, slippage_pct=0.0, force_close_at_session_end=False)
+    )
 
     assert len(trades) == 1
     t = trades[0]
@@ -46,7 +48,9 @@ def test_short_trade_pnl_without_costs():
     entries = pd.Series([TradeDirection.SHORT, None, None], index=df.index)
     exits = pd.Series([False, True, False], index=df.index)
 
-    trades = simulate_trades(df, entries, exits, ExecutionConfig(quantity=1, force_close_at_session_end=False))
+    trades = simulate_trades(
+        df, entries, exits, ExecutionConfig(quantity=1, slippage_pct=0.0, force_close_at_session_end=False)
+    )
 
     assert len(trades) == 1
     assert trades[0].pnl == (100 - 98)
@@ -58,7 +62,10 @@ def test_commission_reduces_pnl():
     exits = pd.Series([False, True], index=df.index)
 
     trades = simulate_trades(
-        df, entries, exits, ExecutionConfig(quantity=1, commission_per_trade=1.5, force_close_at_session_end=False)
+        df,
+        entries,
+        exits,
+        ExecutionConfig(quantity=1, commission_per_trade=1.5, slippage_pct=0.0, force_close_at_session_end=False),
     )
     assert trades[0].pnl == (105 - 100) - 1.5
 
@@ -83,7 +90,9 @@ def test_no_new_entry_while_position_open():
     entries = pd.Series([TradeDirection.LONG, TradeDirection.LONG, None, None], index=df.index)
     exits = pd.Series([False, False, False, True], index=df.index)
 
-    trades = simulate_trades(df, entries, exits, ExecutionConfig(force_close_at_session_end=False))
+    trades = simulate_trades(
+        df, entries, exits, ExecutionConfig(slippage_pct=0.0, force_close_at_session_end=False)
+    )
     assert len(trades) == 1
     assert trades[0].entry_price == 100
 
@@ -93,7 +102,9 @@ def test_open_position_force_closed_at_end_of_data():
     entries = pd.Series([TradeDirection.LONG, None, None], index=df.index)
     exits = pd.Series([False, False, False], index=df.index)
 
-    trades = simulate_trades(df, entries, exits, ExecutionConfig(force_close_at_session_end=False))
+    trades = simulate_trades(
+        df, entries, exits, ExecutionConfig(slippage_pct=0.0, force_close_at_session_end=False)
+    )
     assert len(trades) == 1
     assert trades[0].exit_reason == "end_of_data"
     assert trades[0].exit_price == 102
@@ -105,7 +116,10 @@ def test_direction_filter_long_only_drops_short_entries():
     exits = pd.Series([False, False, False, True], index=df.index)
 
     trades = simulate_trades(
-        df, entries, exits, ExecutionConfig(direction_filter="long_only", force_close_at_session_end=False)
+        df,
+        entries,
+        exits,
+        ExecutionConfig(direction_filter="long_only", slippage_pct=0.0, force_close_at_session_end=False),
     )
     assert len(trades) == 1
     assert trades[0].direction == TradeDirection.LONG
@@ -118,7 +132,10 @@ def test_direction_filter_short_only_drops_long_entries():
     exits = pd.Series([False, False, False, True], index=df.index)
 
     trades = simulate_trades(
-        df, entries, exits, ExecutionConfig(direction_filter="short_only", force_close_at_session_end=False)
+        df,
+        entries,
+        exits,
+        ExecutionConfig(direction_filter="short_only", slippage_pct=0.0, force_close_at_session_end=False),
     )
     assert len(trades) == 1
     assert trades[0].direction == TradeDirection.SHORT
@@ -155,7 +172,9 @@ def test_forced_session_close_exits_at_last_bar_of_day():
     entries = pd.Series([TradeDirection.LONG, None, None, None], index=idx)
     exits = pd.Series([False, False, False, False], index=idx)
 
-    trades = simulate_trades(df, entries, exits, ExecutionConfig(force_close_at_session_end=True))
+    trades = simulate_trades(
+        df, entries, exits, ExecutionConfig(slippage_pct=0.0, force_close_at_session_end=True)
+    )
     assert len(trades) == 1
     assert trades[0].exit_reason == "forced_session_close"
     assert trades[0].exit_time == idx[1]
@@ -173,7 +192,7 @@ def test_atr_period_alone_without_any_multiple_does_not_touch_high_low():
     exits = pd.Series([False, False, True, False], index=df.index)
 
     trades = simulate_trades(
-        df, entries, exits, ExecutionConfig(atr_period=5, force_close_at_session_end=False)
+        df, entries, exits, ExecutionConfig(atr_period=5, slippage_pct=0.0, force_close_at_session_end=False)
     )
     assert len(trades) == 1
     assert trades[0].exit_price == 102
@@ -194,7 +213,13 @@ def test_stop_loss_exits_at_stop_price_when_low_breaches_it_long():
         df,
         entries,
         exits,
-        ExecutionConfig(quantity=1, atr_period=2, stop_loss_atr_multiple=1.0, force_close_at_session_end=False),
+        ExecutionConfig(
+            quantity=1,
+            atr_period=2,
+            stop_loss_atr_multiple=1.0,
+            slippage_pct=0.0,
+            force_close_at_session_end=False,
+        ),
     )
     assert len(trades) == 1
     assert trades[0].exit_reason == "stop_loss"
@@ -217,7 +242,13 @@ def test_stop_loss_exits_at_stop_price_when_high_breaches_it_short():
         df,
         entries,
         exits,
-        ExecutionConfig(quantity=1, atr_period=2, stop_loss_atr_multiple=1.0, force_close_at_session_end=False),
+        ExecutionConfig(
+            quantity=1,
+            atr_period=2,
+            stop_loss_atr_multiple=1.0,
+            slippage_pct=0.0,
+            force_close_at_session_end=False,
+        ),
     )
     assert len(trades) == 1
     assert trades[0].exit_reason == "stop_loss"
@@ -240,7 +271,13 @@ def test_take_profit_exits_at_target_price_when_high_reaches_it_long():
         df,
         entries,
         exits,
-        ExecutionConfig(quantity=1, atr_period=2, take_profit_atr_multiple=1.0, force_close_at_session_end=False),
+        ExecutionConfig(
+            quantity=1,
+            atr_period=2,
+            take_profit_atr_multiple=1.0,
+            slippage_pct=0.0,
+            force_close_at_session_end=False,
+        ),
     )
     assert len(trades) == 1
     assert trades[0].exit_reason == "take_profit"
@@ -268,6 +305,7 @@ def test_stop_loss_takes_priority_over_take_profit_when_both_hit_same_bar():
             atr_period=2,
             stop_loss_atr_multiple=1.0,
             take_profit_atr_multiple=1.0,
+            slippage_pct=0.0,
             force_close_at_session_end=False,
         ),
     )
@@ -319,7 +357,11 @@ def test_trailing_stop_ratchets_favorably_and_never_loosens():
         entries,
         exits,
         ExecutionConfig(
-            quantity=1, atr_period=1, trailing_stop_atr_multiple=3.0, force_close_at_session_end=False
+            quantity=1,
+            atr_period=1,
+            trailing_stop_atr_multiple=3.0,
+            slippage_pct=0.0,
+            force_close_at_session_end=False,
         ),
     )
     assert len(trades) == 1
@@ -350,6 +392,7 @@ def test_risk_per_trade_pct_sizes_quantity_and_uses_fixed_initial_capital():
             atr_period=2,
             stop_loss_atr_multiple=1.0,
             risk_per_trade_pct=0.01,
+            slippage_pct=0.0,
             force_close_at_session_end=False,
         ),
     )
@@ -413,7 +456,9 @@ def test_intrabar_stop_takes_priority_over_forced_session_close_same_bar():
         df,
         entries,
         exits,
-        ExecutionConfig(atr_period=1, stop_loss_atr_multiple=1.0, force_close_at_session_end=True),
+        ExecutionConfig(
+            atr_period=1, stop_loss_atr_multiple=1.0, slippage_pct=0.0, force_close_at_session_end=True
+        ),
     )
     assert len(trades) == 1
     assert trades[0].exit_reason == "stop_loss"
@@ -435,7 +480,10 @@ def test_stop_loss_pct_exits_at_stop_price_when_low_breaches_it_long():
     exits = pd.Series([False, False], index=df.index)
 
     trades = simulate_trades(
-        df, entries, exits, ExecutionConfig(quantity=1, stop_loss_pct=0.01, force_close_at_session_end=False)
+        df,
+        entries,
+        exits,
+        ExecutionConfig(quantity=1, stop_loss_pct=0.01, slippage_pct=0.0, force_close_at_session_end=False),
     )
     assert len(trades) == 1
     assert trades[0].exit_reason == "stop_loss"
@@ -454,7 +502,10 @@ def test_stop_loss_pct_exits_at_stop_price_when_high_breaches_it_short():
     exits = pd.Series([False, False], index=df.index)
 
     trades = simulate_trades(
-        df, entries, exits, ExecutionConfig(quantity=1, stop_loss_pct=0.01, force_close_at_session_end=False)
+        df,
+        entries,
+        exits,
+        ExecutionConfig(quantity=1, stop_loss_pct=0.01, slippage_pct=0.0, force_close_at_session_end=False),
     )
     assert len(trades) == 1
     assert trades[0].exit_reason == "stop_loss"
@@ -506,6 +557,7 @@ def test_stop_loss_pct_takes_precedence_over_stop_loss_atr_multiple():
             atr_period=2,
             stop_loss_atr_multiple=10.0,
             stop_loss_pct=0.01,
+            slippage_pct=0.0,
             force_close_at_session_end=False,
         ),
     )
@@ -529,7 +581,11 @@ def test_risk_per_trade_pct_sizes_using_stop_loss_pct():
         entries,
         exits,
         ExecutionConfig(
-            capital=10_000, stop_loss_pct=0.01, risk_per_trade_pct=0.01, force_close_at_session_end=False
+            capital=10_000,
+            stop_loss_pct=0.01,
+            risk_per_trade_pct=0.01,
+            slippage_pct=0.0,
+            force_close_at_session_end=False,
         ),
     )
     assert len(trades) == 1
@@ -555,7 +611,11 @@ def test_max_position_value_pct_caps_fixed_quantity():
         entries,
         exits,
         ExecutionConfig(
-            capital=1_000, quantity=10, max_position_value_pct=0.5, force_close_at_session_end=False
+            capital=1_000,
+            quantity=10,
+            max_position_value_pct=0.5,
+            slippage_pct=0.0,
+            force_close_at_session_end=False,
         ),
     )
     # Cap: 1000 * 0.5 / 100 = 5 shares, below the configured quantity of 10.
@@ -577,6 +637,7 @@ def test_max_position_value_pct_caps_risk_based_sizing():
             risk_per_trade_pct=0.02,
             stop_loss_pct=0.01,
             max_position_value_pct=1.0,
+            slippage_pct=0.0,
             force_close_at_session_end=False,
         ),
     )
@@ -608,3 +669,173 @@ def test_max_position_value_pct_must_be_positive():
 
     with pytest.raises(ValueError):
         simulate_trades(df, entries, exits, ExecutionConfig(max_position_value_pct=0))
+
+
+# --- entry time-window filter -------------------------------------------
+
+
+def test_entry_time_window_defaults_to_unset_and_changes_nothing():
+    assert ExecutionConfig().entry_time_start is None
+    assert ExecutionConfig().entry_time_end is None
+
+
+def test_entry_time_window_drops_entries_outside_the_window():
+    df = _bars([100, 101, 102, 103, 104], freq="30min")  # 09:30, 10:00, 10:30, 11:00, 11:30
+    entries = pd.Series(
+        [TradeDirection.LONG, None, TradeDirection.LONG, None, None], index=df.index
+    )
+    exits = pd.Series([False, False, False, False, False], index=df.index)
+
+    trades = simulate_trades(
+        df,
+        entries,
+        exits,
+        ExecutionConfig(
+            entry_time_start="10:00",
+            entry_time_end="11:00",
+            slippage_pct=0.0,
+            force_close_at_session_end=False,
+        ),
+    )
+    # The 09:30 entry is outside the window and dropped; only the 10:30
+    # entry (inside [10:00, 11:00)) survives.
+    assert len(trades) == 1
+    assert trades[0].entry_time == df.index[2]
+    assert trades[0].entry_price == 102
+
+
+def test_entry_time_window_end_is_exclusive():
+    df = _bars([100, 101, 102], freq="30min")  # 09:30, 10:00, 10:30
+    entries = pd.Series([None, None, TradeDirection.LONG], index=df.index)
+    exits = pd.Series([False, False, False], index=df.index)
+
+    trades = simulate_trades(
+        df,
+        entries,
+        exits,
+        ExecutionConfig(
+            entry_time_start="09:30",
+            entry_time_end="10:30",  # 10:30 itself is NOT included
+            force_close_at_session_end=False,
+        ),
+    )
+    assert len(trades) == 0
+
+
+def test_entry_time_window_never_affects_exits():
+    df = _bars([100, 101, 102, 103, 104], freq="30min")  # 09:30, 10:00, 10:30, 11:00, 11:30
+    entries = pd.Series([None, TradeDirection.LONG, None, None, None], index=df.index)
+    exits = pd.Series([False, False, False, True, False], index=df.index)  # signal exit at 11:00
+
+    trades = simulate_trades(
+        df,
+        entries,
+        exits,
+        ExecutionConfig(
+            entry_time_start="10:00",
+            entry_time_end="10:30",
+            slippage_pct=0.0,
+            force_close_at_session_end=False,
+        ),
+    )
+    # Entered inside the window at 10:00; the window closes at 10:30 but
+    # the position is still open and must exit normally on the 11:00 signal.
+    assert len(trades) == 1
+    assert trades[0].entry_time == df.index[1]
+    assert trades[0].exit_time == df.index[3]
+    assert trades[0].exit_reason == "signal_exit"
+
+
+def test_entry_time_window_requires_both_start_and_end():
+    df = _bars([100, 101])
+    entries = pd.Series([None, None], index=df.index)
+    exits = pd.Series([False, False], index=df.index)
+
+    with pytest.raises(ValueError):
+        simulate_trades(df, entries, exits, ExecutionConfig(entry_time_start="09:30"))
+    with pytest.raises(ValueError):
+        simulate_trades(df, entries, exits, ExecutionConfig(entry_time_end="10:30"))
+
+
+def test_entry_time_window_start_must_be_before_end():
+    df = _bars([100, 101])
+    entries = pd.Series([None, None], index=df.index)
+    exits = pd.Series([False, False], index=df.index)
+
+    with pytest.raises(ValueError):
+        simulate_trades(
+            df, entries, exits, ExecutionConfig(entry_time_start="10:30", entry_time_end="09:30")
+        )
+
+
+def test_entry_time_window_rejects_malformed_time_strings():
+    df = _bars([100, 101])
+    entries = pd.Series([None, None], index=df.index)
+    exits = pd.Series([False, False], index=df.index)
+
+    with pytest.raises(ValueError):
+        simulate_trades(
+            df, entries, exits, ExecutionConfig(entry_time_start="9:30am", entry_time_end="10:30")
+        )
+
+
+# --- fill_at="next_open" -------------------------------------------------
+# TrendSpider confirms a signal at the signal bar's close and fills at the
+# NEXT bar's open (its strategies carry priceSource: "open"). These cover
+# that mode, which the ported TrendSpider strategies depend on for parity.
+
+
+def test_next_open_fills_at_following_bars_open_not_signal_bar_close():
+    # Opens are deliberately far from closes so a close-fill would be obvious.
+    df = _ohlc([(100, 100, 100, 100), (200, 210, 190, 205), (300, 310, 290, 305), (400, 410, 390, 400)])
+    entries = pd.Series([TradeDirection.LONG, None, None, None], index=df.index)
+    exits = pd.Series([False, True, False, False], index=df.index)
+
+    trades = simulate_trades(
+        df,
+        entries,
+        exits,
+        ExecutionConfig(
+            quantity=1, slippage_pct=0.0, force_close_at_session_end=False, fill_at="next_open"
+        ),
+    )
+
+    assert len(trades) == 1
+    t = trades[0]
+    # Entry signalled on bar 0 -> filled at bar 1's OPEN (200), not bar 0's close (100).
+    assert t.entry_price == 200
+    # Exit signalled on bar 1 -> filled at bar 2's OPEN (300), not bar 1's close (205).
+    assert t.exit_price == 300
+    assert t.pnl == 100
+
+
+def test_close_fill_remains_the_default():
+    df = _ohlc([(100, 100, 100, 100), (200, 210, 190, 205), (300, 310, 290, 305)])
+    entries = pd.Series([TradeDirection.LONG, None, None], index=df.index)
+    exits = pd.Series([False, True, False], index=df.index)
+
+    trades = simulate_trades(
+        df, entries, exits, ExecutionConfig(quantity=1, slippage_pct=0.0, force_close_at_session_end=False)
+    )
+
+    # Unchanged legacy behaviour: both fills on the signal bar's own close.
+    assert trades[0].entry_price == 100
+    assert trades[0].exit_price == 205
+
+
+def test_next_open_requires_an_open_column():
+    df = _bars([100, 101, 102])
+    entries = pd.Series([TradeDirection.LONG, None, None], index=df.index)
+    exits = pd.Series([False, True, False], index=df.index)
+
+    with pytest.raises(ValueError, match="open"):
+        simulate_trades(df, entries, exits, ExecutionConfig(fill_at="next_open"))
+
+
+def test_invalid_fill_at_is_rejected():
+    df = _ohlc([(100, 100, 100, 100), (101, 101, 101, 101)])
+    entries = pd.Series([None, None], index=df.index)
+    exits = pd.Series([False, False], index=df.index)
+
+    with pytest.raises(ValueError, match="fill_at"):
+        simulate_trades(df, entries, exits, ExecutionConfig(fill_at="midpoint"))

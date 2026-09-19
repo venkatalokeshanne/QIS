@@ -43,6 +43,15 @@ class StrategyMetadata:
     category: str = "general"
     indicators_used: list[str] = field(default_factory=list)
     default_params: dict[str, Any] = field(default_factory=dict)
+    # Set only on strategies whose entries depend on multi-bar
+    # confirmation delay (swing/structure detection, order blocks) or
+    # same-bar/precise-price-level execution (liquidity sweeps, FVG
+    # fills) -- both mean real fills will typically be worse than what
+    # the backtest recorded, even though the backtest itself doesn't
+    # cheat with lookahead. Surfaced in the UI as a caution badge; None
+    # for every strategy whose signal is fully actionable at plain bar
+    # close (the vast majority).
+    live_caution: str | None = None
     # Plain-language bullet points shown in the UI's Info tab -- kept as
     # data on the metadata (not derived/generated) so they can only ever
     # describe what generate_entries/generate_exits actually do, right

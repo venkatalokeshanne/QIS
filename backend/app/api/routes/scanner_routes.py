@@ -12,7 +12,6 @@ from app.api.schemas.scanner_schemas import (
     ScannerRunResponse,
 )
 from app.services import day_prep_service
-from app.services.live_signal_engine import engine as live_signal_engine
 from app.services.scanner_service import scan_for_signals
 from app.strategies.execution import ExecutionConfig
 
@@ -29,7 +28,6 @@ def run_scan(payload: ScannerRunRequest):
         strategy_params_by_name=payload.strategy_params,
         execution_config=execution_config,
         lookback_bars=payload.lookback_bars,
-        get_cached_bars=live_signal_engine.get_cached_bars,
     )
     return ScannerRunResponse(signals=[asdict(r) for r in results], failed_symbols=failed_symbols)
 

@@ -46,6 +46,11 @@ class OrderBlockRetest(Strategy):
                 "max_zone_age_bars": 100,
                 "direction": "both",
             },
+            live_caution=(
+                "An order block only becomes valid once price has already displaced away from it, so "
+                "the zone -- and any later retest of it -- is confirmed well after the fact; real fills "
+                "will typically land later and worse than the backtest assumes."
+            ),
         )
 
     def prepare(self, df: pd.DataFrame, params: dict[str, Any]) -> pd.DataFrame:

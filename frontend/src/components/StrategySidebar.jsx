@@ -72,7 +72,14 @@ export default function StrategySidebar({ mobileOpen }) {
               title={`Open ${s.display_name}`}
             >
               <span className="strategy-sidebar-name">{s.display_name}</span>
-              <CategoryIcon category={s.category} />
+              <span className="strategy-sidebar-badges">
+                {s.live_caution && (
+                  <span className="strategy-sidebar-live-caution" title={s.live_caution}>
+                    ⚠️
+                  </span>
+                )}
+                <CategoryIcon category={s.category} />
+              </span>
             </button>
           ))
         )}

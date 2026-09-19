@@ -47,7 +47,7 @@ def client(tmp_path, monkeypatch):
 @pytest.fixture
 def mock_backtest_bars(monkeypatch):
     """Monkeypatches backtest_routes.fetch_backtest_bars so backtest tests
-    run against a synthetic in-memory frame instead of a real Tastytrade call."""
+    run against a synthetic in-memory frame instead of a real Twelve Data call."""
     from app.api.routes import backtest_routes
 
     def fake_fetch(symbol, interval, start_date=None, end_date=None, **kwargs):
@@ -330,128 +330,6 @@ def test_run_backtest_requires_at_least_one_symbol(client):
     assert resp.status_code == 422
 
 
-def test_create_list_and_delete_watch(client):
-    create_resp = client.post(
-        "/api/watches",
-        json={
-            "symbol": "aapl",
-            "strategy_name": "sma_cross",
-            "strategy_params": {"fast_period": 3, "slow_period": 8},
-            "interval": "5min",
-            "execution": {"capital": 5000.0, "direction_filter": "short_only"},
-        },
-    )
-    assert create_resp.status_code == 200
-    watch = create_resp.json()
-    assert watch["symbol"] == "AAPL"
-    assert watch["interval"] == "5min"
-    assert watch["last_notified_bar_time"] is None
-    assert watch["execution_settings"]["capital"] == 5000.0
-    assert watch["execution_settings"]["direction_filter"] == "short_only"
-
-    list_resp = client.get("/api/watches")
-    assert list_resp.status_code == 200
-    assert any(w["id"] == watch["id"] for w in list_resp.json())
-
-    delete_resp = client.delete(f"/api/watches/{watch['id']}")
-    assert delete_resp.status_code == 204
-    assert all(w["id"] != watch["id"] for w in client.get("/api/watches").json())
-
-
-def test_create_watch_rejects_invalid_interval(client):
-    resp = client.post(
-        "/api/watches",
-        json={
-            "symbol": "AAPL",
-            "strategy_name": "sma_cross",
-            "strategy_params": {},
-            "interval": "1hour",
-        },
-    )
-    assert resp.status_code == 422
-
-
-def test_delete_missing_watch_returns_404(client):
-    resp = client.delete("/api/watches/does-not-exist")
-    assert resp.status_code == 404
-
-
-def test_create_list_and_delete_level_watch(client):
-    create_resp = client.post("/api/level-watches", json={"symbol": "aapl"})
-    assert create_resp.status_code == 200
-    watch = create_resp.json()
-    assert watch["symbol"] == "AAPL"
-    assert watch["last_levels"] is None
-
-    list_resp = client.get("/api/level-watches")
-    assert list_resp.status_code == 200
-    assert any(w["id"] == watch["id"] for w in list_resp.json())
-
-    delete_resp = client.delete(f"/api/level-watches/{watch['id']}")
-    assert delete_resp.status_code == 204
-    assert all(w["id"] != watch["id"] for w in client.get("/api/level-watches").json())
-
-
-def test_create_duplicate_level_watch_returns_422(client):
-    client.post("/api/level-watches", json={"symbol": "AAPL"})
-    resp = client.post("/api/level-watches", json={"symbol": "aapl"})
-    assert resp.status_code == 422
-
-
-def test_delete_missing_level_watch_returns_404(client):
-    resp = client.delete("/api/level-watches/does-not-exist")
-    assert resp.status_code == 404
-
-
-def test_signal_check_returns_result(client, monkeypatch):
-    from datetime import datetime
-
-    from app.api.routes import signal_routes
-    from app.services.signal_service import SignalCheck
-
-    def fake_check_signal(symbol, interval, strategy_name, strategy_params, execution_config=None, cached_df=None):
-        return SignalCheck(
-            symbol=symbol.upper(),
-            interval=interval,
-            strategy_name=strategy_name,
-            as_of=datetime(2024, 1, 2, 9, 35),
-            price=101.5,
-            event="entry",
-            direction="long",
-            exit_reason=None,
-            position="long",
-        )
-
-    monkeypatch.setattr(signal_routes, "check_signal", fake_check_signal)
-
-    resp = client.post(
-        "/api/signals/check",
-        json={"symbol": "aapl", "interval": "5min", "strategy_name": "sma_cross", "strategy_params": {}},
-    )
-    assert resp.status_code == 200
-    body = resp.json()
-    assert body["symbol"] == "AAPL"
-    assert body["event"] == "entry"
-    assert body["direction"] == "long"
-    assert body["exit_reason"] is None
-
-
-def test_signal_check_propagates_unknown_strategy_as_404(client, monkeypatch):
-    from app.api.routes import signal_routes
-    from app.core.exceptions import NotFoundError
-
-    def fake_check_signal(*a, **kw):
-        raise NotFoundError("Unknown strategy 'not_a_real_strategy'.")
-
-    monkeypatch.setattr(signal_routes, "check_signal", fake_check_signal)
-
-    resp = client.post(
-        "/api/signals/check",
-        json={"symbol": "AAPL", "interval": "5min", "strategy_name": "not_a_real_strategy", "strategy_params": {}},
-    )
-    assert resp.status_code == 404
-
-
 def test_day_prep_returns_200_and_well_formed_results(client, monkeypatch):
     from app.services import day_prep_service
 
@@ -497,3 +375,150 @@ def test_day_prep_drops_symbol_with_no_trading_history(client, monkeypatch):
     )
     assert resp.status_code == 200
     assert resp.json()["tickers"] == []
+
+
+# --- Daily Strategy Selector ---------------------------------------------
+
+
+def _daily_selection_synthetic_bars(symbol, interval, start_date=None, end_date=None, **kwargs):
+    """Already-normalized synthetic bars for the Daily Strategy
+    Selector's tests -- a slow noise-free uptrend, long enough (when
+    interval == '1day') for ADX/ATR regime classification to warm up,
+    and with real intraday sessions for interval != '1day' so
+    sma_cross/vwap_reversion/rsi_reversal have something to trade."""
+    start = pd.Timestamp(start_date) if start_date else pd.Timestamp("2023-01-01")
+    end = pd.Timestamp(end_date) if end_date else start + pd.Timedelta(days=30)
+
+    if interval == "1day":
+        idx = pd.DatetimeIndex(pd.bdate_range(start, end))
+    else:
+        days = pd.bdate_range(max(start, end - pd.Timedelta(days=5)), end)
+        bars = []
+        for d in days:
+            bars.extend(
+                pd.date_range(d + pd.Timedelta(hours=9, minutes=30), d + pd.Timedelta(hours=16), freq="5min", inclusive="left")
+            )
+        idx = pd.DatetimeIndex(bars)
+
+    n = len(idx)
+    closes = [100 + i * 0.05 for i in range(n)]
+    df = pd.DataFrame(
+        {"open": closes, "high": [c + 0.3 for c in closes], "low": [c - 0.3 for c in closes], "close": closes, "volume": [1000.0] * n}
+    )
+    df.index = idx
+    return df
+
+
+@pytest.fixture
+def mock_daily_selection_bars(monkeypatch):
+    """Monkeypatches fetch_backtest_bars/fetch_symbol_bars in every
+    module the Daily Strategy Selector's services import them into, so
+    /calibrate, /run, and /backtest all run their real pipeline against
+    synthetic data instead of a live Twelve Data call."""
+    from app.services import calibration_service, daily_selector_service
+
+    monkeypatch.setattr(calibration_service, "fetch_backtest_bars", _daily_selection_synthetic_bars)
+    monkeypatch.setattr(daily_selector_service, "fetch_backtest_bars", _daily_selection_synthetic_bars)
+    monkeypatch.setattr(
+        daily_selector_service, "fetch_symbol_bars", lambda symbol, interval, **kwargs: _daily_selection_synthetic_bars(symbol, interval)
+    )
+    return _daily_selection_synthetic_bars
+
+
+_DAILY_SELECTION_STRATEGIES = ["sma_cross", "vwap_reversion", "rsi_reversal"]
+
+
+def test_daily_selection_calibrate_and_profile_round_trip(client, mock_daily_selection_bars):
+    resp = client.post(
+        "/api/daily-selection/calibrate",
+        json={
+            "symbols": ["AAPL"],
+            "interval": "5min",
+            "start_date": "2024-02-01",
+            "cutoff_date": "2024-03-15",
+            "strategy_names": _DAILY_SELECTION_STRATEGIES,
+        },
+    )
+    assert resp.status_code == 200
+    body = resp.json()
+    assert body["failed_symbols"] == []
+    assert len(body["profiles"]) == 1
+    profile = body["profiles"][0]
+    assert profile["symbol"] == "AAPL"
+    assert profile["default_strategy"] in _DAILY_SELECTION_STRATEGIES
+
+    profile_resp = client.get("/api/daily-selection/profile/AAPL")
+    assert profile_resp.status_code == 200
+    assert profile_resp.json()["symbol"] == "AAPL"
+
+    missing_resp = client.get("/api/daily-selection/profile/NOPE")
+    assert missing_resp.status_code == 404
+
+
+def test_daily_selection_run_returns_a_selection_for_a_calibrated_symbol(client, mock_daily_selection_bars):
+    calibrate_resp = client.post(
+        "/api/daily-selection/calibrate",
+        json={
+            "symbols": ["AAPL"],
+            "interval": "5min",
+            "start_date": "2024-02-01",
+            "cutoff_date": "2024-03-15",
+            "strategy_names": _DAILY_SELECTION_STRATEGIES,
+        },
+    )
+    assert calibrate_resp.status_code == 200
+
+    run_resp = client.post("/api/daily-selection/run", json={"symbols": ["AAPL", "UNCALIBRATED"], "interval": "5min"})
+    assert run_resp.status_code == 200
+    body = run_resp.json()
+    assert body["failed_symbols"] == ["UNCALIBRATED"]
+    assert len(body["selections"]) == 1
+    selection = body["selections"][0]
+    assert selection["symbol"] == "AAPL"
+    assert selection["selected_strategy"] in _DAILY_SELECTION_STRATEGIES
+
+
+def test_daily_selection_backtest_returns_switching_and_baseline_metrics(client, mock_daily_selection_bars):
+    # Backtest reads the ALREADY-CALIBRATED profile -- calibrate first,
+    # same as a real user would via the Calibrate tab.
+    calibrate_resp = client.post(
+        "/api/daily-selection/calibrate",
+        json={
+            "symbols": ["AAPL"],
+            "interval": "5min",
+            "start_date": "2024-01-01",
+            "cutoff_date": "2024-03-01",
+            "strategy_names": _DAILY_SELECTION_STRATEGIES,
+        },
+    )
+    assert calibrate_resp.status_code == 200
+
+    # Requested start (2024-01-01) predates the calibration cutoff
+    # (2024-03-01) -- should be clamped up to the cutoff, not honored
+    # verbatim, to preserve the out-of-sample guarantee.
+    resp = client.post(
+        "/api/daily-selection/backtest",
+        json={"symbol": "AAPL", "interval": "5min", "start_date": "2024-01-01", "test_end_date": "2024-04-15"},
+    )
+    assert resp.status_code == 200
+    body = resp.json()
+    assert body["symbol"] == "AAPL"
+    assert body["test_start"] == "2024-03-01"
+    assert body["test_end"] == "2024-04-15"
+    assert body["baseline_strategy"] in _DAILY_SELECTION_STRATEGIES
+    assert "switching_metrics" in body and "baseline_metrics" in body
+    assert len(body["switching_trades"]) == body["switching_trade_count"]
+    for trade in body["switching_trades"]:
+        assert trade["strategy_name"]
+        assert trade["entry_time"] >= "2024-03-01"
+    for segment in body["segments"]:
+        assert segment["start_date"] >= "2024-03-01"
+        assert segment["end_date"] <= "2024-04-15"
+
+
+def test_daily_selection_backtest_returns_404_for_uncalibrated_symbol(client, mock_daily_selection_bars):
+    resp = client.post(
+        "/api/daily-selection/backtest",
+        json={"symbol": "NEVERCALIBRATED", "interval": "5min", "start_date": "2024-01-01", "test_end_date": "2024-04-15"},
+    )
+    assert resp.status_code == 404

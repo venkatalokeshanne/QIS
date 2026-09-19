@@ -11,8 +11,14 @@ import MonthlyBreakdownTable from '../components/MonthlyBreakdownTable'
 import Modal from '../components/Modal'
 import SortableTh from '../components/SortableTh'
 import { useSortableData } from '../hooks/useSortableData'
-import { useMetricDefinitions, useHistoricalPerformance } from '../api/hooks'
+import {
+  useMetricDefinitions,
+  useHistoricalPerformance,
+  useStrategies,
+  useRunBacktest,
+} from '../api/hooks'
 import { useResearchStore } from '../store/useResearchStore'
+import { shiftDateRange } from '../utils/dateRange'
 import { formatDate } from '../utils/format'
 import './Compare.css' // shares .compare-table / .compare-sticky-col / .best-cell with MatrixView below
 
@@ -31,20 +37,74 @@ export default function Results() {
   const compareSymbol = useResearchStore((s) => s.compareSymbol)
   const compareSelection = useResearchStore((s) => s.compareSelection)
   const setCompareSelection = useResearchStore((s) => s.setCompareSelection)
+  const selectedSymbols = useResearchStore((s) => s.selectedSymbols)
   const selectedInterval = useResearchStore((s) => s.selectedInterval)
+  const backtestStartDate = useResearchStore((s) => s.backtestStartDate)
   const backtestEndDate = useResearchStore((s) => s.backtestEndDate)
+  const setBacktestStartDate = useResearchStore((s) => s.setBacktestStartDate)
+  const setBacktestEndDate = useResearchStore((s) => s.setBacktestEndDate)
+  const selectedStrategyNames = useResearchStore((s) => s.selectedStrategyNames)
   const executionSettings = useResearchStore((s) => s.executionSettings)
   const strategyParamOverrides = useResearchStore((s) => s.strategyParamOverrides)
+  const breakdownByMonth = useResearchStore((s) => s.breakdownByMonth)
+  const setLastRunResults = useResearchStore((s) => s.setLastRunResults)
   const { data: metricDefs } = useMetricDefinitions()
+  const { data: strategies } = useStrategies()
+  const runMutation = useRunBacktest()
   const [expandedKey, setExpandedKey] = useState(null)
   const [view, setView] = useState('grouped') // 'grouped' | 'matrix' -- matrix only shown for 2+ tickers
   const [focusedSymbol, setFocusedSymbol] = useState(null)
+
+  // "Test previous month, previous date, etc" -- shifts the currently
+  // selected date range back/forward by its own span (see
+  // shiftDateRange) and re-runs the exact same symbols/strategies/
+  // execution settings against the new window, so stepping through
+  // adjacent periods from an already-open results view is a single
+  // click each time.
+  const handlePeriodShift = (direction) => {
+    if (!backtestStartDate || !backtestEndDate || selectedSymbols.length === 0) return
+    const { startDate, endDate } = shiftDateRange(backtestStartDate, backtestEndDate, direction)
+    setBacktestStartDate(startDate)
+    setBacktestEndDate(endDate)
+
+    const runAll = selectedStrategyNames.length === 0
+    const namesToRun = runAll ? (strategies || []).map((s) => s.name) : selectedStrategyNames
+    const strategyParams = Object.fromEntries(
+      namesToRun.filter((n) => strategyParamOverrides[n]).map((n) => [n, strategyParamOverrides[n]])
+    )
+    runMutation.mutate(
+      {
+        symbols: selectedSymbols,
+        interval: selectedInterval,
+        start_date: startDate,
+        end_date: endDate,
+        strategy_names: runAll ? null : selectedStrategyNames,
+        strategy_params: strategyParams,
+        execution: executionSettings,
+        breakdown_by_month: breakdownByMonth,
+      },
+      { onSuccess: (data) => setLastRunResults(data) }
+    )
+  }
 
   const metricFormatByName = useMemo(() => {
     const map = {}
     for (const m of metricDefs || []) map[m.name] = m
     return map
   }, [metricDefs])
+
+  // Backtest results (r.strategy_name / r.strategy_display_name) come
+  // from a different response shape than the catalog (useStrategies)
+  // and never carried live_caution themselves -- cross-referenced by
+  // name here so the same caution badge shown on Run Backtests/the
+  // sidebar also shows up once you're actually looking at performance.
+  const liveCautionByName = useMemo(() => {
+    const map = {}
+    for (const s of strategies || []) {
+      if (s.live_caution) map[s.name] = s.live_caution
+    }
+    return map
+  }, [strategies])
 
   const tickerResults = lastRunResults?.ticker_results || []
 
@@ -97,6 +157,31 @@ export default function Results() {
         }
         actions={
           <div style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
+            {backtestStartDate && backtestEndDate && (
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                <Button
+                  size="sm"
+                  variant="secondary"
+                  disabled={runMutation.isPending}
+                  onClick={() => handlePeriodShift(-1)}
+                  title="Re-run for the previous period of the same length"
+                >
+                  ← Previous
+                </Button>
+                <p className="field-hint" style={{ margin: 0, whiteSpace: 'nowrap' }}>
+                  {runMutation.isPending ? 'Analyzing…' : `${backtestStartDate} – ${backtestEndDate}`}
+                </p>
+                <Button
+                  size="sm"
+                  variant="secondary"
+                  disabled={runMutation.isPending}
+                  onClick={() => handlePeriodShift(1)}
+                  title="Re-run for the next period of the same length"
+                >
+                  Next →
+                </Button>
+              </div>
+            )}
             {isMultiTicker && (
               <div className="chip-row">
                 <button
@@ -162,13 +247,14 @@ export default function Results() {
               endDate={backtestEndDate}
               execution={executionSettings}
               strategyParamOverrides={strategyParamOverrides}
+              liveCautionByName={liveCautionByName}
             />
           )}
         </>
       )}
 
       {isMultiTicker && view === 'matrix' && (
-        <MatrixView tickerResults={tickerResults} />
+        <MatrixView tickerResults={tickerResults} liveCautionByName={liveCautionByName} />
       )}
     </div>
   )
@@ -206,6 +292,7 @@ function StrategyRankTable({
   endDate,
   execution,
   strategyParamOverrides,
+  liveCautionByName,
 }) {
   const { sorted, sortKey, sortDir, toggleSort } = useSortableData(results, getStrategyRowValue, 'rank', 'asc')
 
@@ -273,7 +360,14 @@ function StrategyRankTable({
                         <span className="rank-badge">—</span>
                       )}
                     </td>
-                    <td style={{ fontWeight: 600 }}>{r.strategy_display_name}</td>
+                    <td style={{ fontWeight: 600 }}>
+                      {r.strategy_display_name}
+                      {liveCautionByName?.[r.strategy_name] && (
+                        <span className="strategy-live-caution" title={liveCautionByName[r.strategy_name]}>
+                          ⚠️
+                        </span>
+                      )}
+                    </td>
                     {SUMMARY_METRIC_ORDER.map((name) => (
                       <td key={name} className="align-right">
                         <MetricValue value={r.metrics[name]} format={metricFormatByName[name]?.format} />
@@ -318,7 +412,7 @@ function StrategyRankTable({
   )
 }
 
-function MatrixView({ tickerResults }) {
+function MatrixView({ tickerResults, liveCautionByName }) {
   // The same strategy_names were requested for every ticker in one run, so
   // the first ticker's own result order is a stable row order for all of them.
   const strategyOrder = tickerResults[0]?.results.map((r) => ({
@@ -372,6 +466,11 @@ function MatrixView({ tickerResults }) {
               <tr key={s.name}>
                 <td className="compare-sticky-col" style={{ fontWeight: 600 }}>
                   {s.display_name}
+                  {liveCautionByName?.[s.name] && (
+                    <span className="strategy-live-caution" title={liveCautionByName[s.name]}>
+                      ⚠️
+                    </span>
+                  )}
                 </td>
                 {tickerResults.map((t) => {
                   const score = scoreFor(t.symbol, s.name)

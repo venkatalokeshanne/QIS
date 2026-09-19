@@ -1,16 +1,16 @@
 """
 Backtest Data.
 
-Fetches the bars a backtest runs against live, via Tastytrade (see
-app.integrations.tastytrade_client.fetch_historical_bars) -- there's no
+Fetches the bars a backtest runs against live, via Twelve Data (see
+app.integrations.twelvedata_client.fetch_historical_bars) -- there's no
 persisted "dataset" anymore. Same detect -> normalize -> validate
 pipeline every other bar source in this app uses (see
 app.services.levels_service.fetch_symbol_bars for the live-snapshot
 sibling of this), just parameterized for an arbitrary interval and
 optional date range instead of levels' fixed 5-minute lookback.
 
-No caching -- every backtest run fetches fresh, same as Live Signal and
-Daily Levels already do.
+No caching -- every backtest run fetches fresh, same as Daily Levels
+already does.
 """
 
 import pandas as pd
@@ -19,7 +19,7 @@ from app.core.exceptions import DataValidationError
 from app.data.column_detector import detect_columns
 from app.data.normalizer import normalize_ohlcv
 from app.data.validator import validate_ohlcv
-from app.integrations import tastytrade_client
+from app.integrations import twelvedata_client
 
 # A narrow (e.g. single-day) start_date would otherwise be fetched
 # with NO bars before it -- starving every indicator/zone-tracking
@@ -58,7 +58,7 @@ def fetch_backtest_bars(
     include_extended_hours: bool = False,
     include_overnight: bool = False,
     outputsize: int = 5000,
-    fetch_bars=tastytrade_client.fetch_historical_bars,
+    fetch_bars=twelvedata_client.fetch_historical_bars,
 ) -> pd.DataFrame:
     """
     Fetch and validate historical bars for a backtest.
@@ -71,7 +71,7 @@ def fetch_backtest_bars(
     earlier -- see that constant's comment.
 
     `include_extended_hours`/`include_overnight` are passed straight
-    through to fetch_bars -- see tastytrade_client.filter_by_session.
+    through to fetch_bars -- see twelvedata_client.filter_by_session.
 
     `outputsize` defaults to a plain backtest's usual 5000, but a wide
     date range (e.g. backtest_routes' multi-year "historical
@@ -97,4 +97,7 @@ def fetch_backtest_bars(
     report = validate_ohlcv(normalized)
     if not report.is_valid:
         raise DataValidationError(f"Received unusable bars for '{symbol}' from the live data source.", issues=report.errors)
+    # Symbol-aware indicators (the TrendSpider *_TS ports call
+    # request.history(current.ticker, ...)) read the ticker from here.
+    normalized.attrs["symbol"] = symbol.upper()
     return normalized

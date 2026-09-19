@@ -115,8 +115,8 @@ export const useResearchStore = create(
       executionSettings: {
         capital: 10000,
         quantity: 1,
-        commission_per_trade: 0,
-        slippage_pct: 0,
+        commission_per_trade: 0, // realistic for most commission-free retail brokers today
+        slippage_pct: 0.0005, // 0.05% per fill -- a conservative stand-in for bid-ask spread/market-impact cost
         force_close_at_session_end: true,
         direction_filter: 'long_only', // 'long_only' | 'short_only' | 'both'
         include_extended_hours: false, // pre-/after-market bars, same trading day
@@ -158,9 +158,39 @@ export const useResearchStore = create(
       // ones with a signal in the last few bars. Working state only.
       lastDayPrepResults: null, // { tickers: [...], failed_symbols: [...] }
       setLastDayPrepResults: (results) => set({ lastDayPrepResults: results }),
+
+      // Daily Strategy Selector (see DailySelector.jsx) -- regime-aware
+      // strategy + parameter switching. All three results sets are
+      // working state for the current sitting, same treatment as
+      // lastScanResults/lastDayPrepResults above (not persisted).
+      lastCalibrationResults: null, // { profiles: [...], failed_symbols: [...] }
+      setLastCalibrationResults: (results) => set({ lastCalibrationResults: results }),
+      lastDailySelectionResults: null, // { selections: [...], failed_symbols: [...] }
+      setLastDailySelectionResults: (results) => set({ lastDailySelectionResults: results }),
+      lastSelectionBacktestResults: null, // single SelectionBacktestResponse, or null
+      setLastSelectionBacktestResults: (results) => set({ lastSelectionBacktestResults: results }),
     }),
     {
       name: 'quant-platform-research-store',
+      version: 1,
+      // Persisted executionSettings is restored wholesale over the
+      // in-code defaults, so any NEW field added there needs a
+      // migration or existing browsers keep an object missing it
+      // (which then renders as an uncontrolled input).
+      //
+      // v0 -> v1: slippage_pct's default moved 0 -> 0.0005 (a realistic
+      //   non-zero fill cost). Only rewritten when still exactly the old
+      //   default, so a deliberate 0 isn't silently reverted.
+      migrate: (persistedState, version) => {
+        let state = persistedState
+        if (version < 1 && state?.executionSettings?.slippage_pct === 0) {
+          state = {
+            ...state,
+            executionSettings: { ...state.executionSettings, slippage_pct: 0.0005 },
+          }
+        }
+        return state
+      },
       partialize: (state) => ({
         selectedSymbols: state.selectedSymbols,
         selectedInterval: state.selectedInterval,

@@ -37,7 +37,7 @@ from typing import Any
 
 import pandas as pd
 
-from app.integrations import tastytrade_client
+from app.integrations import twelvedata_client
 from app.metrics.calculator import calculate_all_metrics
 from app.services.backtest_data import fetch_backtest_bars, historical_outputsize
 from app.services.signal_service import _trade_direction
@@ -188,7 +188,7 @@ def prepare_day(
     strategy_names: list[str] | None = None,
     strategy_params_by_name: dict[str, dict[str, Any]] | None = None,
     execution_config: ExecutionConfig | None = None,
-    fetch_bars=tastytrade_client.fetch_historical_bars,
+    fetch_bars=twelvedata_client.fetch_historical_bars,
     now: pd.Timestamp | None = None,
 ) -> tuple[list[TickerConcentration], list[str]]:
     """

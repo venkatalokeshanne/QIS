@@ -8,6 +8,12 @@ downside. This is the standard, widely-published definition used
 across independent trading-education sources (not any one platform's
 proprietary formula) -- the gap zone is flagged on the bar that
 confirms it (bar[i]).
+
+require_same_color_run (off by default) adds a stricter, commonly-used
+variant: all 3 bars must share the same candle color matching the
+gap's direction (3 green candles for a bullish gap, 3 red for a
+bearish one) -- filters out gaps formed by a mixed-direction 3-bar
+sequence.
 """
 
 from typing import Any
@@ -27,11 +33,11 @@ class FairValueGap(Indicator):
             display_name="Fair Value Gap",
             description="A 3-bar imbalance where the middle bar's move leaves an un-traded gap between bar[i-2] and bar[i].",
             category="price_action",
-            default_params={},
+            default_params={"require_same_color_run": False},
         )
 
     def calculate(self, df: pd.DataFrame, params: dict[str, Any]) -> pd.DataFrame:
-        self.validate_params(params)
+        p = self.validate_params(params)
         out = df.copy()
 
         prior_high = out["high"].shift(2)
@@ -39,6 +45,13 @@ class FairValueGap(Indicator):
 
         bullish_fvg = out["low"] > prior_high
         bearish_fvg = out["high"] < prior_low
+
+        if p["require_same_color_run"]:
+            is_green, is_red = out["close"] > out["open"], out["close"] < out["open"]
+            three_green = is_green & is_green.shift(1) & is_green.shift(2)
+            three_red = is_red & is_red.shift(1) & is_red.shift(2)
+            bullish_fvg = bullish_fvg & three_green
+            bearish_fvg = bearish_fvg & three_red
 
         out["fvg_bullish_top"] = out["low"].where(bullish_fvg)
         out["fvg_bullish_bottom"] = prior_high.where(bullish_fvg)

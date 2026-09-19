@@ -6,7 +6,7 @@ import RunBacktests from './pages/RunBacktests'
 import Results from './pages/Results'
 import Compare from './pages/Compare'
 import Scanner from './pages/Scanner'
-import Alerts from './pages/Alerts'
+import DailySelector from './pages/DailySelector'
 import Settings from './pages/Settings'
 
 export default function App() {
@@ -20,7 +20,7 @@ export default function App() {
         <Route path="/results" element={<Results />} />
         <Route path="/compare" element={<Compare />} />
         <Route path="/scanner" element={<Scanner />} />
-        <Route path="/alerts" element={<Alerts />} />
+        <Route path="/daily-selector" element={<DailySelector />} />
         <Route path="/settings" element={<Settings />} />
       </Route>
     </Routes>

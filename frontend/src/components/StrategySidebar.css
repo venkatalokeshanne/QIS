@@ -119,6 +119,18 @@
   white-space: nowrap;
 }
 
+.strategy-sidebar-badges {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+.strategy-sidebar-live-caution {
+  font-size: 11px;
+  cursor: help;
+}
+
 @media (max-width: 900px) {
   .strategy-sidebar {
     width: 72px;

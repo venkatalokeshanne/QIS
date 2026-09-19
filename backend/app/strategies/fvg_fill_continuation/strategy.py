@@ -40,6 +40,11 @@ class FVGFillContinuation(Strategy):
             category="price_action",
             indicators_used=["fair_value_gap"],
             default_params={"max_zone_age_bars": 50, "direction": "both"},
+            live_caution=(
+                "Trading a retrace into the gap needs a fill at a specific, often narrow price zone -- "
+                "a backtest assumes a clean fill the instant price crosses it, but that's a real "
+                "slippage/no-fill risk live that the backtested numbers don't account for."
+            ),
         )
 
     def prepare(self, df: pd.DataFrame, params: dict[str, Any]) -> pd.DataFrame:

@@ -33,6 +33,7 @@ def list_strategies() -> list[dict]:
                 "default_params": meta.default_params,
                 "entry_conditions": meta.entry_conditions,
                 "exit_conditions": meta.exit_conditions,
+                "live_caution": meta.live_caution,
             }
         )
     return sorted(result, key=lambda x: x["name"])

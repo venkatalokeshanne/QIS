@@ -36,6 +36,11 @@ class MarketStructureBOS(Strategy):
             category="price_action",
             indicators_used=["market_structure"],
             default_params={"swing_range": 5, "direction_lookback": 10, "direction": "both"},
+            live_caution=(
+                "A swing point isn't confirmed until swing_range bars after it forms, so a BOS entry "
+                "is structurally several bars behind the actual turn -- real fills will typically land "
+                "later and worse than the backtest, which assumes instant action the moment it confirms."
+            ),
         )
 
     def prepare(self, df: pd.DataFrame, params: dict[str, Any]) -> pd.DataFrame:

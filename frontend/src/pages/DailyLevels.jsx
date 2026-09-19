@@ -6,14 +6,7 @@ import EmptyState from '../components/EmptyState'
 import MetricValue from '../components/MetricValue'
 import SortableTh from '../components/SortableTh'
 import { useSortableData } from '../hooks/useSortableData'
-import {
-  useDailyLevels,
-  useLevelsBacktest,
-  useLevelsDayReports,
-  useLevelWatches,
-  useCreateLevelWatch,
-  useDeleteLevelWatch,
-} from '../api/hooks'
+import { useDailyLevels, useLevelsBacktest, useLevelsDayReports } from '../api/hooks'
 import { useResearchStore } from '../store/useResearchStore'
 import { formatDate, formatDateTime } from '../utils/format'
 import './DailyLevels.css'
@@ -457,18 +450,6 @@ function LiveLevelsTab() {
   const srBelow = levels ? levels.auto_support_resistance.filter((v) => v < levels.current_price).reverse() : []
   const srAbove = levels ? levels.auto_support_resistance.filter((v) => v >= levels.current_price) : []
 
-  const { data: levelWatches } = useLevelWatches()
-  const createLevelWatch = useCreateLevelWatch()
-  const deleteLevelWatch = useDeleteLevelWatch()
-  const focusedWatch = (levelWatches || []).find((w) => w.symbol === focusedSymbol)
-  const toggleLevelWatch = () => {
-    if (focusedWatch) {
-      deleteLevelWatch.mutate(focusedWatch.id)
-    } else if (focusedSymbol) {
-      createLevelWatch.mutate(focusedSymbol)
-    }
-  }
-
   if (selectedSymbols.length === 0) {
     return (
       <Card>
@@ -482,21 +463,7 @@ function LiveLevelsTab() {
 
   return (
     <>
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
-        <TickerSwitcher symbols={selectedSymbols} focusedSymbol={focusedSymbol} onSelect={setFocusedSymbol} />
-        <Button
-          size="sm"
-          variant={focusedWatch ? 'primary' : 'secondary'}
-          onClick={toggleLevelWatch}
-          title={
-            focusedWatch
-              ? 'Telegram alerts on for S/R changes — click to turn off'
-              : 'Get a Telegram message whenever Auto Support/Resistance changes for this symbol'
-          }
-        >
-          🔔 {focusedWatch ? 'Alerting' : 'Notify'}
-        </Button>
-      </div>
+      <TickerSwitcher symbols={selectedSymbols} focusedSymbol={focusedSymbol} onSelect={setFocusedSymbol} />
 
       {levelsMutation.isPending && (
         <Card>

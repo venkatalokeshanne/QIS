@@ -1,10 +1,11 @@
+import { useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
 import PageHeader from '../components/PageHeader'
 import Card from '../components/Card'
 import Button from '../components/Button'
 import EmptyState from '../components/EmptyState'
 import MetricValue from '../components/MetricValue'
-import { useMetricDefinitions } from '../api/hooks'
+import { useMetricDefinitions, useStrategies } from '../api/hooks'
 import { useResearchStore } from '../store/useResearchStore'
 import './Compare.css'
 
@@ -14,6 +15,17 @@ export default function Compare() {
   const compareSymbol = useResearchStore((s) => s.compareSymbol)
   const compareSelection = useResearchStore((s) => s.compareSelection)
   const { data: metricDefs } = useMetricDefinitions()
+  const { data: strategies } = useStrategies()
+
+  // Same cross-reference as Results.jsx -- backtest results don't carry
+  // live_caution themselves, only the catalog does.
+  const liveCautionByName = useMemo(() => {
+    const map = {}
+    for (const s of strategies || []) {
+      if (s.live_caution) map[s.name] = s.live_caution
+    }
+    return map
+  }, [strategies])
 
   const tickerResult = lastRunResults?.ticker_results.find((t) => t.symbol === compareSymbol)
 
@@ -62,6 +74,11 @@ export default function Compare() {
                 {selected.map((r) => (
                   <th key={r.strategy_name} className="align-right">
                     {r.strategy_display_name}
+                    {liveCautionByName[r.strategy_name] && (
+                      <span className="strategy-live-caution" title={liveCautionByName[r.strategy_name]}>
+                        ⚠️
+                      </span>
+                    )}
                   </th>
                 ))}
               </tr>

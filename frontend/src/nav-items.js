@@ -6,6 +6,6 @@ export const NAV_ITEMS = [
   { to: '/run', label: 'Run Backtests' },
   { to: '/compare', label: 'Compare' },
   { to: '/scanner', label: 'Scanner' },
-  { to: '/alerts', label: 'Alerts' },
+  { to: '/daily-selector', label: 'Daily Selector' },
   { to: '/settings', label: 'Settings' },
 ]

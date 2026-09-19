@@ -1,0 +1,3494 @@
+{
+ "1hr-opening-range@aapl_d": {
+  "status": "both-error",
+  "detail": "js: not applicable to \"D\" charts | py: not applicable to \"D\" charts",
+  "py_secs": 0.02,
+  "trace": ""
+ },
+ "1hr-opening-range@syn_5m": {
+  "status": "OK",
+  "detail": "2 series",
+  "py_secs": 0.05,
+  "trace": ""
+ },
+ "2-rsis-dyanmic@aapl_d": {
+  "status": "OK",
+  "detail": "2 series",
+  "py_secs": 0.09,
+  "trace": ""
+ },
+ "2-rsis-dyanmic@syn_5m": {
+  "status": "OK",
+  "detail": "2 series",
+  "py_secs": 0.3,
+  "trace": ""
+ },
+ "682f83-multi-oscillator-consensus-momentum-score@aapl_d": {
+  "status": "OK",
+  "detail": "4 series",
+  "py_secs": 43.56,
+  "trace": ""
+ },
+ "682f83-multi-oscillator-consensus-momentum-score@syn_5m": {
+  "status": "OK",
+  "detail": "4 series",
+  "py_secs": 232.14,
+  "trace": ""
+ },
+ "683625-dss-blau-with-bb-v2@aapl_d": {
+  "status": "OK",
+  "detail": "6 series",
+  "py_secs": 0.16,
+  "trace": ""
+ },
+ "683625-dss-blau-with-bb-v2@syn_5m": {
+  "status": "OK",
+  "detail": "6 series",
+  "py_secs": 0.41,
+  "trace": ""
+ },
+ "683688-example-of-a-pure-custom-js-strategy@aapl_d": {
+  "status": "OK",
+  "detail": "4 series",
+  "py_secs": 0.04,
+  "trace": ""
+ },
+ "683688-example-of-a-pure-custom-js-strategy@syn_5m": {
+  "status": "OK",
+  "detail": "4 series",
+  "py_secs": 0.11,
+  "trace": ""
+ },
+ "6860a2-vbp-from-earnings@aapl_d": {
+  "status": "OK",
+  "detail": "43 series",
+  "py_secs": 0.04,
+  "trace": ""
+ },
+ "6860a2-vbp-from-earnings@syn_5m": {
+  "status": "OK",
+  "detail": "43 series",
+  "py_secs": 0.27,
+  "trace": ""
+ },
+ "6877dd-capitulation-finder@aapl_d": {
+  "status": "OK",
+  "detail": "6 series",
+  "py_secs": 0.09,
+  "trace": ""
+ },
+ "6877dd-capitulation-finder@syn_5m": {
+  "status": "OK",
+  "detail": "6 series",
+  "py_secs": 0.22,
+  "trace": ""
+ },
+ "6877e1-swing-detector@aapl_d": {
+  "status": "OK",
+  "detail": "3 series",
+  "py_secs": 0.03,
+  "trace": ""
+ },
+ "6877e1-swing-detector@syn_5m": {
+  "status": "OK",
+  "detail": "3 series",
+  "py_secs": 0.06,
+  "trace": ""
+ },
+ "688d1a-ichimoku-tk-crossover-candle-coloring@aapl_d": {
+  "status": "OK",
+  "detail": "5 series",
+  "py_secs": 0.08,
+  "trace": ""
+ },
+ "688d1a-ichimoku-tk-crossover-candle-coloring@syn_5m": {
+  "status": "OK",
+  "detail": "5 series",
+  "py_secs": 0.19,
+  "trace": ""
+ },
+ "688d1d-spx-circuit-breaker-levels@aapl_d": {
+  "status": "OK",
+  "detail": "3 series",
+  "py_secs": 0.25,
+  "trace": ""
+ },
+ "688d1d-spx-circuit-breaker-levels@syn_5m": {
+  "status": "OK",
+  "detail": "3 series",
+  "py_secs": 0.55,
+  "trace": ""
+ },
+ "689209-turtle-trading-strategy-long-only@aapl_d": {
+  "status": "OK",
+  "detail": "14 series",
+  "py_secs": 0.12,
+  "trace": ""
+ },
+ "689209-turtle-trading-strategy-long-only@syn_5m": {
+  "status": "OK",
+  "detail": "14 series",
+  "py_secs": 0.33,
+  "trace": ""
+ },
+ "6893ca-earnings-bubbles@aapl_d": {
+  "status": "OK",
+  "detail": "5 series",
+  "py_secs": 0.03,
+  "trace": ""
+ },
+ "6893ca-earnings-bubbles@syn_5m": {
+  "status": "OK",
+  "detail": "5 series",
+  "py_secs": 0.07,
+  "trace": ""
+ },
+ "6893cd-earnings-tracker@aapl_d": {
+  "status": "OK",
+  "detail": "1 series",
+  "py_secs": 0.02,
+  "trace": ""
+ },
+ "6893cd-earnings-tracker@syn_5m": {
+  "status": "OK",
+  "detail": "1 series",
+  "py_secs": 0.02,
+  "trace": ""
+ },
+ "6893d0-fundamentals-strip@aapl_d": {
+  "status": "OK",
+  "detail": "1 series",
+  "py_secs": 0.05,
+  "trace": ""
+ },
+ "6893d0-fundamentals-strip@syn_5m": {
+  "status": "both-error",
+  "detail": "js: Cannot read properties of undefined (reading 'timestamp') | py: Cannot read properties of undefined (reading 'timestamp')",
+  "py_secs": 0.07,
+  "trace": ""
+ },
+ "689623-multi-oscillator-average@aapl_d": {
+  "status": "OK",
+  "detail": "4 series",
+  "py_secs": 0.48,
+  "trace": ""
+ },
+ "689623-multi-oscillator-average@syn_5m": {
+  "status": "OK",
+  "detail": "4 series",
+  "py_secs": 1.06,
+  "trace": ""
+ },
+ "689a32-hurst-exponent-tsbuild25@aapl_d": {
+  "status": "OK",
+  "detail": "7 series",
+  "py_secs": 0.69,
+  "trace": ""
+ },
+ "689a32-hurst-exponent-tsbuild25@syn_5m": {
+  "status": "OK",
+  "detail": "7 series",
+  "py_secs": 1.75,
+  "trace": ""
+ },
+ "689aad-candle-streak-analysis@aapl_d": {
+  "status": "OK",
+  "detail": "1 series",
+  "py_secs": 0.02,
+  "trace": ""
+ },
+ "689aad-candle-streak-analysis@syn_5m": {
+  "status": "OK",
+  "detail": "1 series",
+  "py_secs": 0.05,
+  "trace": ""
+ },
+ "689ab4-rsi-divergences-tsbuild25@aapl_d": {
+  "status": "OK",
+  "detail": "10 series",
+  "py_secs": 0.1,
+  "trace": ""
+ },
+ "689ab4-rsi-divergences-tsbuild25@syn_5m": {
+  "status": "OK",
+  "detail": "10 series",
+  "py_secs": 0.16,
+  "trace": ""
+ },
+ "689b9a-lrs-fib-squeeze@aapl_d": {
+  "status": "OK",
+  "detail": "22 series",
+  "py_secs": 1.28,
+  "trace": ""
+ },
+ "689b9a-lrs-fib-squeeze@syn_5m": {
+  "status": "OK",
+  "detail": "22 series",
+  "py_secs": 3.36,
+  "trace": ""
+ },
+ "689cdc-trend-strength-candles-tsbuild25@aapl_d": {
+  "status": "OK",
+  "detail": "1 series",
+  "py_secs": 0.33,
+  "trace": ""
+ },
+ "689cdc-trend-strength-candles-tsbuild25@syn_5m": {
+  "status": "OK",
+  "detail": "1 series",
+  "py_secs": 0.71,
+  "trace": ""
+ },
+ "689d04-pairs-spread-z-score@aapl_d": {
+  "status": "OK",
+  "detail": "10 series",
+  "py_secs": 0.2,
+  "trace": ""
+ },
+ "689d04-pairs-spread-z-score@syn_5m": {
+  "status": "OK",
+  "detail": "10 series",
+  "py_secs": 0.57,
+  "trace": ""
+ },
+ "689d40-inversion-fair-value-gaps-ifvg@aapl_d": {
+  "status": "OK",
+  "detail": "23 series",
+  "py_secs": 0.16,
+  "trace": ""
+ },
+ "689d40-inversion-fair-value-gaps-ifvg@syn_5m": {
+  "status": "OK",
+  "detail": "53 series",
+  "py_secs": 3.13,
+  "trace": ""
+ },
+ "689db6-bias-bands@aapl_d": {
+  "status": "OK",
+  "detail": "11 series",
+  "py_secs": 0.13,
+  "trace": ""
+ },
+ "689db6-bias-bands@syn_5m": {
+  "status": "OK",
+  "detail": "11 series",
+  "py_secs": 0.41,
+  "trace": ""
+ },
+ "689fc0-dynamo-cloud@aapl_d": {
+  "status": "OK",
+  "detail": "14 series",
+  "py_secs": 0.78,
+  "trace": ""
+ },
+ "689fc0-dynamo-cloud@syn_5m": {
+  "status": "OK",
+  "detail": "14 series",
+  "py_secs": 3.08,
+  "trace": ""
+ },
+ "689fe5-razorline-v1-intraday-inverted-momentum-concept@aapl_d": {
+  "status": "OK",
+  "detail": "19 series",
+  "py_secs": 1.72,
+  "trace": ""
+ },
+ "689fe5-razorline-v1-intraday-inverted-momentum-concept@syn_5m": {
+  "status": "OK",
+  "detail": "19 series",
+  "py_secs": 4.72,
+  "trace": ""
+ },
+ "689fff-flowbot-unusual-options-7-14-dte@aapl_d": {
+  "status": "OK",
+  "detail": "1 series",
+  "py_secs": 0.03,
+  "trace": ""
+ },
+ "689fff-flowbot-unusual-options-7-14-dte@syn_5m": {
+  "status": "OK",
+  "detail": "1 series",
+  "py_secs": 0.04,
+  "trace": ""
+ },
+ "68a004-linkline@aapl_d": {
+  "status": "OK",
+  "detail": "5 series",
+  "py_secs": 0.25,
+  "trace": ""
+ },
+ "68a004-linkline@syn_5m": {
+  "status": "OK",
+  "detail": "5 series",
+  "py_secs": 0.68,
+  "trace": ""
+ },
+ "68a091-returns-distribution@aapl_d": {
+  "status": "OK",
+  "detail": "1 series",
+  "py_secs": 0.09,
+  "trace": ""
+ },
+ "68a091-returns-distribution@syn_5m": {
+  "status": "OK",
+  "detail": "1 series",
+  "py_secs": 0.18,
+  "trace": ""
+ },
+ "68a0fd-goldbach-shelves@aapl_d": {
+  "status": "OK",
+  "detail": "14 series",
+  "py_secs": 0.01,
+  "trace": ""
+ },
+ "68a0fd-goldbach-shelves@syn_5m": {
+  "status": "OK",
+  "detail": "14 series",
+  "py_secs": 0.02,
+  "trace": ""
+ },
+ "68a115-gap-zones@aapl_d": {
+  "status": "OK",
+  "detail": "15 series",
+  "py_secs": 0.05,
+  "trace": ""
+ },
+ "68a115-gap-zones@syn_5m": {
+  "status": "both-error",
+  "detail": "js: color must be a string | py: color must be a string",
+  "py_secs": 0.1,
+  "trace": ""
+ },
+ "68a12b-has-options@aapl_d": {
+  "status": "OK",
+  "detail": "3 series",
+  "py_secs": 0.02,
+  "trace": ""
+ },
+ "68a12b-has-options@syn_5m": {
+  "status": "OK",
+  "detail": "3 series",
+  "py_secs": 0.02,
+  "trace": ""
+ },
+ "68a13a-triple-stochastic-rsi@aapl_d": {
+  "status": "OK",
+  "detail": "28 series",
+  "py_secs": 0.37,
+  "trace": ""
+ },
+ "68a13a-triple-stochastic-rsi@syn_5m": {
+  "status": "OK",
+  "detail": "28 series",
+  "py_secs": 0.96,
+  "trace": ""
+ },
+ "68a1d4-mavilimw-mtf@aapl_d": {
+  "status": "OK",
+  "detail": "1 series",
+  "py_secs": 0.12,
+  "trace": ""
+ },
+ "68a1d4-mavilimw-mtf@syn_5m": {
+  "status": "OK",
+  "detail": "1 series",
+  "py_secs": 0.36,
+  "trace": ""
+ },
+ "68a1da-t3@aapl_d": {
+  "status": "OK",
+  "detail": "2 series",
+  "py_secs": 0.07,
+  "trace": ""
+ },
+ "68a1da-t3@syn_5m": {
+  "status": "OK",
+  "detail": "2 series",
+  "py_secs": 0.18,
+  "trace": ""
+ },
+ "68a1ee-alma@aapl_d": {
+  "status": "OK",
+  "detail": "2 series",
+  "py_secs": 0.47,
+  "trace": ""
+ },
+ "68a1ee-alma@syn_5m": {
+  "status": "OK",
+  "detail": "2 series",
+  "py_secs": 1.26,
+  "trace": ""
+ },
+ "68a1fd-autofib-bands@aapl_d": {
+  "status": "OK",
+  "detail": "7 series",
+  "py_secs": 0.26,
+  "trace": ""
+ },
+ "68a1fd-autofib-bands@syn_5m": {
+  "status": "OK",
+  "detail": "7 series",
+  "py_secs": 0.77,
+  "trace": ""
+ },
+ "68a231-fringe@aapl_d": {
+  "status": "OK",
+  "detail": "9 series",
+  "py_secs": 0.26,
+  "trace": ""
+ },
+ "68a231-fringe@syn_5m": {
+  "status": "OK",
+  "detail": "9 series",
+  "py_secs": 0.61,
+  "trace": ""
+ },
+ "68a295-bearish-doji-candle-identifier@aapl_d": {
+  "status": "OK",
+  "detail": "2 series",
+  "py_secs": 0.03,
+  "trace": ""
+ },
+ "68a295-bearish-doji-candle-identifier@syn_5m": {
+  "status": "OK",
+  "detail": "2 series",
+  "py_secs": 0.07,
+  "trace": ""
+ },
+ "68a3e4-timeframe-progressive-range@aapl_d": {
+  "status": "OK",
+  "detail": "12 series",
+  "py_secs": 0.08,
+  "trace": ""
+ },
+ "68a3e4-timeframe-progressive-range@syn_5m": {
+  "status": "OK",
+  "detail": "12 series",
+  "py_secs": 0.12,
+  "trace": ""
+ },
+ "68a3e6-unusual-options-table@aapl_d": {
+  "status": "OK",
+  "detail": "1 series",
+  "py_secs": 0.04,
+  "trace": ""
+ },
+ "68a3e6-unusual-options-table@syn_5m": {
+  "status": "OK",
+  "detail": "1 series",
+  "py_secs": 0.03,
+  "trace": ""
+ },
+ "68a3ed-trend-bars-with-okuninushi-filter@aapl_d": {
+  "status": "OK",
+  "detail": "2 series",
+  "py_secs": 0.09,
+  "trace": ""
+ },
+ "68a3ed-trend-bars-with-okuninushi-filter@syn_5m": {
+  "status": "OK",
+  "detail": "2 series",
+  "py_secs": 0.19,
+  "trace": ""
+ },
+ "68a5e5-kri@aapl_d": {
+  "status": "OK",
+  "detail": "3 series",
+  "py_secs": 0.07,
+  "trace": ""
+ },
+ "68a5e5-kri@syn_5m": {
+  "status": "OK",
+  "detail": "3 series",
+  "py_secs": 0.15,
+  "trace": ""
+ },
+ "68a603-volatility-fractal-heatmap@aapl_d": {
+  "status": "OK",
+  "detail": "6 series",
+  "py_secs": 1.1,
+  "trace": ""
+ },
+ "68a603-volatility-fractal-heatmap@syn_5m": {
+  "status": "OK",
+  "detail": "6 series",
+  "py_secs": 3.32,
+  "trace": ""
+ },
+ "68a605-liquidity-map-avwap@aapl_d": {
+  "status": "OK",
+  "detail": "13 series",
+  "py_secs": 0.1,
+  "trace": ""
+ },
+ "68a605-liquidity-map-avwap@syn_5m": {
+  "status": "OK",
+  "detail": "13 series",
+  "py_secs": 0.22,
+  "trace": ""
+ },
+ "68a606-fractal-energy-oscillator@aapl_d": {
+  "status": "OK",
+  "detail": "8 series",
+  "py_secs": 0.12,
+  "trace": ""
+ },
+ "68a606-fractal-energy-oscillator@syn_5m": {
+  "status": "OK",
+  "detail": "8 series",
+  "py_secs": 0.32,
+  "trace": ""
+ },
+ "68a60d-mtf-compass-pro@aapl_d": {
+  "status": "OK",
+  "detail": "6 series",
+  "py_secs": 0.27,
+  "trace": ""
+ },
+ "68a60d-mtf-compass-pro@syn_5m": {
+  "status": "OK",
+  "detail": "6 series",
+  "py_secs": 0.69,
+  "trace": ""
+ },
+ "68a611-options-gravity-map-pin-risk-magneto-flow@aapl_d": {
+  "status": "OK",
+  "detail": "22 series",
+  "py_secs": 0.23,
+  "trace": ""
+ },
+ "68a611-options-gravity-map-pin-risk-magneto-flow@syn_5m": {
+  "status": "OK",
+  "detail": "22 series",
+  "py_secs": 0.56,
+  "trace": ""
+ },
+ "68a719-atr-table@aapl_d": {
+  "status": "OK",
+  "detail": "1 series",
+  "py_secs": 0.03,
+  "trace": ""
+ },
+ "68a719-atr-table@syn_5m": {
+  "status": "OK",
+  "detail": "1 series",
+  "py_secs": 0.05,
+  "trace": ""
+ },
+ "68a735-lri-pivot@aapl_d": {
+  "status": "OK",
+  "detail": "3 series",
+  "py_secs": 0.07,
+  "trace": ""
+ },
+ "68a735-lri-pivot@syn_5m": {
+  "status": "OK",
+  "detail": "3 series",
+  "py_secs": 0.19,
+  "trace": ""
+ },
+ "68a7cb-timeframe-atr-bands@aapl_d": {
+  "status": "OK",
+  "detail": "5 series",
+  "py_secs": 0.47,
+  "trace": ""
+ },
+ "68a7cb-timeframe-atr-bands@syn_5m": {
+  "status": "OK",
+  "detail": "5 series",
+  "py_secs": 1.15,
+  "trace": ""
+ },
+ "68a90b-liquidity-zone-scanner@aapl_d": {
+  "status": "both-error",
+  "detail": "js: Max amount of out series exceeded (70) | py: Max amount of out series exceeded (70)",
+  "py_secs": 0.18,
+  "trace": ""
+ },
+ "68a90b-liquidity-zone-scanner@syn_5m": {
+  "status": "both-error",
+  "detail": "js: paint(): out series \"Zone ~155.07\" already exists | py: paint(): out series \"Zone ~155.07\" already exists",
+  "py_secs": 0.41,
+  "trace": ""
+ },
+ "68a9db-analyst-ratings-table@aapl_d": {
+  "status": "OK",
+  "detail": "1 series",
+  "py_secs": 0.02,
+  "trace": ""
+ },
+ "68a9db-analyst-ratings-table@syn_5m": {
+  "status": "OK",
+  "detail": "1 series",
+  "py_secs": 0.02,
+  "trace": ""
+ },
+ "68aa15-volatility-stop-multi-timeframe@aapl_d": {
+  "status": "OK",
+  "detail": "4 series",
+  "py_secs": 0.14,
+  "trace": ""
+ },
+ "68aa15-volatility-stop-multi-timeframe@syn_5m": {
+  "status": "both-error",
+  "detail": "js: for_every(): All series must have equal length | py: for_every(): All series must have equal length",
+  "py_secs": 0.19,
+  "trace": ""
+ },
+ "68aa18-cmf-divergences@aapl_d": {
+  "status": "OK",
+  "detail": "10 series",
+  "py_secs": 0.19,
+  "trace": ""
+ },
+ "68aa18-cmf-divergences@syn_5m": {
+  "status": "OK",
+  "detail": "10 series",
+  "py_secs": 0.37,
+  "trace": ""
+ },
+ "68aa1a-atr-percentage@aapl_d": {
+  "status": "OK",
+  "detail": "3 series",
+  "py_secs": 0.06,
+  "trace": ""
+ },
+ "68aa1a-atr-percentage@syn_5m": {
+  "status": "OK",
+  "detail": "3 series",
+  "py_secs": 0.11,
+  "trace": ""
+ },
+ "68aa1b-atr-based-profit-target@aapl_d": {
+  "status": "OK",
+  "detail": "1 series",
+  "py_secs": 0.02,
+  "trace": ""
+ },
+ "68aa1b-atr-based-profit-target@syn_5m": {
+  "status": "OK",
+  "detail": "1 series",
+  "py_secs": 0.04,
+  "trace": ""
+ },
+ "68aa6e-volume-weighted-adaptive-momentum-oscillator-vwamo@aapl_d": {
+  "status": "OK",
+  "detail": "9 series",
+  "py_secs": 0.09,
+  "trace": ""
+ },
+ "68aa6e-volume-weighted-adaptive-momentum-oscillator-vwamo@syn_5m": {
+  "status": "OK",
+  "detail": "9 series",
+  "py_secs": 0.3,
+  "trace": ""
+ },
+ "68aa73-intermarket-strength-heatmap@aapl_d": {
+  "status": "OK",
+  "detail": "1 series",
+  "py_secs": 0.54,
+  "trace": ""
+ },
+ "68aa73-intermarket-strength-heatmap@syn_5m": {
+  "status": "OK",
+  "detail": "1 series",
+  "py_secs": 1.48,
+  "trace": ""
+ },
+ "68aa79-federal-reserve-impact-indicator-frii@aapl_d": {
+  "status": "OK",
+  "detail": "10 series",
+  "py_secs": 0.09,
+  "trace": ""
+ },
+ "68aa79-federal-reserve-impact-indicator-frii@syn_5m": {
+  "status": "OK",
+  "detail": "10 series",
+  "py_secs": 0.18,
+  "trace": ""
+ },
+ "68ab05-futures-pre-market-range-by-smallsteps@aapl_d": {
+  "status": "both-error",
+  "detail": "js: This indicator only supports chart resolutions less than 120 minutes. | py: This indicator only supports chart resolutions less than 120 minutes.",
+  "py_secs": 0.01,
+  "trace": ""
+ },
+ "68ab05-futures-pre-market-range-by-smallsteps@syn_5m": {
+  "status": "OK",
+  "detail": "6 series",
+  "py_secs": 0.12,
+  "trace": ""
+ },
+ "68ab14-futures-gap-labels-by-smallsteps@aapl_d": {
+  "status": "both-error",
+  "detail": "js: This indicator only supports chart resolutions 5, 10 , 15 and 30 minutes. | py: This indicator only supports chart resolutions 5, 10 , 15 and 30 minutes.",
+  "py_secs": 0.02,
+  "trace": ""
+ },
+ "68ab14-futures-gap-labels-by-smallsteps@syn_5m": {
+  "status": "OK",
+  "detail": "8 series",
+  "py_secs": 0.08,
+  "trace": ""
+ },
+ "68ab23-cross-asset-momentum-divergence@aapl_d": {
+  "status": "MISMATCH",
+  "detail": "bond_yield_impact[19]: js -0.15830794016089128 py -0.5850808003943009",
+  "py_secs": 0.15,
+  "trace": ""
+ },
+ "68ab23-cross-asset-momentum-divergence@syn_5m": {
+  "status": "MISMATCH",
+  "detail": "bond_yield_impact[19]: js 1.1214924052016404 py 0.7694392869601375",
+  "py_secs": 0.38,
+  "trace": ""
+ },
+ "68ab25-fractal-support-resistance@aapl_d": {
+  "status": "OK",
+  "detail": "60 series",
+  "py_secs": 0.08,
+  "trace": ""
+ },
+ "68ab25-fractal-support-resistance@syn_5m": {
+  "status": "OK",
+  "detail": "60 series",
+  "py_secs": 0.16,
+  "trace": ""
+ },
+ "68ab31-market-structure-breaks@aapl_d": {
+  "status": "OK",
+  "detail": "27 series",
+  "py_secs": 0.38,
+  "trace": ""
+ },
+ "68ab31-market-structure-breaks@syn_5m": {
+  "status": "OK",
+  "detail": "27 series",
+  "py_secs": 1.73,
+  "trace": ""
+ },
+ "68ab35-aeris@aapl_d": {
+  "status": "OK",
+  "detail": "15 series",
+  "py_secs": 1.26,
+  "trace": ""
+ },
+ "68ab35-aeris@syn_5m": {
+  "status": "OK",
+  "detail": "15 series",
+  "py_secs": 3.54,
+  "trace": ""
+ },
+ "68ab37-flow-gex-scalper-v1-options-gamma-flow-analyzer@aapl_d": {
+  "status": "OK",
+  "detail": "1 series",
+  "py_secs": 0.02,
+  "trace": ""
+ },
+ "68ab37-flow-gex-scalper-v1-options-gamma-flow-analyzer@syn_5m": {
+  "status": "OK",
+  "detail": "1 series",
+  "py_secs": 0.02,
+  "trace": ""
+ },
+ "68ab83-adt-lower@aapl_d": {
+  "status": "OK",
+  "detail": "8 series",
+  "py_secs": 0.21,
+  "trace": ""
+ },
+ "68ab83-adt-lower@syn_5m": {
+  "status": "OK",
+  "detail": "8 series",
+  "py_secs": 0.6,
+  "trace": ""
+ },
+ "68ab9f-options-term-structure-hunter-v1@aapl_d": {
+  "status": "both-error",
+  "detail": "js: No data for AAPL | py: No data for AAPL",
+  "py_secs": 0.01,
+  "trace": ""
+ },
+ "68ab9f-options-term-structure-hunter-v1@syn_5m": {
+  "status": "both-error",
+  "detail": "js: No data for AAPL | py: No data for AAPL",
+  "py_secs": 0.02,
+  "trace": ""
+ },
+ "68aba5-pattern-analysis-overlay@aapl_d": {
+  "status": "OK",
+  "detail": "13 series",
+  "py_secs": 0.11,
+  "trace": ""
+ },
+ "68aba5-pattern-analysis-overlay@syn_5m": {
+  "status": "OK",
+  "detail": "13 series",
+  "py_secs": 0.25,
+  "trace": ""
+ },
+ "68abad-valuation-dashboard@aapl_d": {
+  "status": "both-error",
+  "detail": "js: Alpha Vantage OVERVIEW failed or quota hit. | py: Alpha Vantage OVERVIEW failed or quota hit.",
+  "py_secs": 0.03,
+  "trace": ""
+ },
+ "68abad-valuation-dashboard@syn_5m": {
+  "status": "both-error",
+  "detail": "js: Alpha Vantage OVERVIEW failed or quota hit. | py: Alpha Vantage OVERVIEW failed or quota hit.",
+  "py_secs": 0.02,
+  "trace": ""
+ },
+ "68abb1-earnings-momentum-nvda-tsbuild25@aapl_d": {
+  "status": "OK",
+  "detail": "4 series",
+  "py_secs": 0.18,
+  "trace": ""
+ },
+ "68abb1-earnings-momentum-nvda-tsbuild25@syn_5m": {
+  "status": "OK",
+  "detail": "4 series",
+  "py_secs": 0.52,
+  "trace": ""
+ },
+ "68abb6-bottom-catcher-signal-htf@aapl_d": {
+  "status": "OK",
+  "detail": "3 series",
+  "py_secs": 0.13,
+  "trace": ""
+ },
+ "68abb6-bottom-catcher-signal-htf@syn_5m": {
+  "status": "OK",
+  "detail": "3 series",
+  "py_secs": 0.28,
+  "trace": ""
+ },
+ "68abbf-antr-crossover@aapl_d": {
+  "status": "OK",
+  "detail": "2 series",
+  "py_secs": 0.05,
+  "trace": ""
+ },
+ "68abbf-antr-crossover@syn_5m": {
+  "status": "OK",
+  "detail": "2 series",
+  "py_secs": 0.11,
+  "trace": ""
+ },
+ "68abc0-nvda-earnings-emo-csv@aapl_d": {
+  "status": "OK",
+  "detail": "4 series",
+  "py_secs": 0.05,
+  "trace": ""
+ },
+ "68abc0-nvda-earnings-emo-csv@syn_5m": {
+  "status": "OK",
+  "detail": "4 series",
+  "py_secs": 0.08,
+  "trace": ""
+ },
+ "68abc8-normalized-range-crossover@aapl_d": {
+  "status": "OK",
+  "detail": "2 series",
+  "py_secs": 0.06,
+  "trace": ""
+ },
+ "68abc8-normalized-range-crossover@syn_5m": {
+  "status": "OK",
+  "detail": "2 series",
+  "py_secs": 0.12,
+  "trace": ""
+ },
+ "68abda-at-a-glance-overlay@aapl_d": {
+  "status": "OK",
+  "detail": "1 series",
+  "py_secs": 0.13,
+  "trace": ""
+ },
+ "68abda-at-a-glance-overlay@syn_5m": {
+  "status": "OK",
+  "detail": "1 series",
+  "py_secs": 0.39,
+  "trace": ""
+ },
+ "68abe2-fractal-pressure-levels@aapl_d": {
+  "status": "OK",
+  "detail": "13 series",
+  "py_secs": 0.15,
+  "trace": ""
+ },
+ "68abe2-fractal-pressure-levels@syn_5m": {
+  "status": "OK",
+  "detail": "13 series",
+  "py_secs": 0.36,
+  "trace": ""
+ },
+ "68ae72-red-dragon-mcdx@aapl_d": {
+  "status": "OK",
+  "detail": "9 series",
+  "py_secs": 0.23,
+  "trace": ""
+ },
+ "68ae72-red-dragon-mcdx@syn_5m": {
+  "status": "OK",
+  "detail": "9 series",
+  "py_secs": 0.56,
+  "trace": ""
+ },
+ "68c361-kdj-j-cross@aapl_d": {
+  "status": "OK",
+  "detail": "3 series",
+  "py_secs": 0.06,
+  "trace": ""
+ },
+ "68c361-kdj-j-cross@syn_5m": {
+  "status": "OK",
+  "detail": "3 series",
+  "py_secs": 0.12,
+  "trace": ""
+ },
+ "68cda6-minervini-trend-template@aapl_d": {
+  "status": "OK",
+  "detail": "15 series",
+  "py_secs": 0.23,
+  "trace": ""
+ },
+ "68cda6-minervini-trend-template@syn_5m": {
+  "status": "OK",
+  "detail": "15 series",
+  "py_secs": 0.42,
+  "trace": ""
+ },
+ "68dd45-october-open-level-with-momentum@aapl_d": {
+  "status": "OK",
+  "detail": "2 series",
+  "py_secs": 0.04,
+  "trace": ""
+ },
+ "68dd45-october-open-level-with-momentum@syn_5m": {
+  "status": "OK",
+  "detail": "2 series",
+  "py_secs": 0.07,
+  "trace": ""
+ },
+ "68e750-hurst-alma-channels-with-signals-kodexius@aapl_d": {
+  "status": "OK",
+  "detail": "15 series",
+  "py_secs": 0.77,
+  "trace": ""
+ },
+ "68e750-hurst-alma-channels-with-signals-kodexius@syn_5m": {
+  "status": "OK",
+  "detail": "15 series",
+  "py_secs": 2.01,
+  "trace": ""
+ },
+ "68e78d-trading-activity-index-zeiierman@aapl_d": {
+  "status": "OK",
+  "detail": "6 series",
+  "py_secs": 6.15,
+  "trace": ""
+ },
+ "68e78d-trading-activity-index-zeiierman@syn_5m": {
+  "status": "OK",
+  "detail": "6 series",
+  "py_secs": 19.53,
+  "trace": ""
+ },
+ "68e78e-relative-trend-index-rti-by-zeiierman@aapl_d": {
+  "status": "OK",
+  "detail": "7 series",
+  "py_secs": 0.14,
+  "trace": ""
+ },
+ "68e78e-relative-trend-index-rti-by-zeiierman@syn_5m": {
+  "status": "OK",
+  "detail": "7 series",
+  "py_secs": 0.46,
+  "trace": ""
+ },
+ "68e793-ai-weighted-rsi-zeiierman@aapl_d": {
+  "status": "OK",
+  "detail": "13 series",
+  "py_secs": 1.84,
+  "trace": ""
+ },
+ "68e793-ai-weighted-rsi-zeiierman@syn_5m": {
+  "status": "OK",
+  "detail": "13 series",
+  "py_secs": 4.57,
+  "trace": ""
+ },
+ "68e7b9-dynamic-swing-anchored-vwap-zeiierman@aapl_d": {
+  "status": "OK",
+  "detail": "6 series",
+  "py_secs": 0.22,
+  "trace": ""
+ },
+ "68e7b9-dynamic-swing-anchored-vwap-zeiierman@syn_5m": {
+  "status": "OK",
+  "detail": "6 series",
+  "py_secs": 0.46,
+  "trace": ""
+ },
+ "68e90a-zigzag@aapl_d": {
+  "status": "OK",
+  "detail": "2 series",
+  "py_secs": 38.49,
+  "trace": ""
+ },
+ "68e90a-zigzag@syn_5m": {
+  "status": "OK",
+  "detail": "2 series",
+  "py_secs": 200.1,
+  "trace": ""
+ },
+ "68ebfc-atr-based-support-and-resistance@aapl_d": {
+  "status": "OK",
+  "detail": "7 series",
+  "py_secs": 0.06,
+  "trace": ""
+ },
+ "68ebfc-atr-based-support-and-resistance@syn_5m": {
+  "status": "OK",
+  "detail": "7 series",
+  "py_secs": 0.13,
+  "trace": ""
+ },
+ "68f10f-fearzone-contrarian-indicator@aapl_d": {
+  "status": "OK",
+  "detail": "3 series",
+  "py_secs": 0.39,
+  "trace": ""
+ },
+ "68f10f-fearzone-contrarian-indicator@syn_5m": {
+  "status": "OK",
+  "detail": "3 series",
+  "py_secs": 0.83,
+  "trace": ""
+ },
+ "68f930-rate-of-change-with-ma@aapl_d": {
+  "status": "OK",
+  "detail": "3 series",
+  "py_secs": 0.03,
+  "trace": ""
+ },
+ "68f930-rate-of-change-with-ma@syn_5m": {
+  "status": "OK",
+  "detail": "3 series",
+  "py_secs": 0.05,
+  "trace": ""
+ },
+ "69037e-pre-market-high-low@aapl_d": {
+  "status": "both-error",
+  "detail": "js: This indicator only supports chart resolutions less than 120 minutes. | py: This indicator only supports chart resolutions less than 120 minutes.",
+  "py_secs": 0.02,
+  "trace": ""
+ },
+ "69037e-pre-market-high-low@syn_5m": {
+  "status": "OK",
+  "detail": "2 series",
+  "py_secs": 0.29,
+  "trace": ""
+ },
+ "690d22-vol-accelerated-directional-energy-ratio@aapl_d": {
+  "status": "OK",
+  "detail": "11 series",
+  "py_secs": 0.29,
+  "trace": ""
+ },
+ "690d22-vol-accelerated-directional-energy-ratio@syn_5m": {
+  "status": "OK",
+  "detail": "11 series",
+  "py_secs": 0.72,
+  "trace": ""
+ },
+ "6918c7-volatility-regime-classifier@aapl_d": {
+  "status": "OK",
+  "detail": "22 series",
+  "py_secs": 2.98,
+  "trace": ""
+ },
+ "6918c7-volatility-regime-classifier@syn_5m": {
+  "status": "OK",
+  "detail": "22 series",
+  "py_secs": 7.3,
+  "trace": ""
+ },
+ "691ab7-ripster-mtf-clouds@aapl_d": {
+  "status": "OK",
+  "detail": "40 series",
+  "py_secs": 0.4,
+  "trace": ""
+ },
+ "691ab7-ripster-mtf-clouds@syn_5m": {
+  "status": "OK",
+  "detail": "40 series",
+  "py_secs": 0.29,
+  "trace": ""
+ },
+ "691ab8-ripster-candle-rvol@aapl_d": {
+  "status": "OK",
+  "detail": "1 series",
+  "py_secs": 0.07,
+  "trace": ""
+ },
+ "691ab8-ripster-candle-rvol@syn_5m": {
+  "status": "OK",
+  "detail": "1 series",
+  "py_secs": 0.11,
+  "trace": ""
+ },
+ "691aba-ripster-dtr-vs-atr@aapl_d": {
+  "status": "OK",
+  "detail": "1 series",
+  "py_secs": 0.04,
+  "trace": ""
+ },
+ "691aba-ripster-dtr-vs-atr@syn_5m": {
+  "status": "OK",
+  "detail": "1 series",
+  "py_secs": 0.11,
+  "trace": ""
+ },
+ "691aba-ripster-trend-labels@aapl_d": {
+  "status": "OK",
+  "detail": "7 series",
+  "py_secs": 0.45,
+  "trace": ""
+ },
+ "691aba-ripster-trend-labels@syn_5m": {
+  "status": "OK",
+  "detail": "7 series",
+  "py_secs": 0.87,
+  "trace": ""
+ },
+ "691f4d-ema-stacked@aapl_d": {
+  "status": "OK",
+  "detail": "7 series",
+  "py_secs": 0.16,
+  "trace": ""
+ },
+ "691f4d-ema-stacked@syn_5m": {
+  "status": "OK",
+  "detail": "7 series",
+  "py_secs": 0.35,
+  "trace": ""
+ },
+ "6923c8-ripster-rvol-label@aapl_d": {
+  "status": "OK",
+  "detail": "1 series",
+  "py_secs": 0.08,
+  "trace": ""
+ },
+ "6923c8-ripster-rvol-label@syn_5m": {
+  "status": "OK",
+  "detail": "1 series",
+  "py_secs": 0.12,
+  "trace": ""
+ },
+ "6923cb-previous-2-days-hi-lo@aapl_d": {
+  "status": "OK",
+  "detail": "6 series",
+  "py_secs": 0.06,
+  "trace": ""
+ },
+ "6923cb-previous-2-days-hi-lo@syn_5m": {
+  "status": "OK",
+  "detail": "6 series",
+  "py_secs": 0.17,
+  "trace": ""
+ },
+ "69482d-ultimate-key-levels@aapl_d": {
+  "status": "both-error",
+  "detail": "js: not applicable to \"D\" charts | py: not applicable to \"D\" charts",
+  "py_secs": 0.01,
+  "trace": ""
+ },
+ "69482d-ultimate-key-levels@syn_5m": {
+  "status": "OK",
+  "detail": "13 series",
+  "py_secs": 2.01,
+  "trace": ""
+ },
+ "696077-sector-rotation-matrix@aapl_d": {
+  "status": "OK",
+  "detail": "8 series",
+  "py_secs": 6.02,
+  "trace": ""
+ },
+ "696077-sector-rotation-matrix@syn_5m": {
+  "status": "OK",
+  "detail": "8 series",
+  "py_secs": 14.42,
+  "trace": ""
+ },
+ "6960ab-market-absorption-efficiency-classifier@aapl_d": {
+  "status": "OK",
+  "detail": "14 series",
+  "py_secs": 0.38,
+  "trace": ""
+ },
+ "6960ab-market-absorption-efficiency-classifier@syn_5m": {
+  "status": "OK",
+  "detail": "14 series",
+  "py_secs": 0.73,
+  "trace": ""
+ },
+ "69717a-after-hours-chng@aapl_d": {
+  "status": "OK",
+  "detail": "2 series",
+  "py_secs": 0.04,
+  "trace": ""
+ },
+ "69717a-after-hours-chng@syn_5m": {
+  "status": "OK",
+  "detail": "2 series",
+  "py_secs": 0.17,
+  "trace": ""
+ },
+ "697183-chart-resolution-and-candle-label@aapl_d": {
+  "status": "OK",
+  "detail": "1 series",
+  "py_secs": 0.02,
+  "trace": ""
+ },
+ "697183-chart-resolution-and-candle-label@syn_5m": {
+  "status": "OK",
+  "detail": "1 series",
+  "py_secs": 0.02,
+  "trace": ""
+ },
+ "6971bc-ma-channel@aapl_d": {
+  "status": "OK",
+  "detail": "7 series",
+  "py_secs": 0.06,
+  "trace": ""
+ },
+ "6971bc-ma-channel@syn_5m": {
+  "status": "OK",
+  "detail": "7 series",
+  "py_secs": 0.1,
+  "trace": ""
+ },
+ "6977b1-orb-trading-strategy-indicator@aapl_d": {
+  "status": "both-error",
+  "detail": "js: This indicator requires an intraday chart (minute-based timeframe). | py: This indicator requires an intraday chart (minute-based timeframe).",
+  "py_secs": 0.02,
+  "trace": ""
+ },
+ "6977b1-orb-trading-strategy-indicator@syn_5m": {
+  "status": "OK",
+  "detail": "33 series",
+  "py_secs": 1.4,
+  "trace": ""
+ },
+ "697812-insider-trades@aapl_d": {
+  "status": "OK",
+  "detail": "1 series",
+  "py_secs": 0.03,
+  "trace": ""
+ },
+ "697812-insider-trades@syn_5m": {
+  "status": "OK",
+  "detail": "1 series",
+  "py_secs": 0.05,
+  "trace": ""
+ },
+ "6980e0-dollar-index-emulator-dxy@aapl_d": {
+  "status": "OK",
+  "detail": "1 series",
+  "py_secs": 0.12,
+  "trace": ""
+ },
+ "6980e0-dollar-index-emulator-dxy@syn_5m": {
+  "status": "ULP",
+  "detail": "last-bit float differences only, first at currency_formula[1065]: js 5.344070961955573 py 5.344070961955572",
+  "py_secs": 0.32,
+  "trace": ""
+ },
+ "698351-change@aapl_d": {
+  "status": "OK",
+  "detail": "1 series",
+  "py_secs": 0.03,
+  "trace": ""
+ },
+ "698351-change@syn_5m": {
+  "status": "OK",
+  "detail": "1 series",
+  "py_secs": 0.08,
+  "trace": ""
+ },
+ "698a03-price-rate-spread-meta-ratio@aapl_d": {
+  "status": "OK",
+  "detail": "7 series",
+  "py_secs": 0.17,
+  "trace": ""
+ },
+ "698a03-price-rate-spread-meta-ratio@syn_5m": {
+  "status": "OK",
+  "detail": "7 series",
+  "py_secs": 0.4,
+  "trace": ""
+ },
+ "699daa-smartvol-supertrend-alpha-scope@aapl_d": {
+  "status": "OK",
+  "detail": "7 series",
+  "py_secs": 0.4,
+  "trace": ""
+ },
+ "699daa-smartvol-supertrend-alpha-scope@syn_5m": {
+  "status": "OK",
+  "detail": "7 series",
+  "py_secs": 0.98,
+  "trace": ""
+ },
+ "699f45-25-75-percentile-supertrend@aapl_d": {
+  "status": "OK",
+  "detail": "5 series",
+  "py_secs": 0.42,
+  "trace": ""
+ },
+ "699f45-25-75-percentile-supertrend@syn_5m": {
+  "status": "OK",
+  "detail": "5 series",
+  "py_secs": 0.88,
+  "trace": ""
+ },
+ "69a731-sector-rotation-chart@aapl_d": {
+  "status": "OK",
+  "detail": "1 series",
+  "py_secs": 0.32,
+  "trace": ""
+ },
+ "69a731-sector-rotation-chart@syn_5m": {
+  "status": "OK",
+  "detail": "1 series",
+  "py_secs": 0.46,
+  "trace": ""
+ },
+ "69a876-darvas-box-indicator@aapl_d": {
+  "status": "OK",
+  "detail": "9 series",
+  "py_secs": 0.04,
+  "trace": ""
+ },
+ "69a876-darvas-box-indicator@syn_5m": {
+  "status": "OK",
+  "detail": "9 series",
+  "py_secs": 0.11,
+  "trace": ""
+ },
+ "69b5fd-bottom-catcher-performance@aapl_d": {
+  "status": "OK",
+  "detail": "4 series",
+  "py_secs": 0.12,
+  "trace": ""
+ },
+ "69b5fd-bottom-catcher-performance@syn_5m": {
+  "status": "OK",
+  "detail": "4 series",
+  "py_secs": 0.32,
+  "trace": ""
+ },
+ "69b825-put-call-ratio@aapl_d": {
+  "status": "OK",
+  "detail": "1 series",
+  "py_secs": 0.02,
+  "trace": ""
+ },
+ "69b825-put-call-ratio@syn_5m": {
+  "status": "OK",
+  "detail": "1 series",
+  "py_secs": 0.02,
+  "trace": ""
+ },
+ "69b826-expected-move-from-options@aapl_d": {
+  "status": "both-error",
+  "detail": "js: Could not calculate expected moves from available options | py: Could not calculate expected moves from available options",
+  "py_secs": 0.02,
+  "trace": ""
+ },
+ "69b826-expected-move-from-options@syn_5m": {
+  "status": "both-error",
+  "detail": "js: This indicator is only applicable to Daily time frame | py: This indicator is only applicable to Daily time frame",
+  "py_secs": 0.02,
+  "trace": ""
+ },
+ "69c15c-daily-pivot-breakout-strategy-indicator@aapl_d": {
+  "status": "OK",
+  "detail": "6 series",
+  "py_secs": 0.33,
+  "trace": ""
+ },
+ "69c15c-daily-pivot-breakout-strategy-indicator@syn_5m": {
+  "status": "both-error",
+  "detail": "js: Insufficient daily data. Need at least 100 days | py: Insufficient daily data. Need at least 100 days",
+  "py_secs": 0.11,
+  "trace": ""
+ },
+ "69c2f3-harmonic-flow-velocity-d_quant@aapl_d": {
+  "status": "OK",
+  "detail": "7 series",
+  "py_secs": 0.35,
+  "trace": ""
+ },
+ "69c2f3-harmonic-flow-velocity-d_quant@syn_5m": {
+  "status": "OK",
+  "detail": "7 series",
+  "py_secs": 0.3,
+  "trace": ""
+ },
+ "69c70c-robust-scaled-dema-alpha-scope@aapl_d": {
+  "status": "OK",
+  "detail": "4 series",
+  "py_secs": 0.57,
+  "trace": ""
+ },
+ "69c70c-robust-scaled-dema-alpha-scope@syn_5m": {
+  "status": "OK",
+  "detail": "4 series",
+  "py_secs": 1.54,
+  "trace": ""
+ },
+ "69c715-sma-mad-supertrend-alpha-scope@aapl_d": {
+  "status": "OK",
+  "detail": "7 series",
+  "py_secs": 0.13,
+  "trace": ""
+ },
+ "69c715-sma-mad-supertrend-alpha-scope@syn_5m": {
+  "status": "OK",
+  "detail": "7 series",
+  "py_secs": 0.31,
+  "trace": ""
+ },
+ "69ca4c-mean-reversion-momentum-hybrid-alpha-scope@aapl_d": {
+  "status": "OK",
+  "detail": "9 series",
+  "py_secs": 0.48,
+  "trace": ""
+ },
+ "69ca4c-mean-reversion-momentum-hybrid-alpha-scope@syn_5m": {
+  "status": "OK",
+  "detail": "9 series",
+  "py_secs": 1.35,
+  "trace": ""
+ },
+ "69cbfb-options-max-pain@aapl_d": {
+  "status": "OK",
+  "detail": "10 series",
+  "py_secs": 0.05,
+  "trace": ""
+ },
+ "69cbfb-options-max-pain@syn_5m": {
+  "status": "OK",
+  "detail": "10 series",
+  "py_secs": 0.04,
+  "trace": ""
+ },
+ "69cd72-pivot-high-and-low@aapl_d": {
+  "status": "OK",
+  "detail": "2 series",
+  "py_secs": 0.05,
+  "trace": ""
+ },
+ "69cd72-pivot-high-and-low@syn_5m": {
+  "status": "OK",
+  "detail": "2 series",
+  "py_secs": 0.12,
+  "trace": ""
+ },
+ "69d59d-options-contract-chart-overlay@aapl_d": {
+  "status": "OK",
+  "detail": "2 series",
+  "py_secs": 0.04,
+  "trace": ""
+ },
+ "69d59d-options-contract-chart-overlay@syn_5m": {
+  "status": "OK",
+  "detail": "2 series",
+  "py_secs": 0.05,
+  "trace": ""
+ },
+ "69d62d-true-daily-sma-pack@aapl_d": {
+  "status": "OK",
+  "detail": "10 series",
+  "py_secs": 0.26,
+  "trace": ""
+ },
+ "69d62d-true-daily-sma-pack@syn_5m": {
+  "status": "OK",
+  "detail": "10 series",
+  "py_secs": 0.12,
+  "trace": ""
+ },
+ "69dafa-superscalper-w-rollover@aapl_d": {
+  "status": "OK",
+  "detail": "12 series",
+  "py_secs": 0.13,
+  "trace": ""
+ },
+ "69dafa-superscalper-w-rollover@syn_5m": {
+  "status": "OK",
+  "detail": "12 series",
+  "py_secs": 0.28,
+  "trace": ""
+ },
+ "69dafc-hi-low-of-the-day-rth@aapl_d": {
+  "status": "OK",
+  "detail": "6 series",
+  "py_secs": 0.96,
+  "trace": ""
+ },
+ "69dafc-hi-low-of-the-day-rth@syn_5m": {
+  "status": "OK",
+  "detail": "6 series",
+  "py_secs": 1.22,
+  "trace": ""
+ },
+ "69e024-underlying-chart-overlay@aapl_d": {
+  "status": "OK",
+  "detail": "2 series",
+  "py_secs": 0.03,
+  "trace": ""
+ },
+ "69e024-underlying-chart-overlay@syn_5m": {
+  "status": "OK",
+  "detail": "2 series",
+  "py_secs": 0.05,
+  "trace": ""
+ },
+ "69e439-expected-options-move-daily-weekly-monthly@aapl_d": {
+  "status": "OK",
+  "detail": "13 series",
+  "py_secs": 0.04,
+  "trace": ""
+ },
+ "69e439-expected-options-move-daily-weekly-monthly@syn_5m": {
+  "status": "OK",
+  "detail": "13 series",
+  "py_secs": 0.04,
+  "trace": ""
+ },
+ "69e799-cnn-fear-greed-index@aapl_d": {
+  "status": "both-error",
+  "detail": "js: Cannot read properties of undefined (reading 'data') | py: Cannot read properties of undefined (reading 'data')",
+  "py_secs": 0.02,
+  "trace": ""
+ },
+ "69e799-cnn-fear-greed-index@syn_5m": {
+  "status": "both-error",
+  "detail": "js: Cannot read properties of undefined (reading 'data') | py: Cannot read properties of undefined (reading 'data')",
+  "py_secs": 0.02,
+  "trace": ""
+ },
+ "69e7e7-breadth-snapshot-with-5-day-comparison-indexes@aapl_d": {
+  "status": "OK",
+  "detail": "1 series",
+  "py_secs": 0.06,
+  "trace": ""
+ },
+ "69e7e7-breadth-snapshot-with-5-day-comparison-indexes@syn_5m": {
+  "status": "OK",
+  "detail": "1 series",
+  "py_secs": 0.4,
+  "trace": ""
+ },
+ "69efc4-ath-atl-lines-with-projection@aapl_d": {
+  "status": "OK",
+  "detail": "5 series",
+  "py_secs": 0.04,
+  "trace": ""
+ },
+ "69efc4-ath-atl-lines-with-projection@syn_5m": {
+  "status": "OK",
+  "detail": "5 series",
+  "py_secs": 0.07,
+  "trace": ""
+ },
+ "69effc-vix-candle-coloring@aapl_d": {
+  "status": "OK",
+  "detail": "1 series",
+  "py_secs": 0.06,
+  "trace": ""
+ },
+ "69effc-vix-candle-coloring@syn_5m": {
+  "status": "OK",
+  "detail": "1 series",
+  "py_secs": 0.1,
+  "trace": ""
+ },
+ "69effd-consecutive-candles@aapl_d": {
+  "status": "OK",
+  "detail": "3 series",
+  "py_secs": 0.02,
+  "trace": ""
+ },
+ "69effd-consecutive-candles@syn_5m": {
+  "status": "OK",
+  "detail": "3 series",
+  "py_secs": 0.04,
+  "trace": ""
+ },
+ "69effd-drawdown-from-ath@aapl_d": {
+  "status": "OK",
+  "detail": "2 series",
+  "py_secs": 0.03,
+  "trace": ""
+ },
+ "69effd-drawdown-from-ath@syn_5m": {
+  "status": "OK",
+  "detail": "2 series",
+  "py_secs": 0.04,
+  "trace": ""
+ },
+ "69effd-returns-overlay-table@aapl_d": {
+  "status": "OK",
+  "detail": "1 series",
+  "py_secs": 0.03,
+  "trace": ""
+ },
+ "69effd-returns-overlay-table@syn_5m": {
+  "status": "OK",
+  "detail": "1 series",
+  "py_secs": 0.15,
+  "trace": ""
+ },
+ "69f11e-options-chain-grid@aapl_d": {
+  "status": "OK",
+  "detail": "2 series",
+  "py_secs": 0.04,
+  "trace": ""
+ },
+ "69f11e-options-chain-grid@syn_5m": {
+  "status": "OK",
+  "detail": "2 series",
+  "py_secs": 0.04,
+  "trace": ""
+ },
+ "69f3a5-dollar-volume@aapl_d": {
+  "status": "OK",
+  "detail": "1 series",
+  "py_secs": 0.02,
+  "trace": ""
+ },
+ "69f3a5-dollar-volume@syn_5m": {
+  "status": "OK",
+  "detail": "1 series",
+  "py_secs": 0.02,
+  "trace": ""
+ },
+ "69f3a5-mtf-support-resistance@aapl_d": {
+  "status": "OK",
+  "detail": "30 series",
+  "py_secs": 0.12,
+  "trace": ""
+ },
+ "69f3a5-mtf-support-resistance@syn_5m": {
+  "status": "OK",
+  "detail": "30 series",
+  "py_secs": 0.21,
+  "trace": ""
+ },
+ "6a05c7-greedzone-contrarian-indicator-zeiierman@aapl_d": {
+  "status": "OK",
+  "detail": "3 series",
+  "py_secs": 0.34,
+  "trace": ""
+ },
+ "6a05c7-greedzone-contrarian-indicator-zeiierman@syn_5m": {
+  "status": "OK",
+  "detail": "3 series",
+  "py_secs": 0.76,
+  "trace": ""
+ },
+ "6a062b-spy-spx-es-price-converter-pt@aapl_d": {
+  "status": "OK",
+  "detail": "64 series",
+  "py_secs": 0.43,
+  "trace": ""
+ },
+ "6a062b-spy-spx-es-price-converter-pt@syn_5m": {
+  "status": "OK",
+  "detail": "64 series",
+  "py_secs": 0.58,
+  "trace": ""
+ },
+ "6a0ce2-wikipedia-page-views@aapl_d": {
+  "status": "both-error",
+  "detail": "js: Cannot read properties of undefined (reading 'map') | py: Cannot read properties of undefined (reading 'map')",
+  "py_secs": 0.02,
+  "trace": ""
+ },
+ "6a0ce2-wikipedia-page-views@syn_5m": {
+  "status": "both-error",
+  "detail": "js: Cannot read properties of undefined (reading 'map') | py: Cannot read properties of undefined (reading 'map')",
+  "py_secs": 0.02,
+  "trace": ""
+ },
+ "6a2030-underlying-asset-price@aapl_d": {
+  "status": "OK",
+  "detail": "1 series",
+  "py_secs": 0.04,
+  "trace": ""
+ },
+ "6a2030-underlying-asset-price@syn_5m": {
+  "status": "OK",
+  "detail": "1 series",
+  "py_secs": 0.1,
+  "trace": ""
+ },
+ "6a2056-zenalgo-adx@aapl_d": {
+  "status": "OK",
+  "detail": "57 series",
+  "py_secs": 0.45,
+  "trace": ""
+ },
+ "6a2056-zenalgo-adx@syn_5m": {
+  "status": "OK",
+  "detail": "57 series",
+  "py_secs": 1.12,
+  "trace": ""
+ },
+ "6a272e-aurora-divergence-dafe@aapl_d": {
+  "status": "OK",
+  "detail": "11 series",
+  "py_secs": 1.37,
+  "trace": ""
+ },
+ "6a272e-aurora-divergence-dafe@syn_5m": {
+  "status": "OK",
+  "detail": "11 series",
+  "py_secs": 3.58,
+  "trace": ""
+ },
+ "6a4795-pivot-levels-candle-color-dark-theme@aapl_d": {
+  "status": "OK",
+  "detail": "5 series",
+  "py_secs": 0.09,
+  "trace": ""
+ },
+ "6a4795-pivot-levels-candle-color-dark-theme@syn_5m": {
+  "status": "OK",
+  "detail": "5 series",
+  "py_secs": 0.22,
+  "trace": ""
+ },
+ "6a4ab0-thompson-enhanced-derivative-pattern-engine@aapl_d": {
+  "status": "OK",
+  "detail": "23 series",
+  "py_secs": 5.17,
+  "trace": ""
+ },
+ "6a4ab0-thompson-enhanced-derivative-pattern-engine@syn_5m": {
+  "status": "OK",
+  "detail": "23 series",
+  "py_secs": 21.45,
+  "trace": ""
+ },
+ "6a4ebc-slim-ribbon@aapl_d": {
+  "status": "OK",
+  "detail": "10 series",
+  "py_secs": 0.07,
+  "trace": ""
+ },
+ "6a4ebc-slim-ribbon@syn_5m": {
+  "status": "OK",
+  "detail": "10 series",
+  "py_secs": 0.19,
+  "trace": ""
+ },
+ "6a6291-world-bank-indicators-agriculture-rural-development@aapl_d": {
+  "status": "OK",
+  "detail": "1 series",
+  "py_secs": 0.15,
+  "trace": ""
+ },
+ "6a6291-world-bank-indicators-agriculture-rural-development@syn_5m": {
+  "status": "OK",
+  "detail": "1 series",
+  "py_secs": 0.11,
+  "trace": ""
+ },
+ "6a6291-world-bank-indicators-aid-effectiveness@aapl_d": {
+  "status": "OK",
+  "detail": "1 series",
+  "py_secs": 0.13,
+  "trace": ""
+ },
+ "6a6291-world-bank-indicators-aid-effectiveness@syn_5m": {
+  "status": "OK",
+  "detail": "1 series",
+  "py_secs": 0.08,
+  "trace": ""
+ },
+ "6a6294-world-bank-indicators-energy-mining@aapl_d": {
+  "status": "OK",
+  "detail": "1 series",
+  "py_secs": 0.17,
+  "trace": ""
+ },
+ "6a6294-world-bank-indicators-energy-mining@syn_5m": {
+  "status": "OK",
+  "detail": "1 series",
+  "py_secs": 0.14,
+  "trace": ""
+ },
+ "6a6294-world-bank-indicators-poverty@aapl_d": {
+  "status": "OK",
+  "detail": "1 series",
+  "py_secs": 0.14,
+  "trace": ""
+ },
+ "6a6294-world-bank-indicators-poverty@syn_5m": {
+  "status": "OK",
+  "detail": "1 series",
+  "py_secs": 0.14,
+  "trace": ""
+ },
+ "6a6294-world-bank-indicators-private-sector@aapl_d": {
+  "status": "OK",
+  "detail": "1 series",
+  "py_secs": 0.29,
+  "trace": ""
+ },
+ "6a6294-world-bank-indicators-private-sector@syn_5m": {
+  "status": "OK",
+  "detail": "1 series",
+  "py_secs": 0.26,
+  "trace": ""
+ },
+ "6a6295-world-bank-indicators-infrastructure@aapl_d": {
+  "status": "OK",
+  "detail": "1 series",
+  "py_secs": 0.21,
+  "trace": ""
+ },
+ "6a6295-world-bank-indicators-infrastructure@syn_5m": {
+  "status": "OK",
+  "detail": "1 series",
+  "py_secs": 0.15,
+  "trace": ""
+ },
+ "6a6295-world-bank-indicators-social-protection-labor@aapl_d": {
+  "status": "OK",
+  "detail": "1 series",
+  "py_secs": 0.23,
+  "trace": ""
+ },
+ "6a6295-world-bank-indicators-social-protection-labor@syn_5m": {
+  "status": "OK",
+  "detail": "1 series",
+  "py_secs": 0.24,
+  "trace": ""
+ },
+ "6a6296-world-bank-indicators-environment@aapl_d": {
+  "status": "OK",
+  "detail": "1 series",
+  "py_secs": 0.29,
+  "trace": ""
+ },
+ "6a6296-world-bank-indicators-environment@syn_5m": {
+  "status": "OK",
+  "detail": "1 series",
+  "py_secs": 0.32,
+  "trace": ""
+ },
+ "6a6296-world-bank-indicators-financial-sector@aapl_d": {
+  "status": "OK",
+  "detail": "1 series",
+  "py_secs": 0.36,
+  "trace": ""
+ },
+ "6a6296-world-bank-indicators-financial-sector@syn_5m": {
+  "status": "OK",
+  "detail": "1 series",
+  "py_secs": 0.3,
+  "trace": ""
+ },
+ "6a6296-world-bank-indicators-health@aapl_d": {
+  "status": "OK",
+  "detail": "1 series",
+  "py_secs": 0.39,
+  "trace": ""
+ },
+ "6a6296-world-bank-indicators-health@syn_5m": {
+  "status": "OK",
+  "detail": "1 series",
+  "py_secs": 0.36,
+  "trace": ""
+ },
+ "6a6297-world-bank-indicators-urban-development@aapl_d": {
+  "status": "OK",
+  "detail": "1 series",
+  "py_secs": 0.14,
+  "trace": ""
+ },
+ "6a6297-world-bank-indicators-urban-development@syn_5m": {
+  "status": "OK",
+  "detail": "1 series",
+  "py_secs": 0.12,
+  "trace": ""
+ },
+ "6a6298-world-bank-indicators-gender@aapl_d": {
+  "status": "OK",
+  "detail": "1 series",
+  "py_secs": 0.3,
+  "trace": ""
+ },
+ "6a6298-world-bank-indicators-gender@syn_5m": {
+  "status": "OK",
+  "detail": "1 series",
+  "py_secs": 0.28,
+  "trace": ""
+ },
+ "6a6298-world-bank-indicators-millennium-development-goals@aapl_d": {
+  "status": "OK",
+  "detail": "1 series",
+  "py_secs": 0.14,
+  "trace": ""
+ },
+ "6a6298-world-bank-indicators-millennium-development-goals@syn_5m": {
+  "status": "OK",
+  "detail": "1 series",
+  "py_secs": 0.1,
+  "trace": ""
+ },
+ "6a6299-world-bank-indicators-climate-change@aapl_d": {
+  "status": "OK",
+  "detail": "1 series",
+  "py_secs": 0.18,
+  "trace": ""
+ },
+ "6a6299-world-bank-indicators-climate-change@syn_5m": {
+  "status": "OK",
+  "detail": "1 series",
+  "py_secs": 0.14,
+  "trace": ""
+ },
+ "6a6299-world-bank-indicators-external-debt@aapl_d": {
+  "status": "OK",
+  "detail": "1 series",
+  "py_secs": 0.13,
+  "trace": ""
+ },
+ "6a6299-world-bank-indicators-external-debt@syn_5m": {
+  "status": "OK",
+  "detail": "1 series",
+  "py_secs": 0.11,
+  "trace": ""
+ },
+ "6a6299-world-bank-indicators-trade@aapl_d": {
+  "status": "OK",
+  "detail": "1 series",
+  "py_secs": 0.33,
+  "trace": ""
+ },
+ "6a6299-world-bank-indicators-trade@syn_5m": {
+  "status": "OK",
+  "detail": "1 series",
+  "py_secs": 0.3,
+  "trace": ""
+ },
+ "6a7ba0-market-sentiment-indicator@aapl_d": {
+  "status": "OK",
+  "detail": "5 series",
+  "py_secs": 0.12,
+  "trace": ""
+ },
+ "6a7ba0-market-sentiment-indicator@syn_5m": {
+  "status": "OK",
+  "detail": "5 series",
+  "py_secs": 0.25,
+  "trace": ""
+ },
+ "6a7c92-prior-day-high-low-fib-levels@aapl_d": {
+  "status": "both-error",
+  "detail": "js: not applicable to \"D\" charts | py: not applicable to \"D\" charts",
+  "py_secs": 0.01,
+  "trace": ""
+ },
+ "6a7c92-prior-day-high-low-fib-levels@syn_5m": {
+  "status": "OK",
+  "detail": "15 series",
+  "py_secs": 0.18,
+  "trace": ""
+ },
+ "6a7ccf-world-bank-indicators-economy-growth@aapl_d": {
+  "status": "OK",
+  "detail": "1 series",
+  "py_secs": 0.31,
+  "trace": ""
+ },
+ "6a7ccf-world-bank-indicators-economy-growth@syn_5m": {
+  "status": "OK",
+  "detail": "1 series",
+  "py_secs": 0.31,
+  "trace": ""
+ },
+ "6a7ccf-world-bank-indicators-public-sector@aapl_d": {
+  "status": "OK",
+  "detail": "1 series",
+  "py_secs": 0.18,
+  "trace": ""
+ },
+ "6a7ccf-world-bank-indicators-public-sector@syn_5m": {
+  "status": "OK",
+  "detail": "1 series",
+  "py_secs": 0.15,
+  "trace": ""
+ },
+ "6a7cd0-world-bank-indicators-social-development@aapl_d": {
+  "status": "OK",
+  "detail": "1 series",
+  "py_secs": 0.11,
+  "trace": ""
+ },
+ "6a7cd0-world-bank-indicators-social-development@syn_5m": {
+  "status": "OK",
+  "detail": "1 series",
+  "py_secs": 0.09,
+  "trace": ""
+ },
+ "6a8b13-rsi-mtf-stack@aapl_d": {
+  "status": "OK",
+  "detail": "1 series",
+  "py_secs": 0.06,
+  "trace": ""
+ },
+ "6a8b13-rsi-mtf-stack@syn_5m": {
+  "status": "OK",
+  "detail": "1 series",
+  "py_secs": 0.26,
+  "trace": ""
+ },
+ "6a90a8-current-market-cap-multi-ticker@aapl_d": {
+  "status": "OK",
+  "detail": "5 series",
+  "py_secs": 0.21,
+  "trace": ""
+ },
+ "6a90a8-current-market-cap-multi-ticker@syn_5m": {
+  "status": "OK",
+  "detail": "5 series",
+  "py_secs": 0.45,
+  "trace": ""
+ },
+ "6a918f-2-timeframe-heikin-ashi-consensus@aapl_d": {
+  "status": "OK",
+  "detail": "4 series",
+  "py_secs": 0.08,
+  "trace": ""
+ },
+ "6a918f-2-timeframe-heikin-ashi-consensus@syn_5m": {
+  "status": "OK",
+  "detail": "4 series",
+  "py_secs": 0.22,
+  "trace": ""
+ },
+ "6a98f8-neal-or-no-deal-%f0%9f%90%82%f0%9f%90%bb@aapl_d": {
+  "status": "OK",
+  "detail": "25 series",
+  "py_secs": 0.18,
+  "trace": ""
+ },
+ "6a98f8-neal-or-no-deal-%f0%9f%90%82%f0%9f%90%bb@syn_5m": {
+  "status": "OK",
+  "detail": "25 series",
+  "py_secs": 0.53,
+  "trace": ""
+ },
+ "6aa0f7-vectr@aapl_d": {
+  "status": "OK",
+  "detail": "47 series",
+  "py_secs": 5.19,
+  "trace": ""
+ },
+ "6aa0f7-vectr@syn_5m": {
+  "status": "OK",
+  "detail": "47 series",
+  "py_secs": 16.07,
+  "trace": ""
+ },
+ "6aa3ab-daily-ema-8-21-50-band-rkpdtrade5@aapl_d": {
+  "status": "OK",
+  "detail": "9 series",
+  "py_secs": 0.16,
+  "trace": ""
+ },
+ "6aa3ab-daily-ema-8-21-50-band-rkpdtrade5@syn_5m": {
+  "status": "OK",
+  "detail": "9 series",
+  "py_secs": 0.12,
+  "trace": ""
+ },
+ "6aa82c-convexity-guard-by-zxzinn@aapl_d": {
+  "status": "OK",
+  "detail": "5 series",
+  "py_secs": 0.33,
+  "trace": ""
+ },
+ "6aa82c-convexity-guard-by-zxzinn@syn_5m": {
+  "status": "OK",
+  "detail": "5 series",
+  "py_secs": 0.79,
+  "trace": ""
+ },
+ "6aaa7d-zenalgo-%c2%b7-mars@aapl_d": {
+  "status": "OK",
+  "detail": "45 series",
+  "py_secs": 0.54,
+  "trace": ""
+ },
+ "6aaa7d-zenalgo-%c2%b7-mars@syn_5m": {
+  "status": "OK",
+  "detail": "45 series",
+  "py_secs": 1.27,
+  "trace": ""
+ },
+ "analyst-estimates-and-concensus@aapl_d": {
+  "status": "OK",
+  "detail": "5 series",
+  "py_secs": 0.05,
+  "trace": ""
+ },
+ "analyst-estimates-and-concensus@syn_5m": {
+  "status": "OK",
+  "detail": "5 series",
+  "py_secs": 0.08,
+  "trace": ""
+ },
+ "analyst-estimates-history@aapl_d": {
+  "status": "OK",
+  "detail": "4 series",
+  "py_secs": 0.04,
+  "trace": ""
+ },
+ "analyst-estimates-history@syn_5m": {
+  "status": "OK",
+  "detail": "4 series",
+  "py_secs": 0.09,
+  "trace": ""
+ },
+ "analyst-ratings-on-chart@aapl_d": {
+  "status": "OK",
+  "detail": "3 series",
+  "py_secs": 0.02,
+  "trace": ""
+ },
+ "analyst-ratings-on-chart@syn_5m": {
+  "status": "OK",
+  "detail": "3 series",
+  "py_secs": 0.03,
+  "trace": ""
+ },
+ "analyst-ratings-over-time@aapl_d": {
+  "status": "OK",
+  "detail": "5 series",
+  "py_secs": 0.03,
+  "trace": ""
+ },
+ "analyst-ratings-over-time@syn_5m": {
+  "status": "OK",
+  "detail": "5 series",
+  "py_secs": 0.07,
+  "trace": ""
+ },
+ "analyst-targets-by-price@aapl_d": {
+  "status": "OK",
+  "detail": "41 series",
+  "py_secs": 0.02,
+  "trace": ""
+ },
+ "analyst-targets-by-price@syn_5m": {
+  "status": "OK",
+  "detail": "41 series",
+  "py_secs": 0.03,
+  "trace": ""
+ },
+ "anchored-percentile-line@aapl_d": {
+  "status": "OK",
+  "detail": "5 series",
+  "py_secs": 0.04,
+  "trace": ""
+ },
+ "anchored-percentile-line@syn_5m": {
+  "status": "OK",
+  "detail": "5 series",
+  "py_secs": 0.02,
+  "trace": ""
+ },
+ "atr-distribution@aapl_d": {
+  "status": "OK",
+  "detail": "7 series",
+  "py_secs": 3.09,
+  "trace": ""
+ },
+ "atr-distribution@syn_5m": {
+  "status": "OK",
+  "detail": "7 series",
+  "py_secs": 9.86,
+  "trace": ""
+ },
+ "atr-multiple-from-ma@aapl_d": {
+  "status": "OK",
+  "detail": "6 series",
+  "py_secs": 0.12,
+  "trace": ""
+ },
+ "atr-multiple-from-ma@syn_5m": {
+  "status": "OK",
+  "detail": "6 series",
+  "py_secs": 0.46,
+  "trace": ""
+ },
+ "atr-support-and-resistance-levels@aapl_d": {
+  "status": "OK",
+  "detail": "4 series",
+  "py_secs": 0.11,
+  "trace": ""
+ },
+ "atr-support-and-resistance-levels@syn_5m": {
+  "status": "OK",
+  "detail": "4 series",
+  "py_secs": 0.1,
+  "trace": ""
+ },
+ "auto-fib@aapl_d": {
+  "status": "OK",
+  "detail": "36 series",
+  "py_secs": 0.02,
+  "trace": ""
+ },
+ "auto-fib@syn_5m": {
+  "status": "OK",
+  "detail": "36 series",
+  "py_secs": 0.03,
+  "trace": ""
+ },
+ "average-daily-range-adr-with-timeframe-lock@aapl_d": {
+  "status": "OK",
+  "detail": "4 series",
+  "py_secs": 0.08,
+  "trace": ""
+ },
+ "average-daily-range-adr-with-timeframe-lock@syn_5m": {
+  "status": "OK",
+  "detail": "4 series",
+  "py_secs": 0.11,
+  "trace": ""
+ },
+ "bollinger-band-momentum@aapl_d": {
+  "status": "OK",
+  "detail": "3 series",
+  "py_secs": 0.14,
+  "trace": ""
+ },
+ "bollinger-band-momentum@syn_5m": {
+  "status": "OK",
+  "detail": "3 series",
+  "py_secs": 0.3,
+  "trace": ""
+ },
+ "breakout-fakeout-candle-coloring@aapl_d": {
+  "status": "OK",
+  "detail": "7 series",
+  "py_secs": 0.05,
+  "trace": ""
+ },
+ "breakout-fakeout-candle-coloring@syn_5m": {
+  "status": "OK",
+  "detail": "7 series",
+  "py_secs": 0.06,
+  "trace": ""
+ },
+ "bull-bear-power@aapl_d": {
+  "status": "OK",
+  "detail": "2 series",
+  "py_secs": 0.04,
+  "trace": ""
+ },
+ "bull-bear-power@syn_5m": {
+  "status": "OK",
+  "detail": "2 series",
+  "py_secs": 0.06,
+  "trace": ""
+ },
+ "candlestick-pattern-detection-emojis@aapl_d": {
+  "status": "OK",
+  "detail": "3 series",
+  "py_secs": 0.07,
+  "trace": ""
+ },
+ "candlestick-pattern-detection-emojis@syn_5m": {
+  "status": "OK",
+  "detail": "3 series",
+  "py_secs": 0.15,
+  "trace": ""
+ },
+ "candlestick-pattern-detection-labeling@aapl_d": {
+  "status": "OK",
+  "detail": "3 series",
+  "py_secs": 0.07,
+  "trace": ""
+ },
+ "candlestick-pattern-detection-labeling@syn_5m": {
+  "status": "OK",
+  "detail": "3 series",
+  "py_secs": 0.13,
+  "trace": ""
+ },
+ "cci-and-atr-strategy@aapl_d": {
+  "status": "OK",
+  "detail": "4 series",
+  "py_secs": 0.11,
+  "trace": ""
+ },
+ "cci-and-atr-strategy@syn_5m": {
+  "status": "OK",
+  "detail": "4 series",
+  "py_secs": 0.35,
+  "trace": ""
+ },
+ "combined-rsi-ensemble@aapl_d": {
+  "status": "OK",
+  "detail": "8 series",
+  "py_secs": 0.11,
+  "trace": ""
+ },
+ "combined-rsi-ensemble@syn_5m": {
+  "status": "OK",
+  "detail": "8 series",
+  "py_secs": 0.25,
+  "trace": ""
+ },
+ "company-profile@aapl_d": {
+  "status": "OK",
+  "detail": "1 series",
+  "py_secs": 0.05,
+  "trace": ""
+ },
+ "company-profile@syn_5m": {
+  "status": "both-error",
+  "detail": "js: Cannot read properties of undefined (reading 'timestamp') | py: Cannot read properties of undefined (reading 'timestamp')",
+  "py_secs": 0.08,
+  "trace": ""
+ },
+ "composite-index@aapl_d": {
+  "status": "OK",
+  "detail": "3 series",
+  "py_secs": 0.08,
+  "trace": ""
+ },
+ "composite-index@syn_5m": {
+  "status": "OK",
+  "detail": "3 series",
+  "py_secs": 0.18,
+  "trace": ""
+ },
+ "composite-symbol-macd@aapl_d": {
+  "status": "OK",
+  "detail": "4 series",
+  "py_secs": 0.14,
+  "trace": ""
+ },
+ "composite-symbol-macd@syn_5m": {
+  "status": "OK",
+  "detail": "4 series",
+  "py_secs": 0.46,
+  "trace": ""
+ },
+ "cumulative-intraday-volume@aapl_d": {
+  "status": "OK",
+  "detail": "1 series",
+  "py_secs": 0.04,
+  "trace": ""
+ },
+ "cumulative-intraday-volume@syn_5m": {
+  "status": "OK",
+  "detail": "1 series",
+  "py_secs": 0.06,
+  "trace": ""
+ },
+ "customizable-candle-range@aapl_d": {
+  "status": "OK",
+  "detail": "2 series",
+  "py_secs": 0.04,
+  "trace": ""
+ },
+ "customizable-candle-range@syn_5m": {
+  "status": "OK",
+  "detail": "2 series",
+  "py_secs": 0.06,
+  "trace": ""
+ },
+ "daily-atr-support-and-resistance-levels@aapl_d": {
+  "status": "OK",
+  "detail": "4 series",
+  "py_secs": 0.12,
+  "trace": ""
+ },
+ "daily-atr-support-and-resistance-levels@syn_5m": {
+  "status": "OK",
+  "detail": "4 series",
+  "py_secs": 0.13,
+  "trace": ""
+ },
+ "daily-candles-over-intraday-candles@aapl_d": {
+  "status": "both-error",
+  "detail": "js: to_index must be greater than from_index | py: to_index must be greater than from_index",
+  "py_secs": 0.01,
+  "trace": ""
+ },
+ "daily-candles-over-intraday-candles@syn_5m": {
+  "status": "OK",
+  "detail": "4 series",
+  "py_secs": 1.21,
+  "trace": ""
+ },
+ "dividend-anchored-vwap@aapl_d": {
+  "status": "OK",
+  "detail": "1 series",
+  "py_secs": 0.03,
+  "trace": ""
+ },
+ "dividend-anchored-vwap@syn_5m": {
+  "status": "OK",
+  "detail": "1 series",
+  "py_secs": 0.02,
+  "trace": ""
+ },
+ "dividend-efficiency-indicator@aapl_d": {
+  "status": "OK",
+  "detail": "1 series",
+  "py_secs": 0.02,
+  "trace": ""
+ },
+ "dividend-efficiency-indicator@syn_5m": {
+  "status": "OK",
+  "detail": "1 series",
+  "py_secs": 0.03,
+  "trace": ""
+ },
+ "dmw-levels-move-to-main-account@aapl_d": {
+  "status": "OK",
+  "detail": "5 series",
+  "py_secs": 0.08,
+  "trace": ""
+ },
+ "dmw-levels-move-to-main-account@syn_5m": {
+  "status": "OK",
+  "detail": "5 series",
+  "py_secs": 0.26,
+  "trace": ""
+ },
+ "dorsey-relative-strength@aapl_d": {
+  "status": "OK",
+  "detail": "1 series",
+  "py_secs": 0.05,
+  "trace": ""
+ },
+ "dorsey-relative-strength@syn_5m": {
+  "status": "OK",
+  "detail": "1 series",
+  "py_secs": 0.15,
+  "trace": ""
+ },
+ "dual-rsi-with-color-cloud@aapl_d": {
+  "status": "OK",
+  "detail": "6 series",
+  "py_secs": 0.06,
+  "trace": ""
+ },
+ "dual-rsi-with-color-cloud@syn_5m": {
+  "status": "OK",
+  "detail": "6 series",
+  "py_secs": 0.11,
+  "trace": ""
+ },
+ "ehlers-decycler@aapl_d": {
+  "status": "OK",
+  "detail": "4 series",
+  "py_secs": 0.04,
+  "trace": ""
+ },
+ "ehlers-decycler@syn_5m": {
+  "status": "OK",
+  "detail": "4 series",
+  "py_secs": 0.09,
+  "trace": ""
+ },
+ "elegant-oscillator@aapl_d": {
+  "status": "OK",
+  "detail": "5 series",
+  "py_secs": 0.09,
+  "trace": ""
+ },
+ "elegant-oscillator@syn_5m": {
+  "status": "OK",
+  "detail": "5 series",
+  "py_secs": 0.18,
+  "trace": ""
+ },
+ "ema-crossover-candle-colors@aapl_d": {
+  "status": "OK",
+  "detail": "5 series",
+  "py_secs": 0.06,
+  "trace": ""
+ },
+ "ema-crossover-candle-colors@syn_5m": {
+  "status": "OK",
+  "detail": "5 series",
+  "py_secs": 0.08,
+  "trace": ""
+ },
+ "ema-crossover-with-buy-signal@aapl_d": {
+  "status": "OK",
+  "detail": "6 series",
+  "py_secs": 0.06,
+  "trace": ""
+ },
+ "ema-crossover-with-buy-signal@syn_5m": {
+  "status": "OK",
+  "detail": "6 series",
+  "py_secs": 0.15,
+  "trace": ""
+ },
+ "engulfing-bands@aapl_d": {
+  "status": "OK",
+  "detail": "10 series",
+  "py_secs": 0.04,
+  "trace": ""
+ },
+ "engulfing-bands@syn_5m": {
+  "status": "OK",
+  "detail": "10 series",
+  "py_secs": 0.07,
+  "trace": ""
+ },
+ "equal-weighted-index@aapl_d": {
+  "status": "OK",
+  "detail": "1 series",
+  "py_secs": 0.14,
+  "trace": ""
+ },
+ "equal-weighted-index@syn_5m": {
+  "status": "OK",
+  "detail": "1 series",
+  "py_secs": 0.31,
+  "trace": ""
+ },
+ "fair-value-gap-with-labels@aapl_d": {
+  "status": "OK",
+  "detail": "23 series",
+  "py_secs": 0.08,
+  "trace": ""
+ },
+ "fair-value-gap-with-labels@syn_5m": {
+  "status": "OK",
+  "detail": "23 series",
+  "py_secs": 0.35,
+  "trace": ""
+ },
+ "fractal-channel@aapl_d": {
+  "status": "OK",
+  "detail": "11 series",
+  "py_secs": 0.06,
+  "trace": ""
+ },
+ "fractal-channel@syn_5m": {
+  "status": "OK",
+  "detail": "11 series",
+  "py_secs": 0.12,
+  "trace": ""
+ },
+ "fractal-labels@aapl_d": {
+  "status": "OK",
+  "detail": "2 series",
+  "py_secs": 0.07,
+  "trace": ""
+ },
+ "fractal-labels@syn_5m": {
+  "status": "OK",
+  "detail": "2 series",
+  "py_secs": 0.13,
+  "trace": ""
+ },
+ "full-timeframe-continuity-candle-colors@aapl_d": {
+  "status": "both-error",
+  "detail": "js: This indicator only works for time frames <= 30 minutes | py: This indicator only works for time frames <= 30 minutes",
+  "py_secs": 0.01,
+  "trace": ""
+ },
+ "full-timeframe-continuity-candle-colors@syn_5m": {
+  "status": "OK",
+  "detail": "1 series",
+  "py_secs": 1.75,
+  "trace": ""
+ },
+ "fundamental-strength-with-weightings@aapl_d": {
+  "status": "OK",
+  "detail": "2 series",
+  "py_secs": 0.22,
+  "trace": ""
+ },
+ "fundamental-strength-with-weightings@syn_5m": {
+  "status": "OK",
+  "detail": "2 series",
+  "py_secs": 0.24,
+  "trace": ""
+ },
+ "global-market-session@aapl_d": {
+  "status": "OK",
+  "detail": "11 series",
+  "py_secs": 0.18,
+  "trace": ""
+ },
+ "global-market-session@syn_5m": {
+  "status": "OK",
+  "detail": "11 series",
+  "py_secs": 0.35,
+  "trace": ""
+ },
+ "golden-death-cross-painter@aapl_d": {
+  "status": "OK",
+  "detail": "6 series",
+  "py_secs": 0.08,
+  "trace": ""
+ },
+ "golden-death-cross-painter@syn_5m": {
+  "status": "OK",
+  "detail": "6 series",
+  "py_secs": 0.2,
+  "trace": ""
+ },
+ "highest-volume-candle@aapl_d": {
+  "status": "OK",
+  "detail": "3 series",
+  "py_secs": 0.02,
+  "trace": ""
+ },
+ "highest-volume-candle@syn_5m": {
+  "status": "OK",
+  "detail": "3 series",
+  "py_secs": 0.02,
+  "trace": ""
+ },
+ "htf-open-levels@aapl_d": {
+  "status": "OK",
+  "detail": "4 series",
+  "py_secs": 0.09,
+  "trace": ""
+ },
+ "htf-open-levels@syn_5m": {
+  "status": "OK",
+  "detail": "4 series",
+  "py_secs": 0.27,
+  "trace": ""
+ },
+ "inside-candle-highlighter@aapl_d": {
+  "status": "OK",
+  "detail": "2 series",
+  "py_secs": 0.02,
+  "trace": ""
+ },
+ "inside-candle-highlighter@syn_5m": {
+  "status": "OK",
+  "detail": "2 series",
+  "py_secs": 0.04,
+  "trace": ""
+ },
+ "insider-trading-indicator@aapl_d": {
+  "status": "OK",
+  "detail": "6 series",
+  "py_secs": 0.03,
+  "trace": ""
+ },
+ "insider-trading-indicator@syn_5m": {
+  "status": "OK",
+  "detail": "6 series",
+  "py_secs": 0.03,
+  "trace": ""
+ },
+ "institutional-supply-and-demand-zones@aapl_d": {
+  "status": "OK",
+  "detail": "20 series",
+  "py_secs": 0.3,
+  "trace": ""
+ },
+ "institutional-supply-and-demand-zones@syn_5m": {
+  "status": "OK",
+  "detail": "20 series",
+  "py_secs": 1.62,
+  "trace": ""
+ },
+ "intraday-high-and-low@aapl_d": {
+  "status": "OK",
+  "detail": "2 series",
+  "py_secs": 0.03,
+  "trace": ""
+ },
+ "intraday-high-and-low@syn_5m": {
+  "status": "OK",
+  "detail": "2 series",
+  "py_secs": 0.06,
+  "trace": ""
+ },
+ "jerry-mcguire@aapl_d": {
+  "status": "OK",
+  "detail": "1 series",
+  "py_secs": 0.04,
+  "trace": ""
+ },
+ "jerry-mcguire@syn_5m": {
+  "status": "OK",
+  "detail": "1 series",
+  "py_secs": 0.08,
+  "trace": ""
+ },
+ "keltner-channels-mtf@aapl_d": {
+  "status": "OK",
+  "detail": "14 series",
+  "py_secs": 0.2,
+  "trace": ""
+ },
+ "keltner-channels-mtf@syn_5m": {
+  "status": "OK",
+  "detail": "14 series",
+  "py_secs": 0.24,
+  "trace": ""
+ },
+ "liquidity-levels@aapl_d": {
+  "status": "OK",
+  "detail": "10 series",
+  "py_secs": 0.11,
+  "trace": ""
+ },
+ "liquidity-levels@syn_5m": {
+  "status": "OK",
+  "detail": "10 series",
+  "py_secs": 0.29,
+  "trace": ""
+ },
+ "ma-distance-with-price-source@aapl_d": {
+  "status": "OK",
+  "detail": "2 series",
+  "py_secs": 0.07,
+  "trace": ""
+ },
+ "ma-distance-with-price-source@syn_5m": {
+  "status": "OK",
+  "detail": "2 series",
+  "py_secs": 0.17,
+  "trace": ""
+ },
+ "ma-slope-strategy@aapl_d": {
+  "status": "OK",
+  "detail": "5 series",
+  "py_secs": 0.04,
+  "trace": ""
+ },
+ "ma-slope-strategy@syn_5m": {
+  "status": "OK",
+  "detail": "5 series",
+  "py_secs": 0.1,
+  "trace": ""
+ },
+ "macd-and-rsi-momentum@aapl_d": {
+  "status": "OK",
+  "detail": "5 series",
+  "py_secs": 0.09,
+  "trace": ""
+ },
+ "macd-and-rsi-momentum@syn_5m": {
+  "status": "OK",
+  "detail": "5 series",
+  "py_secs": 0.2,
+  "trace": ""
+ },
+ "mansfield-relative-strength@aapl_d": {
+  "status": "OK",
+  "detail": "6 series",
+  "py_secs": 0.09,
+  "trace": ""
+ },
+ "mansfield-relative-strength@syn_5m": {
+  "status": "OK",
+  "detail": "6 series",
+  "py_secs": 0.23,
+  "trace": ""
+ },
+ "market-structure-break-msb-indicator@aapl_d": {
+  "status": "OK",
+  "detail": "7 series",
+  "py_secs": 0.03,
+  "trace": ""
+ },
+ "market-structure-break-msb-indicator@syn_5m": {
+  "status": "OK",
+  "detail": "6 series",
+  "py_secs": 0.07,
+  "trace": ""
+ },
+ "midpoint-of-prior-candle-body@aapl_d": {
+  "status": "OK",
+  "detail": "2 series",
+  "py_secs": 0.02,
+  "trace": ""
+ },
+ "midpoint-of-prior-candle-body@syn_5m": {
+  "status": "OK",
+  "detail": "2 series",
+  "py_secs": 0.03,
+  "trace": ""
+ },
+ "momentum-metrics-table@aapl_d": {
+  "status": "OK",
+  "detail": "1 series",
+  "py_secs": 0.35,
+  "trace": ""
+ },
+ "momentum-metrics-table@syn_5m": {
+  "status": "OK",
+  "detail": "1 series",
+  "py_secs": 0.82,
+  "trace": ""
+ },
+ "momentum-with-bands@aapl_d": {
+  "status": "OK",
+  "detail": "4 series",
+  "py_secs": 0.19,
+  "trace": ""
+ },
+ "momentum-with-bands@syn_5m": {
+  "status": "OK",
+  "detail": "4 series",
+  "py_secs": 0.4,
+  "trace": ""
+ },
+ "momentum-with-moving-average@aapl_d": {
+  "status": "OK",
+  "detail": "6 series",
+  "py_secs": 0.04,
+  "trace": ""
+ },
+ "momentum-with-moving-average@syn_5m": {
+  "status": "OK",
+  "detail": "6 series",
+  "py_secs": 0.06,
+  "trace": ""
+ },
+ "moon-phases@aapl_d": {
+  "status": "OK",
+  "detail": "5 series",
+  "py_secs": 0.23,
+  "trace": ""
+ },
+ "moon-phases@syn_5m": {
+  "status": "OK",
+  "detail": "5 series",
+  "py_secs": 0.43,
+  "trace": ""
+ },
+ "moving-average-distance@aapl_d": {
+  "status": "OK",
+  "detail": "2 series",
+  "py_secs": 0.06,
+  "trace": ""
+ },
+ "moving-average-distance@syn_5m": {
+  "status": "OK",
+  "detail": "2 series",
+  "py_secs": 0.13,
+  "trace": ""
+ },
+ "moving-average-trend-identifier@aapl_d": {
+  "status": "OK",
+  "detail": "4 series",
+  "py_secs": 0.22,
+  "trace": ""
+ },
+ "moving-average-trend-identifier@syn_5m": {
+  "status": "OK",
+  "detail": "4 series",
+  "py_secs": 0.38,
+  "trace": ""
+ },
+ "multi-timeframe-bull-bear-table-example@aapl_d": {
+  "status": "OK",
+  "detail": "1 series",
+  "py_secs": 0.12,
+  "trace": ""
+ },
+ "multi-timeframe-bull-bear-table-example@syn_5m": {
+  "status": "OK",
+  "detail": "1 series",
+  "py_secs": 0.23,
+  "trace": ""
+ },
+ "multi-timeframe-high-low-levels@aapl_d": {
+  "status": "OK",
+  "detail": "10 series",
+  "py_secs": 2.39,
+  "trace": ""
+ },
+ "multi-timeframe-high-low-levels@syn_5m": {
+  "status": "OK",
+  "detail": "10 series",
+  "py_secs": 7.17,
+  "trace": ""
+ },
+ "multi-timeframe-moving-average@aapl_d": {
+  "status": "OK",
+  "detail": "8 series",
+  "py_secs": 0.23,
+  "trace": ""
+ },
+ "multi-timeframe-moving-average@syn_5m": {
+  "status": "OK",
+  "detail": "8 series",
+  "py_secs": 0.49,
+  "trace": ""
+ },
+ "nancy-pelosi-insider-trades@aapl_d": {
+  "status": "OK",
+  "detail": "4 series",
+  "py_secs": 0.02,
+  "trace": ""
+ },
+ "nancy-pelosi-insider-trades@syn_5m": {
+  "status": "OK",
+  "detail": "4 series",
+  "py_secs": 0.02,
+  "trace": ""
+ },
+ "news-articles-per-daily-candle@aapl_d": {
+  "status": "OK",
+  "detail": "2 series",
+  "py_secs": 0.4,
+  "trace": ""
+ },
+ "news-articles-per-daily-candle@syn_5m": {
+  "status": "both-error",
+  "detail": "js: This script works on Daily time frame only | py: This script works on Daily time frame only",
+  "py_secs": 0.02,
+  "trace": ""
+ },
+ "opening-range-breakout-strategy@aapl_d": {
+  "status": "OK",
+  "detail": "8 series",
+  "py_secs": 0.06,
+  "trace": ""
+ },
+ "opening-range-breakout-strategy@syn_5m": {
+  "status": "OK",
+  "detail": "8 series",
+  "py_secs": 0.11,
+  "trace": ""
+ },
+ "pe-ratio-indicator@aapl_d": {
+  "status": "OK",
+  "detail": "8 series",
+  "py_secs": 0.9,
+  "trace": ""
+ },
+ "pe-ratio-indicator@syn_5m": {
+  "status": "OK",
+  "detail": "8 series",
+  "py_secs": 1.92,
+  "trace": ""
+ },
+ "pe-ratio-indicator-2@aapl_d": {
+  "status": "OK",
+  "detail": "1 series",
+  "py_secs": 0.02,
+  "trace": ""
+ },
+ "pe-ratio-indicator-2@syn_5m": {
+  "status": "OK",
+  "detail": "1 series",
+  "py_secs": 0.03,
+  "trace": ""
+ },
+ "per-session-volume-by-price-vbp@aapl_d": {
+  "status": "both-error",
+  "detail": "js: Only supported for intraday time frames | py: Only supported for intraday time frames",
+  "py_secs": 0.02,
+  "trace": ""
+ },
+ "per-session-volume-by-price-vbp@syn_5m": {
+  "status": "OK",
+  "detail": "43 series",
+  "py_secs": 0.78,
+  "trace": ""
+ },
+ "post-market-change-anchored@aapl_d": {
+  "status": "OK",
+  "detail": "2 series",
+  "py_secs": 0.03,
+  "trace": ""
+ },
+ "post-market-change-anchored@syn_5m": {
+  "status": "OK",
+  "detail": "2 series",
+  "py_secs": 0.06,
+  "trace": ""
+ },
+ "pre-market-range@aapl_d": {
+  "status": "OK",
+  "detail": "2 series",
+  "py_secs": 0.35,
+  "trace": ""
+ },
+ "pre-market-range@syn_5m": {
+  "status": "OK",
+  "detail": "2 series",
+  "py_secs": 0.67,
+  "trace": ""
+ },
+ "previous-day-levels@aapl_d": {
+  "status": "OK",
+  "detail": "3 series",
+  "py_secs": 0.02,
+  "trace": ""
+ },
+ "previous-day-levels@syn_5m": {
+  "status": "OK",
+  "detail": "3 series",
+  "py_secs": 0.09,
+  "trace": ""
+ },
+ "range-close-coloring@aapl_d": {
+  "status": "OK",
+  "detail": "2 series",
+  "py_secs": 0.02,
+  "trace": ""
+ },
+ "range-close-coloring@syn_5m": {
+  "status": "OK",
+  "detail": "2 series",
+  "py_secs": 0.03,
+  "trace": ""
+ },
+ "relative-performance-candle-coloring@aapl_d": {
+  "status": "OK",
+  "detail": "4 series",
+  "py_secs": 0.03,
+  "trace": ""
+ },
+ "relative-performance-candle-coloring@syn_5m": {
+  "status": "OK",
+  "detail": "4 series",
+  "py_secs": 0.06,
+  "trace": ""
+ },
+ "relative-performance-table@aapl_d": {
+  "status": "OK",
+  "detail": "1 series",
+  "py_secs": 0.02,
+  "trace": ""
+ },
+ "relative-performance-table@syn_5m": {
+  "status": "OK",
+  "detail": "1 series",
+  "py_secs": 0.03,
+  "trace": ""
+ },
+ "relative-performance-with-ma@aapl_d": {
+  "status": "OK",
+  "detail": "7 series",
+  "py_secs": 0.05,
+  "trace": ""
+ },
+ "relative-performance-with-ma@syn_5m": {
+  "status": "OK",
+  "detail": "7 series",
+  "py_secs": 0.09,
+  "trace": ""
+ },
+ "rsi-ensemble@aapl_d": {
+  "status": "OK",
+  "detail": "3 series",
+  "py_secs": 0.07,
+  "trace": ""
+ },
+ "rsi-ensemble@syn_5m": {
+  "status": "OK",
+  "detail": "3 series",
+  "py_secs": 0.14,
+  "trace": ""
+ },
+ "rsi-macd-confluence@aapl_d": {
+  "status": "OK",
+  "detail": "4 series",
+  "py_secs": 0.1,
+  "trace": ""
+ },
+ "rsi-macd-confluence@syn_5m": {
+  "status": "OK",
+  "detail": "4 series",
+  "py_secs": 0.22,
+  "trace": ""
+ },
+ "rsi-with-seasonality@aapl_d": {
+  "status": "OK",
+  "detail": "5 series",
+  "py_secs": 0.08,
+  "trace": ""
+ },
+ "rsi-with-seasonality@syn_5m": {
+  "status": "OK",
+  "detail": "5 series",
+  "py_secs": 0.16,
+  "trace": ""
+ },
+ "rsi-with-sma@aapl_d": {
+  "status": "OK",
+  "detail": "5 series",
+  "py_secs": 0.05,
+  "trace": ""
+ },
+ "rsi-with-sma@syn_5m": {
+  "status": "OK",
+  "detail": "5 series",
+  "py_secs": 0.1,
+  "trace": ""
+ },
+ "rvol-color-coded-volume@aapl_d": {
+  "status": "OK",
+  "detail": "7 series",
+  "py_secs": 0.04,
+  "trace": ""
+ },
+ "rvol-color-coded-volume@syn_5m": {
+  "status": "OK",
+  "detail": "7 series",
+  "py_secs": 0.1,
+  "trace": ""
+ },
+ "seasonality-moving-average@aapl_d": {
+  "status": "both-error",
+  "detail": "js: Cannot read properties of undefined (reading 'map') | py: Cannot read properties of undefined (reading 'map')",
+  "py_secs": 0.02,
+  "trace": ""
+ },
+ "seasonality-moving-average@syn_5m": {
+  "status": "both-error",
+  "detail": "js: Cannot read properties of undefined (reading 'map') | py: Cannot read properties of undefined (reading 'map')",
+  "py_secs": 0.06,
+  "trace": ""
+ },
+ "seasonality-overlay@aapl_d": {
+  "status": "both-error",
+  "detail": "js: Cannot read properties of undefined (reading 'map') | py: Cannot read properties of undefined (reading 'map')",
+  "py_secs": 0.01,
+  "trace": ""
+ },
+ "seasonality-overlay@syn_5m": {
+  "status": "both-error",
+  "detail": "js: Cannot read properties of undefined (reading 'map') | py: Cannot read properties of undefined (reading 'map')",
+  "py_secs": 0.01,
+  "trace": ""
+ },
+ "sector-industry-market-cap-change-metrics@aapl_d": {
+  "status": "OK",
+  "detail": "1 series",
+  "py_secs": 0.09,
+  "trace": ""
+ },
+ "sector-industry-market-cap-change-metrics@syn_5m": {
+  "status": "OK",
+  "detail": "1 series",
+  "py_secs": 0.21,
+  "trace": ""
+ },
+ "smoothed-fisher-transform@aapl_d": {
+  "status": "OK",
+  "detail": "3 series",
+  "py_secs": 0.19,
+  "trace": ""
+ },
+ "smoothed-fisher-transform@syn_5m": {
+  "status": "OK",
+  "detail": "3 series",
+  "py_secs": 0.39,
+  "trace": ""
+ },
+ "smoothed-heiken-ashi-oscillator@aapl_d": {
+  "status": "OK",
+  "detail": "2 series",
+  "py_secs": 0.07,
+  "trace": ""
+ },
+ "smoothed-heiken-ashi-oscillator@syn_5m": {
+  "status": "OK",
+  "detail": "2 series",
+  "py_secs": 0.16,
+  "trace": ""
+ },
+ "smoothed-heikin-ashi@aapl_d": {
+  "status": "OK",
+  "detail": "2 series",
+  "py_secs": 0.1,
+  "trace": ""
+ },
+ "smoothed-heikin-ashi@syn_5m": {
+  "status": "OK",
+  "detail": "2 series",
+  "py_secs": 0.18,
+  "trace": ""
+ },
+ "squeeze-labels@aapl_d": {
+  "status": "OK",
+  "detail": "1 series",
+  "py_secs": 0.13,
+  "trace": ""
+ },
+ "squeeze-labels@syn_5m": {
+  "status": "OK",
+  "detail": "1 series",
+  "py_secs": 0.37,
+  "trace": ""
+ },
+ "stochastic-rsi-volume@aapl_d": {
+  "status": "OK",
+  "detail": "6 series",
+  "py_secs": 0.08,
+  "trace": ""
+ },
+ "stochastic-rsi-volume@syn_5m": {
+  "status": "OK",
+  "detail": "6 series",
+  "py_secs": 0.17,
+  "trace": ""
+ },
+ "trend-directional-force-index@aapl_d": {
+  "status": "ULP",
+  "detail": "last-bit float differences only, first at tdfi[422]: js -0.04250482194002487 py -0.042504821940024876",
+  "py_secs": 0.07,
+  "trace": ""
+ },
+ "trend-directional-force-index@syn_5m": {
+  "status": "ULP",
+  "detail": "last-bit float differences only, first at tdfi[1805]: js -0.894300853761314 py -0.8943008537613141",
+  "py_secs": 0.15,
+  "trace": ""
+ },
+ "trend-momentum-colorwave@aapl_d": {
+  "status": "OK",
+  "detail": "1 series",
+  "py_secs": 0.1,
+  "trace": ""
+ },
+ "trend-momentum-colorwave@syn_5m": {
+  "status": "OK",
+  "detail": "1 series",
+  "py_secs": 0.34,
+  "trace": ""
+ },
+ "trend-strength-oscillator-tso@aapl_d": {
+  "status": "OK",
+  "detail": "7 series",
+  "py_secs": 0.13,
+  "trace": ""
+ },
+ "trend-strength-oscillator-tso@syn_5m": {
+  "status": "OK",
+  "detail": "7 series",
+  "py_secs": 0.38,
+  "trace": ""
+ },
+ "triple-rsi-with-overbought-oversold-shading@aapl_d": {
+  "status": "OK",
+  "detail": "10 series",
+  "py_secs": 0.07,
+  "trace": ""
+ },
+ "triple-rsi-with-overbought-oversold-shading@syn_5m": {
+  "status": "OK",
+  "detail": "10 series",
+  "py_secs": 0.19,
+  "trace": ""
+ },
+ "typical-volume-by-time-of-day@aapl_d": {
+  "status": "both-error",
+  "detail": "js: This indicator can only work on intraday charts | py: This indicator can only work on intraday charts",
+  "py_secs": 0.02,
+  "trace": ""
+ },
+ "typical-volume-by-time-of-day@syn_5m": {
+  "status": "OK",
+  "detail": "4 series",
+  "py_secs": 0.11,
+  "trace": ""
+ },
+ "typical-volume-time-of-day-day-of-week@aapl_d": {
+  "status": "both-error",
+  "detail": "js: This indicator can only work on intraday charts | py: This indicator can only work on intraday charts",
+  "py_secs": 0.01,
+  "trace": ""
+ },
+ "typical-volume-time-of-day-day-of-week@syn_5m": {
+  "status": "OK",
+  "detail": "4 series",
+  "py_secs": 0.11,
+  "trace": ""
+ },
+ "unusual-options-labels@aapl_d": {
+  "status": "OK",
+  "detail": "6 series",
+  "py_secs": 0.03,
+  "trace": ""
+ },
+ "unusual-options-labels@syn_5m": {
+  "status": "OK",
+  "detail": "6 series",
+  "py_secs": 0.04,
+  "trace": ""
+ },
+ "upper-and-lower-wick-of-total-range@aapl_d": {
+  "status": "OK",
+  "detail": "3 series",
+  "py_secs": 0.02,
+  "trace": ""
+ },
+ "upper-and-lower-wick-of-total-range@syn_5m": {
+  "status": "OK",
+  "detail": "3 series",
+  "py_secs": 0.06,
+  "trace": ""
+ },
+ "us-house-and-senate-trades-on-chart@aapl_d": {
+  "status": "OK",
+  "detail": "4 series",
+  "py_secs": 0.01,
+  "trace": ""
+ },
+ "us-house-and-senate-trades-on-chart@syn_5m": {
+  "status": "OK",
+  "detail": "4 series",
+  "py_secs": 0.02,
+  "trace": ""
+ },
+ "volatility-based-stop-loss@aapl_d": {
+  "status": "OK",
+  "detail": "2 series",
+  "py_secs": 0.05,
+  "trace": ""
+ },
+ "volatility-based-stop-loss@syn_5m": {
+  "status": "OK",
+  "detail": "2 series",
+  "py_secs": 0.16,
+  "trace": ""
+ },
+ "volatility-based-stop-loss-2@aapl_d": {
+  "status": "OK",
+  "detail": "3 series",
+  "py_secs": 0.03,
+  "trace": ""
+ },
+ "volatility-based-stop-loss-2@syn_5m": {
+  "status": "OK",
+  "detail": "3 series",
+  "py_secs": 0.08,
+  "trace": ""
+ },
+ "volume-driven-momentum@aapl_d": {
+  "status": "OK",
+  "detail": "3 series",
+  "py_secs": 0.05,
+  "trace": ""
+ },
+ "volume-driven-momentum@syn_5m": {
+  "status": "OK",
+  "detail": "3 series",
+  "py_secs": 0.1,
+  "trace": ""
+ },
+ "volume-flow-indicator@aapl_d": {
+  "status": "OK",
+  "detail": "7 series",
+  "py_secs": 0.19,
+  "trace": ""
+ },
+ "volume-flow-indicator@syn_5m": {
+  "status": "OK",
+  "detail": "7 series",
+  "py_secs": 0.46,
+  "trace": ""
+ },
+ "volume-trend-confluence@aapl_d": {
+  "status": "OK",
+  "detail": "4 series",
+  "py_secs": 0.05,
+  "trace": ""
+ },
+ "volume-trend-confluence@syn_5m": {
+  "status": "OK",
+  "detail": "4 series",
+  "py_secs": 0.1,
+  "trace": ""
+ },
+ "volume-with-bollinger-bands@aapl_d": {
+  "status": "OK",
+  "detail": "7 series",
+  "py_secs": 0.18,
+  "trace": ""
+ },
+ "volume-with-bollinger-bands@syn_5m": {
+  "status": "OK",
+  "detail": "7 series",
+  "py_secs": 1.01,
+  "trace": ""
+ },
+ "vwap-from-earnings@aapl_d": {
+  "status": "both-error",
+  "detail": "js: Error calculating \"vwap\": vwap(): \"toIndex\" must be greater than \"fromIndex\" | py: Error calculating \"vwap\": vwap(): \"toIndex\" must be greater than \"fromIndex\"",
+  "py_secs": 0.02,
+  "trace": ""
+ },
+ "vwap-from-earnings@syn_5m": {
+  "status": "OK",
+  "detail": "1 series",
+  "py_secs": 0.04,
+  "trace": ""
+ },
+ "weekly-fibonacci-levels@aapl_d": {
+  "status": "OK",
+  "detail": "16 series",
+  "py_secs": 0.22,
+  "trace": ""
+ },
+ "weekly-fibonacci-levels@syn_5m": {
+  "status": "OK",
+  "detail": "16 series",
+  "py_secs": 0.27,
+  "trace": ""
+ },
+ "weinstein-stage-analysis@aapl_d": {
+  "status": "OK",
+  "detail": "6 series",
+  "py_secs": 0.06,
+  "trace": ""
+ },
+ "weinstein-stage-analysis@syn_5m": {
+  "status": "OK",
+  "detail": "6 series",
+  "py_secs": 0.09,
+  "trace": ""
+ },
+ "zig-zag-channel-with-settings@aapl_d": {
+  "status": "OK",
+  "detail": "11 series",
+  "py_secs": 0.06,
+  "trace": ""
+ },
+ "zig-zag-channel-with-settings@syn_5m": {
+  "status": "OK",
+  "detail": "11 series",
+  "py_secs": 0.14,
+  "trace": ""
+ }
+}

@@ -79,6 +79,12 @@ class ConfluenceOrderBlock(Strategy):
                 "trend_len": 100,
                 "allow_short": True,
             },
+            live_caution=(
+                "An order block only becomes valid once price has already displaced away from it, so "
+                "the zone is confirmed well after the fact -- entries are trading a level whose window "
+                "has partly already passed, and the limit-fill assumption at its proximal edge is harder "
+                "to replicate live than in a backtest."
+            ),
             entry_conditions=[
                 "A demand/supply zone forms when an order-block candle's impulse leg "
                 "scores >= min_score of 4: ATR displacement, percent displacement, a "

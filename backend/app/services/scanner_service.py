@@ -26,7 +26,7 @@ from typing import Any, Callable
 
 import pandas as pd
 
-from app.integrations import tastytrade_client
+from app.integrations import twelvedata_client
 from app.metrics.calculator import calculate_all_metrics
 from app.services.backtest_data import fetch_backtest_bars, historical_outputsize
 from app.services.signal_service import _trade_direction, fetch_symbol_bars
@@ -165,7 +165,7 @@ def scan_for_signals(
     strategy_params_by_name: dict[str, dict[str, Any]] | None = None,
     execution_config: ExecutionConfig | None = None,
     lookback_bars: int = DEFAULT_LOOKBACK_BARS,
-    fetch_bars=tastytrade_client.fetch_historical_bars,
+    fetch_bars=twelvedata_client.fetch_historical_bars,
     get_cached_bars: Callable[[str, str], pd.DataFrame | None] | None = None,
     include_historical_trust: bool = True,
 ) -> tuple[list[ScanResult], list[str]]:
@@ -190,7 +190,7 @@ def scan_for_signals(
         try:
             cached = get_cached_bars(symbol, interval) if get_cached_bars else None
             if cached is not None:
-                df = tastytrade_client.filter_by_session(cached, config.include_extended_hours, config.include_overnight)
+                df = twelvedata_client.filter_by_session(cached, config.include_extended_hours, config.include_overnight)
             else:
                 df = fetch_symbol_bars(
                     symbol,

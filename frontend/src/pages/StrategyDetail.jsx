@@ -9,38 +9,14 @@ import MetricBar from '../components/MetricBar'
 import MetricValue from '../components/MetricValue'
 import TradesTable from '../components/TradesTable'
 import MonthlyBreakdownTable from '../components/MonthlyBreakdownTable'
-import {
-  useStrategies,
-  useRunBacktest,
-  useMetricDefinitions,
-  useSignalChecks,
-  useWatches,
-  useCreateWatch,
-  useDeleteWatch,
-} from '../api/hooks'
+import { useStrategies, useRunBacktest, useMetricDefinitions } from '../api/hooks'
 import { useResearchStore } from '../store/useResearchStore'
-import { formatDateTime } from '../utils/format'
 import './StrategyDetail.css'
 
 // These metrics are already 0-100 scale (format: "percent"), so they
 // get a visual bar like the overall score; everything else (currency,
 // ratio, count, duration) stays as plain formatted text.
 const BAR_METRICS = new Set(['win_rate', 'max_drawdown'])
-
-function signalBadgeTone(signal) {
-  if (signal.event === 'entry') return signal.direction === 'long' ? 'positive' : 'negative'
-  if (signal.position === 'long') return 'positive'
-  if (signal.position === 'short') return 'negative'
-  return 'neutral'
-}
-
-function signalBadgeText(signal) {
-  if (signal.event === 'entry') return `New ${signal.direction === 'long' ? 'LONG' : 'SHORT'} entry`
-  if (signal.event === 'exit') return `Exit (${signal.exit_reason || 'signal'})`
-  if (signal.position === 'long') return 'Currently LONG'
-  if (signal.position === 'short') return 'Currently SHORT'
-  return 'Flat'
-}
 
 // Stable empty-object reference so "no override set for this strategy"
 // doesn't produce a new {} every render -- that would break the
@@ -117,10 +93,6 @@ export default function StrategyDetail() {
   // Which selected ticker's Results are currently shown -- only matters
   // when more than one ticker is selected; defaults to the first.
   const [focusedSymbol, setFocusedSymbol] = useState(null)
-  // Same idea for Live Signal's own ticker switcher -- independent of
-  // focusedSymbol since Results/Live Signal aren't necessarily looking
-  // at the same ticker at the same time.
-  const [focusedSignalSymbol, setFocusedSignalSymbol] = useState(null)
 
   const strategy = strategies?.find((s) => s.name === name)
   const paramsOverride = strategyParamOverrides[name] || EMPTY_PARAMS
@@ -129,43 +101,6 @@ export default function StrategyDetail() {
     () => ({ ...(strategy?.default_params || {}), ...paramsOverride }),
     [strategy, paramsOverride]
   )
-
-  // Same tickers selected in the header (TickerSelect) that every other
-  // tab on this page already runs against, checked at the header's one
-  // global timeframe.
-  const signalTickers = useMemo(
-    () => selectedSymbols.map((symbol) => ({ symbol, interval: selectedInterval })),
-    [selectedSymbols, selectedInterval]
-  )
-  const signalQueries = useSignalChecks(signalTickers, name, effectiveParams, executionSettings)
-
-  const { data: watches } = useWatches()
-  const createWatch = useCreateWatch()
-  const deleteWatch = useDeleteWatch()
-  const findWatch = (symbol) =>
-    (watches || []).find((w) => w.symbol === symbol && w.strategy_name === name && w.interval === selectedInterval)
-  const toggleWatch = (symbol) => {
-    const existing = findWatch(symbol)
-    if (existing) {
-      deleteWatch.mutate(existing.id)
-    } else {
-      createWatch.mutate({
-        symbol,
-        strategy_name: name,
-        strategy_params: effectiveParams,
-        interval: selectedInterval,
-        execution: executionSettings,
-      })
-    }
-  }
-
-  useEffect(() => {
-    if (signalTickers.length === 0) return
-    if (!signalTickers.some((t) => t.symbol === focusedSignalSymbol)) {
-      setFocusedSignalSymbol(signalTickers[0].symbol)
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [signalTickers])
 
   const runNow = () => {
     if (selectedSymbols.length === 0 || !strategy) return
@@ -254,12 +189,6 @@ export default function StrategyDetail() {
         >
           Configure
         </button>
-        <button
-          className={`tab-item${tab === 'signal' ? ' active' : ''}`}
-          onClick={() => setTab('signal')}
-        >
-          Live Signal
-        </button>
       </div>
 
       {tab === 'configure' && (
@@ -284,121 +213,6 @@ export default function StrategyDetail() {
             </div>
           ))}
         </Card>
-      )}
-
-      {tab === 'signal' && (
-        <>
-          {signalTickers.length === 0 && (
-            <Card>
-              <EmptyState
-                title="No tickers selected"
-                body="Select ticker(s) using the header's ticker picker to live-check this strategy against them."
-              />
-            </Card>
-          )}
-
-          {signalTickers.length > 0 && (
-            <div className="chip-row" style={{ marginBottom: 16 }}>
-              {signalTickers.map((ticker) => (
-                <button
-                  key={ticker.symbol}
-                  type="button"
-                  className={`chip${focusedSignalSymbol === ticker.symbol ? ' active' : ''}`}
-                  onClick={() => setFocusedSignalSymbol(ticker.symbol)}
-                >
-                  {ticker.symbol}
-                </button>
-              ))}
-            </div>
-          )}
-
-          {signalTickers.map((ticker, i) => {
-            if (ticker.symbol !== focusedSignalSymbol) return null
-            const query = signalQueries[i]
-            return (
-              <Card key={`${ticker.symbol}-${ticker.interval}`} className="strategy-result-metrics">
-                <div className="result-header-row">
-                  <div className="detail-metric">
-                    <div className="detail-metric-label">Price</div>
-                    {query.data ? (
-                      <MetricValue value={query.data.price} format="currency" />
-                    ) : (
-                      <span className="loading-text">—</span>
-                    )}
-                  </div>
-                  {query.data && (
-                    <div className="detail-metric">
-                      <div className="detail-metric-label">As Of</div>
-                      <div>{formatDateTime(query.data.as_of)}</div>
-                    </div>
-                  )}
-                  <Button
-                    size="sm"
-                    variant={findWatch(ticker.symbol) ? 'primary' : 'secondary'}
-                    onClick={() => toggleWatch(ticker.symbol)}
-                    title={
-                      findWatch(ticker.symbol)
-                        ? 'Telegram alerts on for this signal — click to turn off'
-                        : 'Get a Telegram message when this signal fires'
-                    }
-                  >
-                    🔔 {findWatch(ticker.symbol) ? 'Alerting' : 'Notify'}
-                  </Button>
-                </div>
-
-                {query.isError && <div className="error-banner">{query.error.message}</div>}
-                {!query.isError && query.isPending && <div className="loading-text">Checking {ticker.symbol}…</div>}
-
-                {query.data && (
-                  <div className="detail-panel">
-                    <div className="detail-metric">
-                      <div className="detail-metric-label">Signal</div>
-                      <div className={`signal-badge signal-badge-${signalBadgeTone(query.data)}`}>
-                        {signalBadgeText(query.data)}
-                      </div>
-                    </div>
-                  </div>
-                )}
-
-                {query.data && query.data.today_events.length > 0 && (
-                  <div style={{ marginTop: 12 }}>
-                    <div className="detail-metric-label" style={{ marginBottom: 8 }}>
-                      Today's Signals
-                    </div>
-                    <div className="data-table-scroll">
-                      <table className="data-table">
-                        <thead>
-                          <tr>
-                            <th>Time</th>
-                            <th>Event</th>
-                            <th>Detail</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          {query.data.today_events.map((e, idx) => (
-                            <tr key={idx}>
-                              <td>{formatDateTime(e.time)}</td>
-                              <td>
-                                <span
-                                  className={`signal-badge signal-badge-${
-                                    e.event === 'entry' ? (e.direction === 'long' ? 'positive' : 'negative') : 'neutral'
-                                  }`}
-                                >
-                                  {e.event === 'entry' ? `${e.direction === 'long' ? 'LONG' : 'SHORT'} entry` : 'Exit'}
-                                </span>
-                              </td>
-                              <td>{e.event === 'exit' ? e.exit_reason || 'signal' : '—'}</td>
-                            </tr>
-                          ))}
-                        </tbody>
-                      </table>
-                    </div>
-                  </div>
-                )}
-              </Card>
-            )
-          })}
-        </>
       )}
 
       {tab === 'results' && (

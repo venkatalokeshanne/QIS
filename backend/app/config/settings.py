@@ -28,12 +28,6 @@ class Settings(BaseSettings):
     data_dir: Path = Path("./data")
     db_path: Path = Path("./data/app.db")
 
-    # Set (e.g. in production, to a free-tier hosted Postgres) to switch
-    # WatchRepository from local SQLite to Postgres -- so watches survive
-    # hosts with ephemeral filesystems (e.g. Render's free tier). Unset
-    # (the default) keeps local SQLite everywhere else, including tests.
-    database_url: str = ""
-
     # Plain string, not list[str]: pydantic-settings tries to JSON-decode
     # any env var bound to a list-typed field before validators ever run,
     # so a host dashboard's plain-text field (e.g. Render's) must contain
@@ -51,23 +45,44 @@ class Settings(BaseSettings):
             return json.loads(value)
         return [origin.strip() for origin in value.split(",") if origin.strip()]
 
-    # Tastytrade (tastytrade.com) -- the only market-data source in this
-    # app now (live quotes/signals and historical bars for backtesting,
-    # both via DXLink); not used for account data or order placement.
-    # OAuth2 app credentials from Tastytrade's developer portal; set all
-    # three in backend/.env (never commit the real values).
+    # Twelve Data (twelvedata.com) -- the only market-data source in
+    # this app (historical bars for backtesting, Scanner, Day Prep, and
+    # Daily Levels); not used for account data or order placement.
+    # Up to 5 separate subscriptions/API keys, round-robinned by
+    # app.integrations.twelvedata_client to spread load and stay under
+    # each key's own per-minute rate limit -- set as many of
+    # TWELVEDATA_API_KEY_1..TWELVEDATA_API_KEY_5 as you have.
+    twelvedata_api_key_1: str = ""
+    twelvedata_api_key_2: str = ""
+    twelvedata_api_key_3: str = ""
+    twelvedata_api_key_4: str = ""
+    twelvedata_api_key_5: str = ""
+    twelvedata_base_url: str = "https://api.twelvedata.com"
+
+    # Tastytrade (market data only: extended-hours candles, VIX, earnings
+    # dates) for the Strategy Selection Engine. Never used for orders.
     tastytrade_client_id: str = ""
     tastytrade_client_secret: str = ""
     tastytrade_refresh_token: str = ""
     tastytrade_base_url: str = "https://api.tastyworks.com"
+    # Twelve Data's Basic (free) tier limit, per key -- override if you
+    # upgrade plans. Daily credit caps (e.g. 800/day on Basic) are NOT
+    # tracked here; only the per-minute pace is locally enforced.
+    twelvedata_requests_per_minute_per_key: int = 8
 
-    # Telegram Bot API -- the only notification channel (see
-    # app.services.notification_service). Message @BotFather to create
-    # a bot and get telegram_bot_token; message the bot once, then hit
-    # https://api.telegram.org/bot<token>/getUpdates to read chat.id
-    # for telegram_chat_id.
-    telegram_bot_token: str = ""
-    telegram_chat_id: str = ""
+    @property
+    def twelvedata_api_keys(self) -> list[str]:
+        return [
+            key
+            for key in (
+                self.twelvedata_api_key_1,
+                self.twelvedata_api_key_2,
+                self.twelvedata_api_key_3,
+                self.twelvedata_api_key_4,
+                self.twelvedata_api_key_5,
+            )
+            if key
+        ]
 
     # How many separate OS processes run strategy computation
     # concurrently (see backtest_routes.py) -- each worker is a full

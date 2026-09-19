@@ -17,17 +17,13 @@ from fastapi.responses import JSONResponse
 from app.api.routes import (
     backtest_routes,
     catalog_routes,
-    level_watch_routes,
+    daily_selection_routes,
     levels_routes,
     scanner_routes,
-    signal_routes,
-    watch_routes,
 )
 from app.api.routes.backtest_routes import start_strategy_pool, stop_strategy_pool
 from app.config.settings import settings
-from app.core.exceptions import AppError, DataValidationError, NotFoundError, TastytradeError
-from app.services.live_signal_engine import engine as live_signal_engine
-from app.services.poller import Poller
+from app.core.exceptions import AppError, DataValidationError, NotFoundError, TwelveDataError
 from app.strategies.registry import discover_strategies
 
 logging.basicConfig(level=logging.INFO)
@@ -39,12 +35,7 @@ async def lifespan(app: FastAPI):
     settings.ensure_dirs()
     discover_strategies()
     start_strategy_pool()
-    poller = Poller()
-    poller.start()
-    live_signal_engine.start()
     yield
-    await live_signal_engine.stop()
-    await poller.stop()
     stop_strategy_pool()
 
 
@@ -61,10 +52,8 @@ app.add_middleware(
 app.include_router(catalog_routes.router)
 app.include_router(backtest_routes.router)
 app.include_router(levels_routes.router)
-app.include_router(watch_routes.router)
-app.include_router(level_watch_routes.router)
-app.include_router(signal_routes.router)
 app.include_router(scanner_routes.router)
+app.include_router(daily_selection_routes.router)
 
 
 @app.exception_handler(NotFoundError)
@@ -77,8 +66,8 @@ def handle_validation_error(request: Request, exc: DataValidationError):
     return JSONResponse(status_code=422, content={"detail": str(exc), "issues": exc.issues})
 
 
-@app.exception_handler(TastytradeError)
-def handle_tastytrade_error(request: Request, exc: TastytradeError):
+@app.exception_handler(TwelveDataError)
+def handle_twelvedata_error(request: Request, exc: TwelveDataError):
     return JSONResponse(status_code=502, content={"detail": str(exc), "issues": exc.issues})
 
 

@@ -23,8 +23,8 @@ class DataValidationError(AppError):
         self.issues = issues or []
 
 
-class TastytradeError(AppError):
-    """Could not authenticate with, or fetch data from, the Tastytrade API."""
+class TwelveDataError(AppError):
+    """Could not fetch data from the Twelve Data API."""
 
     def __init__(self, message: str, issues: list[str] | None = None):
         super().__init__(message)

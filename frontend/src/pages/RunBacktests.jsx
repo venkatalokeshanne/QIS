@@ -27,6 +27,12 @@ export default function RunBacktests() {
 
   const runAll = selectedStrategyNames.length === 0
 
+  // Takes explicit dates (rather than always reading backtestStartDate/
+  // backtestEndDate off the store) so handlePeriodShift can fire the
+  // run with the JUST-computed shifted dates in the same click --
+  // setBacktestStartDate/EndDate wouldn't be reflected in this
+  // render's closure until the next render, so reusing that state
+  // directly here would still submit the OLD range.
   const handleAnalyze = () => {
     if (selectedSymbols.length === 0) return
     const namesToRun = runAll ? (strategies || []).map((s) => s.name) : selectedStrategyNames
@@ -93,25 +99,20 @@ export default function RunBacktests() {
                     onChange={() => toggleStrategyName(s.name)}
                   />
                   <div>
-                    <div className="strategy-check-name">{s.display_name}</div>
+                    <div className="strategy-check-name">
+                      {s.display_name}
+                      {s.live_caution && (
+                        <span className="strategy-live-caution" title={s.live_caution}>
+                          ⚠️
+                        </span>
+                      )}
+                    </div>
                     <div className="strategy-check-desc">{s.description}</div>
                   </div>
                 </label>
               ))}
             </div>
           </Card>
-
-          {(backtestStartDate || backtestEndDate) && (
-            <Card style={{ marginTop: 16 }}>
-              <div className="section-label">
-                Date Range
-                <span className="section-label-hint">set in the header</span>
-              </div>
-              <p className="field-hint">
-                {backtestStartDate || '…'} – {backtestEndDate || '…'}
-              </p>
-            </Card>
-          )}
         </div>
 
         <div className="run-side">

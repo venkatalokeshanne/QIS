@@ -276,3 +276,48 @@
   color: var(--accent);
   border-color: transparent;
 }
+
+.info-pill-button {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  background: none;
+  border: 1px solid var(--border-hairline-strong);
+  border-radius: 999px;
+  padding: 4px 12px 4px 4px;
+  color: var(--text-secondary);
+  cursor: pointer;
+  font-size: 12px;
+}
+
+.info-pill-button:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.info-pill-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  border: 1px solid var(--text-secondary);
+  font-size: 10px;
+  font-weight: 700;
+}
+
+.low-sample-badge {
+  display: inline-block;
+  margin-left: 6px;
+  padding: 1px 6px;
+  border-radius: 999px;
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  background: var(--bg-panel-raised);
+  color: var(--text-tertiary);
+  border: 1px solid var(--border-hairline-strong);
+  cursor: help;
+}

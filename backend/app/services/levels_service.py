@@ -1,16 +1,15 @@
 """
 Levels Service.
 
-Fetches the freshest available bars for a symbol via Tastytrade's
-DXLink feed (see app.integrations.tastytrade_client.fetch_historical_bars),
-through the same detect -> normalize -> validate pipeline every other
-bar source in this app uses, but does NOT persist anything -- this is a
-live, throwaway snapshot, not something meant to be saved and re-run
-later. Runs a curated set of already-built indicators against those
-bars and distills them into a single "important levels for today"
-report.
+Fetches the freshest available bars for a symbol via Twelve Data (see
+app.integrations.twelvedata_client.fetch_historical_bars), through the
+same detect -> normalize -> validate pipeline every other bar source in
+this app uses, but does NOT persist anything -- this is a live,
+throwaway snapshot, not something meant to be saved and re-run later.
+Runs a curated set of already-built indicators against those bars and
+distills them into a single "important levels for today" report.
 
-Restricted to regular trading hours (tho=true) so session-boundary math
+Restricted to regular trading hours by default so session-boundary math
 (prior close, daily high/low) isn't contaminated by extended-hours
 ticks -- see app.services.backtest_data for the sibling that fetches an
 arbitrary interval/date-range for backtesting instead of a fixed
@@ -34,7 +33,7 @@ from app.indicators.fibonacci_retracement import FibonacciRetracement
 from app.indicators.pivot_points import PivotPoints
 from app.indicators.session_opening_range import SessionOpeningRange
 from app.indicators.vwap import VWAP
-from app.integrations import tastytrade_client
+from app.integrations import twelvedata_client
 
 _OPENING_RANGE_MINUTES = 15
 _ADR_PERIOD = 14
@@ -64,7 +63,7 @@ class DailyLevels:
     fibonacci_retracement: dict[str, float | None] = field(default_factory=dict)
 
 
-def fetch_symbol_bars(symbol: str, fetch_bars=tastytrade_client.fetch_historical_bars) -> pd.DataFrame:
+def fetch_symbol_bars(symbol: str, fetch_bars=twelvedata_client.fetch_historical_bars) -> pd.DataFrame:
     """
     Same detect -> normalize -> validate pipeline a dataset import uses
     (see app.services.dataset_service), just not persisted. 5-minute
@@ -77,6 +76,7 @@ def fetch_symbol_bars(symbol: str, fetch_bars=tastytrade_client.fetch_historical
     report = validate_ohlcv(normalized)
     if not report.is_valid:
         raise DataValidationError(f"Received unusable bars for '{symbol}' from the live data source.", issues=report.errors)
+    normalized.attrs["symbol"] = symbol.upper()
     return normalized
 
 
@@ -106,7 +106,7 @@ def _safe(value) -> float | None:
     return None if pd.isna(value) else float(value)
 
 
-def get_daily_levels(symbol: str, fetch_bars=tastytrade_client.fetch_historical_bars) -> DailyLevels:
+def get_daily_levels(symbol: str, fetch_bars=twelvedata_client.fetch_historical_bars) -> DailyLevels:
     df = fetch_symbol_bars(symbol, fetch_bars=fetch_bars)
 
     enriched = SessionOpeningRange().calculate(df, {"session": "new_york", "minutes": _OPENING_RANGE_MINUTES})

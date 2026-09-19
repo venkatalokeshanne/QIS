@@ -10,3 +10,15 @@ dist/
 *.db
 htmlcov/
 .coverage
+
+# local-only: API key, scratch data and exports
+/backend/download.py
+/backend/*.csv
+/backend/nul
+/backend/PINE_PORT_TRACKER.md
+/h1.json
+/w1.json
+/trendspider_*.js
+/trendspider-automation/
+.claude/scheduled_tasks.lock
+.claude/settings.local.json

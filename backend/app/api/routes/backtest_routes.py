@@ -19,6 +19,7 @@ from app.api.schemas.backtest_schemas import (
     TradeResponse,
 )
 from app.config.settings import settings
+from app.integrations import twelvedata_client
 from app.ranking.models import RankingConfig
 from app.services.backtest_data import fetch_backtest_bars, historical_outputsize
 from app.services.strategy_runner import RunRequest, run_strategies
@@ -76,36 +77,32 @@ def stop_strategy_pool() -> None:
 # quick.
 HISTORICAL_LOOKBACK_DAYS = 90
 
-# fetch_backtest_bars' plain-backtest default (5000) is tuned for a
-# short, explicit date range -- at a larger historical window it would
-# silently truncate an intraday interval's historical fetch down to
-# whatever tiny recent slice fits in 5000 bars (e.g. ~13 trading days
-# for 1min), defeating the entire point of "historical." Request
-# roughly enough bars to cover the full window instead, capped so a
-# single request still completes in fetch_historical_bars' ~20s
-# collection window -- dxfeed's own retention limits (or the cap
-# below) may still return less than the full three months for the
-# finest intervals, but historical_period_start/end on the response
-# always report the ACTUAL span it covers, so that's honest either
-# way, never silently misleading.
-HISTORICAL_MAX_OUTPUTSIZE = 100_000
+# Request roughly enough bars to cover the full historical window
+# rather than fetch_backtest_bars' plain-backtest default, capped at
+# Twelve Data's hard per-request limit (see
+# twelvedata_client.MAX_OUTPUTSIZE -- asking for more is a flat HTTP
+# 400, not a truncated response). At the finest intervals 5000 bars
+# covers well under the full lookback (~13 trading days at 1min), so
+# historical_period_start/end on the response always report the ACTUAL
+# span covered rather than the requested one -- honest either way,
+# never silently misleading.
+HISTORICAL_MAX_OUTPUTSIZE = twelvedata_client.MAX_OUTPUTSIZE
 
-# Each ticker's bar fetch opens its own short-lived DXLink connection.
-# The real bottleneck there is Tastytrade's own per-connection backfill
-# pacing, not this app's CPU or network bandwidth -- an I/O wait, which
-# concurrency genuinely helps with. This caps how many fetches run at
-# once instead of unboundedly blasting every symbol at once (which
-# risks tripping a per-account connection limit on Tastytrade's side --
-# unconfirmed exact number, so this stays conservative).
-_MAX_CONCURRENT_TICKER_FETCHES = 8
+# Each ticker's bar fetch is its own REST call to Twelve Data. The real
+# rate-limit throttle now lives in app.integrations.twelvedata_client's
+# key pool (it blocks a fetch rather than let it through over-limit), so
+# this cap just bounds thread/connection count and lets requests overlap
+# in flight while others wait their turn in the pool -- it does not need
+# to be tuned to any one key's own per-minute limit.
+_MAX_CONCURRENT_TICKER_FETCHES = 20
 
-# Concurrent fetches mean more simultaneous DXLink connections than the
+# Concurrent fetches mean more simultaneous in-flight requests than the
 # old one-at-a-time code ever had -- confirmed in practice: symbols
-# that fetch fine in isolation can intermittently come back with zero
-# candles under concurrent load (a dropped/rate-limited connection, not
-# a real "no data for this symbol"). One retry after a short pause
-# recovers most of these; it does NOT change how a genuinely bad ticker
-# behaves (still fails after the retry, same as before).
+# that fetch fine in isolation can intermittently come back empty under
+# concurrent load (a dropped/rate-limited request, not a real "no data
+# for this symbol"). One retry after a short pause recovers most of
+# these; it does NOT change how a genuinely bad ticker behaves (still
+# fails after the retry, same as before).
 _FETCH_RETRY_ATTEMPTS = 2
 _FETCH_RETRY_DELAY_SECONDS = 2.0
 

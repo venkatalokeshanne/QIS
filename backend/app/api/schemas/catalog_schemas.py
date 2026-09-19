@@ -30,6 +30,7 @@ class StrategySummary(BaseModel):
     default_params: dict[str, Any]
     entry_conditions: list[str]
     exit_conditions: list[str]
+    live_caution: str | None = None
 
 
 class MetricSummary(BaseModel):

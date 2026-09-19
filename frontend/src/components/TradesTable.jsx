@@ -4,10 +4,12 @@ import { useSortableData } from '../hooks/useSortableData'
 import { formatDateTime } from '../utils/format'
 import './TradesTable.css'
 
-function getTradeValue(t, key) {
+function getTradeValue(t, key, getExtraColumnValue) {
   switch (key) {
     case 'index':
       return t.__index
+    case 'extra':
+      return getExtraColumnValue ? getExtraColumnValue(t) : null
     case 'direction':
       return t.direction
     case 'entry_time':
@@ -45,9 +47,16 @@ function resultLabel(pnl) {
   return pnl > 0 ? 'Win' : 'Loss'
 }
 
-export default function TradesTable({ trades }) {
+// extraColumnLabel/getExtraColumnValue add ONE extra sortable column
+// right after '#' -- e.g. the Daily Selector's Backtest results use
+// this to show which strategy generated each trade, since different
+// trades in the same backtest can come from different strategies as
+// the regime switches day to day. Both optional; omit for the
+// original fixed-column shape (used by Results.jsx's DetailPanel).
+export default function TradesTable({ trades, extraColumnLabel, getExtraColumnValue }) {
   const indexed = (trades || []).map((t, i) => ({ ...t, __index: i + 1 }))
-  const { sorted, sortKey, sortDir, toggleSort } = useSortableData(indexed, getTradeValue, 'index', 'asc')
+  const getRowValue = (t, key) => getTradeValue(t, key, getExtraColumnValue)
+  const { sorted, sortKey, sortDir, toggleSort } = useSortableData(indexed, getRowValue, 'index', 'asc')
 
   if (!trades || trades.length === 0) {
     return <div className="trades-empty">No trades.</div>
@@ -63,6 +72,7 @@ export default function TradesTable({ trades }) {
         <thead>
           <tr>
             {th('#', 'index')}
+            {extraColumnLabel && th(extraColumnLabel, 'extra')}
             {th('Direction', 'direction')}
             {th('Entry Time', 'entry_time')}
             {th('Entry Price', 'entry_price', 'right')}
@@ -81,6 +91,7 @@ export default function TradesTable({ trades }) {
             return (
               <tr key={t.__index}>
                 <td>{t.__index}</td>
+                {extraColumnLabel && <td>{getExtraColumnValue(t)}</td>}
                 <td className={`trade-direction trade-${t.direction}`}>{t.direction}</td>
                 <td>{formatDateTime(t.entry_time)}</td>
                 <td className="align-right"><MetricValue value={t.entry_price} format="currency" /></td>
