@@ -22,11 +22,13 @@ explained ("OOS PF 0.96, required >= 1.10").
 from __future__ import annotations
 
 import json
+import weakref
 from dataclasses import asdict, dataclass, field
 
 import pandas as pd
 
 from app.strategy_engine.evaluation import point_in_time_performance, utc
+from app.strategy_engine.execution_risk import MIN_TRUSTED_STOP, fragility
 from app.strategy_engine.historical import ANY, EngineDB
 from app.strategy_engine.models import StrategyMeta, Timeframe
 from app.strategy_engine.thresholds import QUALIFICATION_CONFIG, config_version
@@ -64,6 +66,7 @@ class QualificationResult:
     regime_matched: dict = field(default_factory=dict)
     premarket_matched: dict = field(default_factory=dict)
     evaluation: dict = field(default_factory=dict)
+    execution: dict = field(default_factory=dict)      # stop realism (warning only)
     reasons: list[str] = field(default_factory=list)
 
     @property
@@ -74,12 +77,27 @@ class QualificationResult:
         return asdict(self)
 
 
+_ROW_INDEX: dict[int, tuple] = {}
+
+
 def _row(perf: pd.DataFrame, scope: str, m=ANY, t=ANY, p=ANY) -> dict | None:
-    sel = perf[(perf.scope == scope) & (perf.market_regime == m) & (perf.ticker_regime == t) & (perf.premarket_regime == p)]
-    if sel.empty:
+    """The performance row for (scope, market, ticker, premarket), details parsed.
+    Each frame is indexed once (keyed by identity, checked via weakref), so
+    repeated lookups -- e.g. a batch replay -- don't rescan it."""
+    entry = _ROW_INDEX.get(id(perf))
+    if entry is None or entry[0]() is not perf:
+        index = {}
+        for r in perf.to_dict("records"):
+            index.setdefault((r["scope"], r["market_regime"], r["ticker_regime"], r["premarket_regime"]), r)
+        if len(_ROW_INDEX) > 20000:
+            _ROW_INDEX.clear()
+        entry = (weakref.ref(perf), index)
+        _ROW_INDEX[id(perf)] = entry
+    r = entry[1].get((scope, m, t, p))
+    if r is None:
         return None
-    r = sel.iloc[0].to_dict()
-    r["details"] = json.loads(r.get("details") or "{}")
+    r = dict(r)
+    r["details"] = json.loads(r.get("details") or "{}") if isinstance(r.get("details"), str) else (r.get("details") or {})
     return r
 
 
@@ -92,9 +110,10 @@ def _num(v):
 
 
 class StrategyQualificationEngine:
-    def __init__(self, db: EngineDB | None = None, config: dict | None = None):
+    def __init__(self, db: EngineDB | None = None, config: dict | None = None, pit_cache: dict | None = None):
         self.db = db or EngineDB()
         self.cfg = {**QUALIFICATION_CONFIG, **(config or {})}
+        self.pit_cache = pit_cache        # optional memo for batch replays (same strategy, same moment)
 
     def qualify(self, ticker: str, strategy: StrategyMeta, timeframe: Timeframe, market_regime: str | None,
                 ticker_regime: str | None, premarket_regime: str | None = None,
@@ -115,7 +134,14 @@ class StrategyQualificationEngine:
         run = self.db.latest_run(ticker, strategy.id, str(timeframe)) or {}
         pit = None
         if as_of is not None and d.get("bars_to") and utc(as_of) < utc(d["bars_to"]):
-            perf, pit = point_in_time_performance(self.db, ticker, strategy, str(timeframe), pd.Timestamp(as_of), d, cfg)
+            key = (ticker.upper(), strategy.id, str(timeframe), utc(as_of).value)
+            if self.pit_cache is not None and key in self.pit_cache:
+                perf, pit = self.pit_cache[key]
+            else:
+                perf, pit = point_in_time_performance(self.db, ticker, strategy, str(timeframe), pd.Timestamp(as_of), d, cfg)
+                if self.pit_cache is not None:
+                    self.pit_cache.clear() if len(self.pit_cache) > 5000 else None
+                    self.pit_cache[key] = (perf, pit)
             base = _row(perf, "ALL_TIME") if not perf.empty else None
             if base is None:
                 res.reasons = [f"no history before {pd.Timestamp(as_of)} -- the evaluation window starts at {d.get('bars_from')}"]
@@ -127,6 +153,9 @@ class StrategyQualificationEngine:
                           "current_config_version": config_version(),
                           "point_in_time": pit is not None, **({"as_of": str(pd.Timestamp(as_of)), **pit} if pit else {})}
         res.historical = {k: base.get(k) for k in ("trade_count", "win_rate", "profit_factor", "expectancy", "sharpe", "max_drawdown")}
+        res.historical["expectancy_per_capital_day"] = d.get("expectancy_per_capital_day")
+        res.historical["mean_hold_days"] = d.get("mean_hold_days")
+        res.execution = fragility(strategy.slug)
         res.out_of_sample = d.get("out_of_sample", {})
         res.walk_forward = {k: v for k, v in (d.get("walk_forward") or {}).items()}
         res.parameter_stability = d.get("parameter_stability", {})
@@ -161,6 +190,9 @@ class StrategyQualificationEngine:
                 checks.append(Check("parameter_stability", score, f">= {cfg['min_parameter_stability']}",
                                     score is not None and score >= cfg["min_parameter_stability"],
                                     f"{ps.get('stable_neighbours')}/{ps.get('neighbours')} neighbouring parameter sets stay profitable"))
+        if res.execution["status"] == "FRAGILE_STOP":
+            checks.append(Check("execution_realism", f"{res.execution['stop_pct'] * 100:.2f}% stop",
+                                f">= {MIN_TRUSTED_STOP * 100:.2f}%", None, res.execution["note"]))
         rob = base.get("slippage_robustness")
         pf2 = (res.slippage.get("2x") or {}).get("profit_factor")
         checks.append(Check("slippage_robustness", rob, "not LOW", rob in ("HIGH", "MEDIUM"),

@@ -17,6 +17,7 @@ this order so the reason is always the first gate it failed:
     FAMILY_NOT_APPLICABLE its family doesn't fit the current regimes
     NOT_EVALUATED         no historical evaluation for this ticker/timeframe
     NOT_QUALIFIED         failed a historical check (with the failing numbers)
+    DUPLICATE             trades the same signals as a stronger qualified strategy
     QUALIFIED             passed every check
 
 "NO QUALIFIED STRATEGY" is a valid, expected outcome -- nothing is forced.
@@ -49,6 +50,7 @@ from app.strategy_engine.timeframe import TimeframeSelector
 QUALIFIED_AVAILABLE = "QUALIFIED_STRATEGIES_AVAILABLE"
 NO_QUALIFIED = "NO_QUALIFIED_STRATEGY"
 DATA_INSUFFICIENT = "DATA_INSUFFICIENT"
+DUPLICATE = "DUPLICATE"
 
 
 @dataclass
@@ -171,6 +173,10 @@ class StrategySelector:
         verdicts = [self._judge(s, ticker, tf, fam, market, ticker_r, premarket, pm_label) for s in self.registry.all()]
         qualified = [v for v in verdicts if v.status == QUALIFIED]
         qualified.sort(key=self._strength, reverse=True)
+        qualified, duplicates = self._drop_duplicates(qualified, ticker, tf)
+        for v, of in duplicates:
+            v.status, v.reason = DUPLICATE, f"trades almost the same signals as {of} -- keeping the stronger one only"
+            verdicts.append(v)
         # Replays: statistics are rebuilt from trades closed before the decision
         # time; parameter stability can only be too if the run stored neighbour trades.
         evals = [(v.qualification or {}).get("evaluation") or {} for v in verdicts]
@@ -187,6 +193,24 @@ class StrategySelector:
         res.status = QUALIFIED_AVAILABLE if qualified else NO_QUALIFIED
         self._log(res)
         return res
+
+    def _drop_duplicates(self, ranked: list[StrategyVerdict], ticker: str, tf: Timeframe,
+                         overlap: float = 0.9) -> tuple[list[StrategyVerdict], list[tuple]]:
+        """Near-identical strategies (e.g. two versions of the same EMA cross)
+        would double the position while looking like two independent edges.
+        Keep the stronger one; report the other as DUPLICATE."""
+        kept: list[tuple[StrategyVerdict, set]] = []
+        out, dropped = [], []
+        for v in ranked:
+            trades = self.db.load_trades(ticker, v.strategy_id, str(tf))
+            entries = set(trades["entry_time"].tolist()) if len(trades) else set()
+            twin = next((k for k, e in kept if entries and e and len(entries & e) / len(entries | e) >= overlap), None)
+            if twin is not None:
+                dropped.append((v, twin.strategy))
+            else:
+                kept.append((v, entries))
+                out.append(v)
+        return out, dropped
 
     def _premarket(self, ticker, ts, inp):
         prev = previous_trading_day(ts.date()) if session_bounds(ts.date()) else None
@@ -239,11 +263,15 @@ class StrategySelector:
 
     @staticmethod
     def _strength(v: StrategyVerdict) -> tuple:
+        """Rank by capital efficiency first -- expectancy per day a trade ties up
+        capital -- because a 0.3% edge held for a day is worth more than the same
+        edge held for a month. Regime-matched PF then out-of-sample PF break ties."""
         q = v.qualification or {}
         rm = q.get("regime_matched") or {}
         regime_pf = rm.get("profit_factor") if rm.get("status") == "MATCHED" else None
         oos = (q.get("out_of_sample") or {}).get("profit_factor") or 0
-        return (regime_pf if regime_pf is not None else oos, oos)
+        per_day = (q.get("historical") or {}).get("expectancy_per_capital_day")
+        return (per_day if per_day is not None else -1e9, regime_pf if regime_pf is not None else oos, oos)
 
     @staticmethod
     def _summary(v: StrategyVerdict) -> dict:
@@ -253,6 +281,9 @@ class StrategySelector:
         return {"strategy_id": v.strategy_id, "strategy": v.strategy, "family": v.family,
                 "family_status": v.family_status,
                 "trade_count": (q.get("historical") or {}).get("trade_count"),
+                "expectancy_per_capital_day": (q.get("historical") or {}).get("expectancy_per_capital_day"),
+                "mean_hold_days": (q.get("historical") or {}).get("mean_hold_days"),
+                "execution": (q.get("execution") or {}).get("status"),
                 "profit_factor": (q.get("historical") or {}).get("profit_factor"),
                 "oos_pf": (q.get("out_of_sample") or {}).get("profit_factor"),
                 "regime_pf": rm.get("profit_factor") if rm.get("status") == "MATCHED" else None,
@@ -274,6 +305,8 @@ class StrategySelector:
                 f"Historical: {h.get('trade_count')} trades, PF {h.get('profit_factor')}, OOS PF {q.out_of_sample.get('profit_factor')}, "
                 f"walk-forward {wf.get('profitable_periods')}/{wf.get('walk_forward_periods')} periods profitable, "
                 f"parameter stability {q.parameter_stability.get('score', 'n/a')}, slippage robustness {q.slippage.get('robustness')}"]
+        if q.execution.get("status") == "FRAGILE_STOP":
+            out.append(f"Warning: {q.execution['note']}")
         if rm.get("status") == "MATCHED":
             out.append(f"Regime-matched ({rm['level']}): {rm['trade_count']} trades, PF {rm['profit_factor']}")
         else:

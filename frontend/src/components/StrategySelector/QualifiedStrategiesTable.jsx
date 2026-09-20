@@ -18,6 +18,7 @@ export default function QualifiedStrategiesTable({ rows }) {
             <th className="num">Regime PF</th>
             <th className="num">Premarket PF</th>
             <th className="num">Walk-fwd</th>
+            <th className="num">%/capital-day</th>
             <th className="num">Max DD</th>
           </tr>
         </thead>
@@ -40,14 +41,17 @@ export default function QualifiedStrategiesTable({ rows }) {
                 <td className="num" title={r.regime_level || r.regime_match || ''}>{num(r.regime_pf)}</td>
                 <td className="num">{num(r.premarket_regime_pf)}</td>
                 <td className="num">{pct(r.walk_forward_pass_rate, 0)}</td>
+                <td className="num" title={r.mean_hold_days ? `typical hold ${r.mean_hold_days} days` : ''}>
+                  {r.expectancy_per_capital_day == null ? '—' : `${(r.expectancy_per_capital_day * 100).toFixed(3)}%`}
+                </td>
                 <td className="num">{pct(r.max_drawdown)}</td>
               </tr>
               {open === i && (
                 <tr className="ss-detail">
-                  <td colSpan={10}>
+                  <td colSpan={11}>
                     <ul>
                       {(r.why || []).map((w, j) => (
-                        <li key={j}>{w}</li>
+                        <li key={j} className={w.startsWith('Warning:') ? 'ss-warn' : undefined}>{w}</li>
                       ))}
                     </ul>
                   </td>

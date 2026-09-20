@@ -147,3 +147,26 @@ def test_point_in_time_equals_an_evaluation_run_at_that_moment(tmp_path):
     fresh = cut_db.load_trades(TICKER, s.id, str(tf)).reset_index(drop=True)
     cols = ["entry_time", "exit_time", "entry_price", "exit_price"]
     pd.testing.assert_frame_equal(closed[cols], fresh[cols])     # the strategy itself never peeks ahead
+
+
+def test_daily_trades_are_stamped_at_the_session_open():
+    """A daily bar is stamped at midnight, but a fill on it happens at 09:30 --
+    stamping midnight would make a trade look entered (and closed) hours
+    before it could have been, and hide it from a 09:25 decision."""
+    from app.strategy_engine.evaluation import load_bars, run_trades, session_open_times, to_qis_frame
+    from app.strategy_engine.registry import default_registry
+
+    store = _store()
+    s = default_registry().get("ts_williams_r_momentum_strategy")
+    bars = load_bars(store, TICKER, Timeframe.D1)
+    if bars.empty:
+        pytest.skip(f"no {TICKER} daily bars")
+    t = run_trades(s.slug, to_qis_frame(bars, TICKER), timeframe=Timeframe.D1)
+    assert len(t)
+    for col in ("entry_time", "exit_time"):
+        clock = t[col].dt.tz_convert(NY).dt.strftime("%H:%M").unique().tolist()
+        assert clock == ["09:30"], (col, clock)
+    intraday = run_trades(s.slug, to_qis_frame(load_bars(store, TICKER, Timeframe.M15), TICKER), timeframe=Timeframe.M15)
+    if len(intraday):                       # intraday stamps are left exactly as the bars are
+        assert intraday["entry_time"].dt.tz_convert(NY).dt.strftime("%H:%M").nunique() > 1
+    assert session_open_times(t["entry_time"]).equals(t["entry_time"])   # idempotent

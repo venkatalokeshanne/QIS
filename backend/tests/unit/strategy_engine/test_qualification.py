@@ -166,11 +166,29 @@ def test_aggregate_handles_trades_without_regime_tags():
 
     from app.strategy_engine.evaluation import aggregate
 
+    entry = [1_700_000_000, 1_710_000_000, 1_720_000_000]
     t = pd.DataFrame({"direction": "LONG", "entry_price": 100.0, "exit_price": [101.0, 99.0, 102.0],
-                      "entry_time": [1_700_000_000, 1_710_000_000, 1_720_000_000],
+                      "entry_time": entry, "exit_time": [e + 7200 for e in entry],
                       "market_regime": ["M", "M", None], "ticker_regime": [None, None, None],
                       "premarket_regime": ["NOT_AVAILABLE"] * 3})
     rows, all_time, _, _ = aggregate(t, 1_690_000_000, 1_730_000_000, S, "r", QUALIFICATION_CONFIG, 0.0005, {})
     assert all_time["trade_count"] == 3
+    # 2h holds: the per-capital-day expectancy is 12x the per-trade expectancy
+    assert all_time["expectancy_per_capital_day"] == pytest.approx(all_time["expectancy"] * 12, rel=1e-3)
     ticker_rows = [r for r in rows if r["scope"] == "TICKER"]
     assert [(r["ticker_regime"], r["trade_count"]) for r in ticker_rows] == [("UNKNOWN", 3)]
+
+
+def test_fragile_stop_is_reported_as_a_warning_not_a_rejection(db):
+    from app.strategy_engine.execution_risk import fragility, stop_pct
+
+    fragile = default_registry().get("ts_zero_lag_ma_long_strategy")
+    assert stop_pct(fragile.slug) == pytest.approx(0.0005)
+    assert fragility(fragile.slug)["status"] == "FRAGILE_STOP"
+    db.replace_performance("INFQ", fragile.id, str(TF), [row()])
+    r = StrategyQualificationEngine(db).qualify("INFQ", fragile, TF, "BULLISH_HIGH_VOLATILITY",
+                                                "HIGH_MOMENTUM_HIGH_VOLATILITY")
+    warn = [c for c in r.checks if c.name == "execution_realism"]
+    assert warn and warn[0].passed is None and "optimistic" in warn[0].note
+    assert r.qualification_status == QUALIFIED          # a warning must not silently drop it
+    assert fragility(S.slug)["status"] in ("OK", "NO_STOP")

@@ -5,6 +5,7 @@ import { label } from './shared'
 // miss first, so "why not X?" is answerable at a glance.
 const ORDER = [
   'NOT_QUALIFIED',
+  'DUPLICATE',
   'NOT_EVALUATED',
   'FAMILY_NOT_APPLICABLE',
   'DATA_UNAVAILABLE',

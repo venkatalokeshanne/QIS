@@ -144,7 +144,17 @@ def _scaled_model(model: dict, factor: float) -> tuple[dict, list[dict]]:
     return m, changes
 
 
-def run_trades(slug: str, df: pd.DataFrame, model_override: dict | None = None) -> pd.DataFrame:
+def session_open_times(times: pd.Series) -> pd.Series:
+    """Daily/weekly/monthly bars are stamped at midnight of their date, but a
+    fill on them happens at that session's 09:30 open (or later, for a stop
+    inside the bar) -- never before. Restamp to the open so nothing treats a
+    trade as entered or closed before it could have been."""
+    ny = times.dt.tz_convert(NY)
+    return (ny.dt.normalize() + pd.Timedelta(hours=9, minutes=30)).dt.tz_convert("UTC")
+
+
+def run_trades(slug: str, df: pd.DataFrame, model_override: dict | None = None,
+               timeframe: Timeframe | None = None) -> pd.DataFrame:
     cls = _strategy_class(slug)
     if model_override is not None:
         cls = type(cls.__name__ + "Variant", (cls,), {"MODEL": model_override})
@@ -157,6 +167,8 @@ def run_trades(slug: str, df: pd.DataFrame, model_override: dict | None = None) 
     out = pd.DataFrame(rows, columns=["entry_time", "exit_time", "direction", "entry_price", "exit_price"])
     for col in ("entry_time", "exit_time"):
         out[col] = pd.to_datetime(out[col]).dt.tz_localize(NY, ambiguous="infer", nonexistent="shift_forward").dt.tz_convert("UTC")
+        if timeframe is not None and not timeframe.is_intraday and len(out):
+            out[col] = session_open_times(out[col])
     return out
 
 
@@ -189,7 +201,7 @@ class StrategyEvaluator:
             if bars.empty:
                 raise ValueError(f"no stored {timeframe} bars for {ticker}")
             df = to_qis_frame(bars, ticker)
-            trades = run_trades(strategy.slug, df)
+            trades = run_trades(strategy.slug, df, timeframe=timeframe)
             span_years = max((bars.index[-1] - bars.index[0]).days / 365.25, 1 / 12)
             result = self._analyse(ticker, strategy, timeframe, trades, bars, span_years, run_id)
             summary = {k: result["all_time"].get(k) for k in ("trade_count", "profit_factor", "sharpe", "max_drawdown")}
@@ -213,7 +225,7 @@ class StrategyEvaluator:
         trades["entry_time"] = _unix(trades["entry_time"]) if len(trades) else np.array([], dtype=int)
         trades["exit_time"] = _unix(trades["exit_time"]) if len(trades) else np.array([], dtype=int)
         base_pf = metrics(costed_returns(trades, c1))["profit_factor"] if len(trades) else None
-        stab, variants = self._parameter_stability(strategy, bars, ticker, base_pf)
+        stab, variants = self._parameter_stability(strategy, bars, ticker, base_pf, timeframe)
         t_start, t_end = bars.index[0].timestamp(), bars.index[-1].timestamp()
         rows, all_time, details, robustness = aggregate(trades, t_start, t_end, strategy, run_id, self.cfg, c1, stab)
         details.update({"bars_from": str(bars.index[0]), "bars_to": str(bars.index[-1])})
@@ -225,7 +237,7 @@ class StrategyEvaluator:
         return {"all_time": all_time, "rows": len(rows), "details": details, "robustness": robustness}
 
     def _parameter_stability(self, strategy: StrategyMeta, bars: pd.DataFrame, ticker: str,
-                             base_pf: float | None) -> tuple[dict, list[pd.DataFrame]]:
+                             base_pf: float | None, timeframe: Timeframe | None = None) -> tuple[dict, list[pd.DataFrame]]:
         """(stability summary, neighbour trade lists). The neighbours' trades are
         stored as variants so stability can be recomputed point-in-time."""
         cls = _strategy_class(strategy.slug)
@@ -240,7 +252,7 @@ class StrategyEvaluator:
                 continue
             entry = {"factor": f, "changes": changes}
             try:
-                t = run_trades(strategy.slug, df, model_override=variant)
+                t = run_trades(strategy.slug, df, model_override=variant, timeframe=timeframe)
                 if len(t):
                     t = t.assign(entry_time=_unix(t["entry_time"]), exit_time=_unix(t["exit_time"]),
                                  variant=variant_name(f), gross_return=costed_returns(t, 0.0),
@@ -332,8 +344,17 @@ def aggregate(trades: pd.DataFrame, t_start: float, t_end: float, strategy: Stra
                   else "MEDIUM" if pf1 is not None and pf1 >= 1.0 else "LOW")
 
     all_time = metrics(r1, span_years=span_years)
+    if len(trades):
+        hold_days = np.maximum((trades["exit_time"].to_numpy(dtype="float64")
+                                - trades["entry_time"].to_numpy(dtype="float64")) / 86400, 1 / 24)
+        all_time["expectancy_per_capital_day"] = round(float((r1 / hold_days).mean()), 6)
+        all_time["mean_hold_days"] = round(float(hold_days.mean()), 3)
+    else:
+        all_time["expectancy_per_capital_day"] = all_time["mean_hold_days"] = None
     details = {"costs": {"one_way_slippage_1x": c1}, "in_sample": in_m, "out_of_sample": oos_m, "walk_forward": wf,
-               "slippage": slip, "parameter_stability": stab, "span_years": round(span_years, 2)}
+               "slippage": slip, "parameter_stability": stab, "span_years": round(span_years, 2),
+               "expectancy_per_capital_day": all_time["expectancy_per_capital_day"],
+               "mean_hold_days": all_time["mean_hold_days"]}
     rows = [perf_row("ALL_TIME", ANY, ANY, ANY, strategy, all_time, run_id, details=details,
                      oos_pf=oos_m["profit_factor"], wf=wf["pass_rate"], stab=stab.get("score"), robust=robustness)]
     groups = [("MARKET", ["market_regime"]), ("TICKER", ["ticker_regime"]), ("PREMARKET", ["premarket_regime"]),
