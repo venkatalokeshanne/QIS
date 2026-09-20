@@ -8,5 +8,6 @@ export const NAV_ITEMS = [
   { to: '/scanner', label: 'Scanner' },
   { to: '/daily-selector', label: 'Daily Selector' },
   { to: '/strategy-selection', label: 'Strategy Selection' },
+  { to: '/replay', label: 'Day Replay' },
   { to: '/settings', label: 'Settings' },
 ]

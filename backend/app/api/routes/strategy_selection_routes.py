@@ -83,3 +83,32 @@ def select_strategies(
         "versions": result.versions,
         "log_id": result.log_id,
     }
+
+
+@router.get("/replay/{ticker}")
+def replay_day(
+    ticker: str,
+    date: str = Query(..., description="trading day to replay (YYYY-MM-DD)"),
+    timeframes: str = Query("15m,30m,65m,1D", description="comma-separated"),
+    refresh: str = Query("weekly", pattern="^(weekly|daily)$",
+                         description="how often qualification statistics were rebuilt, as in live use"),
+):
+    """Replay one morning end to end: the regimes known at 09:25, the strategies
+    that qualified then, and what their trades that day actually did -- next to
+    what every other strategy did. Uses only information available at 09:25."""
+    import datetime as dt
+
+    from app.strategy_engine.engine_backtest import EngineBacktester
+    from app.strategy_engine.models import Timeframe
+
+    try:
+        day = dt.date.fromisoformat(date)
+    except ValueError:
+        raise HTTPException(status_code=422, detail=f"invalid date {date!r}; expected YYYY-MM-DD") from None
+    try:
+        tfs = [Timeframe.parse(t.strip()) for t in timeframes.split(",") if t.strip()]
+    except ValueError as exc:
+        raise HTTPException(status_code=422, detail=str(exc)) from None
+    if not tfs:
+        raise HTTPException(status_code=422, detail="no timeframes given")
+    return EngineBacktester(refresh=refresh).replay_day(ticker, day, tfs)

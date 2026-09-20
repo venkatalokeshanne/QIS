@@ -9,6 +9,7 @@ import Scanner from './pages/Scanner'
 import DailySelector from './pages/DailySelector'
 import Settings from './pages/Settings'
 import StrategySelection from './pages/StrategySelection'
+import DayReplay from './pages/DayReplay'
 
 export default function App() {
   return (
@@ -23,6 +24,7 @@ export default function App() {
         <Route path="/scanner" element={<Scanner />} />
         <Route path="/daily-selector" element={<DailySelector />} />
         <Route path="/strategy-selection" element={<StrategySelection />} />
+        <Route path="/replay" element={<DayReplay />} />
         <Route path="/settings" element={<Settings />} />
       </Route>
     </Routes>

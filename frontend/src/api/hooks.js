@@ -95,3 +95,7 @@ export function useRunSelectionBacktest() {
 export function useStrategySelection() {
   return useMutation({ mutationFn: strategySelectionApi.select })
 }
+
+export function useDayReplay() {
+  return useMutation({ mutationFn: strategySelectionApi.replay })
+}

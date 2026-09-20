@@ -86,6 +86,9 @@ class DayDecision:
     premarket_regime: str
     engine: list[int] = field(default_factory=list)          # qualified strategy ids, ranked
     no_regime: list[int] = field(default_factory=list)
+    eligible_families: list[str] = field(default_factory=list)
+    lower_priority_families: list[str] = field(default_factory=list)
+    rejected: list[dict] = field(default_factory=list)       # only filled by replay_day
 
 
 class EngineBacktester:
@@ -125,7 +128,7 @@ class EngineBacktester:
 
     # -- one ticker ---------------------------------------------------------------------
     def decisions(self, ticker: str, timeframes: list[Timeframe], start: dt.date, end: dt.date,
-                  progress=None) -> list[DayDecision]:
+                  progress=None, keep_rejected: int = 0) -> list[DayDecision]:
         ticker = ticker.upper()
         market_h = self.raw_db.load_market_history()
         ticker_h = self.raw_db.load_ticker_history(ticker)
@@ -144,24 +147,85 @@ class EngineBacktester:
             stats_ts = pd.Timestamp(f"{stats_day} {self.decision_time}", tz=NY)
             self.selector._as_of = stats_ts
             for tf in timeframes:
-                d = DayDecision(str(day), str(tf), market.market_regime, tick.ticker_regime, pm.premarket_regime)
-                engine, plain = [], []
+                d = DayDecision(str(day), str(tf), market.market_regime, tick.ticker_regime, pm.premarket_regime,
+                                eligible_families=list(fam.eligible), lower_priority_families=list(fam.lower_priority))
+                engine, plain, rejected_verdicts = [], [], []
                 for s in self.registry.all():
                     v = self.selector._judge(s, ticker, tf, fam, market, tick, pm, pm.premarket_regime)
                     if v.status == QUALIFIED:
                         engine.append(v)
+                    elif keep_rejected and v.status not in ("NOT_RUNNABLE", "NOT_APPLICABLE", "TIMEFRAME_MISMATCH"):
+                        rejected_verdicts.append(v)
                     # NO_REGIME: same gates and point-in-time stats, no family gate, no regime matching
                     if v.status in (QUALIFIED, "NOT_QUALIFIED", "FAMILY_NOT_APPLICABLE"):
                         q = self.selector.qualifier.qualify(ticker, s, tf, None, None, None, as_of=stats_ts)
                         if q.qualification_status == QUALIFIED:
                             plain.append(s.id)
                 engine.sort(key=StrategySelector._strength, reverse=True)
-                engine, _ = self.selector._drop_duplicates(engine, ticker, tf)
+                engine, dropped = self.selector._drop_duplicates(engine, ticker, tf)
                 d.engine = [v.strategy_id for v in engine]
+                if keep_rejected:
+                    rej = [{"strategy": v.strategy, "status": v.status, "reason": v.reason} for v in rejected_verdicts]
+                    rej += [{"strategy": v.strategy, "status": "DUPLICATE",
+                             "reason": f"trades almost the same signals as {of}"} for v, of in dropped]
+                    order = {"NOT_QUALIFIED": 0, "DUPLICATE": 1, "FAMILY_NOT_APPLICABLE": 2, "NOT_EVALUATED": 3}
+                    d.rejected = sorted(rej, key=lambda r: order.get(r["status"], 9))[:keep_rejected]
                 d.no_regime = plain
                 out.append(d)
             if progress and (i % 50 == 0 or i == len(days) - 1):
                 progress(f"{ticker}: {i + 1}/{len(days)} days")
+        return out
+
+    def replay_day(self, ticker: str, day: dt.date, timeframes: list[Timeframe], keep_rejected: int = 40) -> dict:
+        """One morning, start to finish: the regimes known at 09:25, the
+        strategies that qualified then, and what their trades that day did --
+        plus what every other strategy did, as the comparison."""
+        ticker = ticker.upper()
+        decisions = self.decisions(ticker, timeframes, day, day, keep_rejected=keep_rejected)
+        names = {s.id: s for s in self.registry.all()}
+        cutoff = pd.Timestamp(f"{day} {self.decision_time}", tz=NY).timestamp()
+        out = {"ticker": ticker, "date": str(day), "decision_time": self.decision_time, "refresh": self.refresh,
+               "timeframes": []}
+        if not decisions:
+            out["status"] = "DATA_INSUFFICIENT"
+            out["note"] = (f"no market/ticker regime was known at {day} {self.decision_time} -- "
+                           f"the engine would have stood aside")
+            return out
+        d0 = decisions[0]
+        out.update({"status": "OK", "market_regime": d0.market_regime, "ticker_regime": d0.ticker_regime,
+                    "premarket_regime": d0.premarket_regime, "eligible_families": d0.eligible_families,
+                    "lower_priority_families": d0.lower_priority_families})
+        picked_rows, all_rows = [], []
+        for d in decisions:
+            runnable = [s for s in self.registry.all()
+                        if s.runnable and any(str(x) == d.timeframe for x in s.timeframes)
+                        and (not s.allowed_tickers or ticker in s.allowed_tickers)]
+            tf_trades = []
+            for s in runnable:
+                t = self.trades_on(ticker, s.id, d.timeframe)
+                if not len(t):
+                    continue
+                t = t[(t["entry_day"] == str(day)) & (t["entry_time"] >= cutoff)]
+                for r in t.itertuples():
+                    tf_trades.append({
+                        "strategy_id": s.id, "strategy": s.name, "family": str(s.family), "timeframe": d.timeframe,
+                        "picked": s.id in d.engine, "rank": d.engine.index(s.id) + 1 if s.id in d.engine else None,
+                        "direction": r.direction, "entry": _ny(r.entry_time), "exit": _ny(r.exit_time),
+                        "entry_price": round(float(r.entry_price), 4), "exit_price": round(float(r.exit_price), 4),
+                        "return_pct": round(float(r.ret) * 100, 3),
+                        "hold_hours": round((r.exit_time - r.entry_time) / 3600, 2),
+                        "closed_same_day": _ny(r.exit_time)[:10] == str(day)})
+            picked_rows += [r for r in tf_trades if r["picked"]]
+            all_rows += tf_trades
+            out["timeframes"].append({
+                "timeframe": d.timeframe,
+                "picked": [{"strategy_id": i, "strategy": names[i].name, "family": str(names[i].family), "rank": n + 1,
+                            "traded": any(r["picked"] and r["strategy_id"] == i for r in tf_trades)}
+                           for n, i in enumerate(d.engine)],
+                "rejected": d.rejected,
+                "trades": sorted(tf_trades, key=lambda r: (not r["picked"], r["entry"]))})
+        out["summary"] = {"engine": _pnl(picked_rows), "all_strategies": _pnl(all_rows),
+                          "strategies_on_watchlist": sum(len(t["picked"]) for t in out["timeframes"])}
         return out
 
     def trades_on(self, ticker: str, sid: int, tf: str) -> pd.DataFrame:
@@ -219,6 +283,26 @@ class EngineBacktester:
                                "distinct_engine_sets": len({tuple(d.engine) for d in days if d.engine})}
             result[tf] = summary
         return result
+
+
+def _ny(ts) -> str:
+    return pd.Timestamp(int(ts), unit="s", tz="UTC").tz_convert(NY).strftime("%Y-%m-%d %H:%M")
+
+
+def _pnl(rows: list[dict]) -> dict:
+    if not rows:
+        return {"trades": 0, "total_return_pct": 0.0, "mean_return_pct": None, "winners": 0, "losers": 0,
+                "best": None, "worst": None, "capital_days": 0.0, "return_per_capital_day_pct": None}
+    rets = [r["return_pct"] for r in rows]
+    hold = sum(max(r["hold_hours"], 1) / 24 for r in rows)
+    best, worst = max(rows, key=lambda r: r["return_pct"]), min(rows, key=lambda r: r["return_pct"])
+    return {"trades": len(rows), "total_return_pct": round(sum(rets), 3),
+            "mean_return_pct": round(sum(rets) / len(rets), 3),
+            "winners": sum(1 for r in rets if r > 0), "losers": sum(1 for r in rets if r <= 0),
+            "best": {"strategy": best["strategy"], "return_pct": best["return_pct"]},
+            "worst": {"strategy": worst["strategy"], "return_pct": worst["return_pct"]},
+            "capital_days": round(hold, 2),
+            "return_per_capital_day_pct": round(sum(rets) / hold, 3) if hold else None}
 
 
 def buy_and_hold(store, ticker: str, start: dt.date, end: dt.date) -> float | None:
