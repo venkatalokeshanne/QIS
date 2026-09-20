@@ -14,13 +14,12 @@ export const label = (s) =>
 export const num = (v, digits = 2) => (v == null || Number.isNaN(v) ? '—' : Number(v).toFixed(digits))
 export const pct = (v, digits = 1) => (v == null ? '—' : `${(Number(v) * 100).toFixed(digits)}%`)
 
-// Tone for a regime value: direction words map to P&L-style colour, data
-// problems to warning, everything else neutral.
+// Tone for a regime value. Green/red stay reserved for P&L -- a bearish or
+// high-volatility regime is a condition, not a loss -- so regimes read
+// neutral, and only missing or untrustworthy data is called out.
 export function toneOf(value) {
   const v = String(value || '').toUpperCase()
   if (/UNAVAILABLE|INSUFFICIENT|UNRELIABLE|UNKNOWN/.test(v)) return 'warn'
-  if (/BULL|UP|OUTPERFORM|HIGH_MOMENTUM|HOLDING_HIGHS/.test(v)) return 'pos'
-  if (/BEAR|DOWN|UNDERPERFORM|NEGATIVE|FADING|HOLDING_LOWS/.test(v)) return 'neg'
   return 'neutral'
 }
 
