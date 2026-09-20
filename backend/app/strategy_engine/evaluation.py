@@ -347,7 +347,10 @@ def aggregate(trades: pd.DataFrame, t_start: float, t_end: float, strategy: Stra
     if len(trades):
         hold_days = np.maximum((trades["exit_time"].to_numpy(dtype="float64")
                                 - trades["entry_time"].to_numpy(dtype="float64")) / 86400, 1 / 24)
-        all_time["expectancy_per_capital_day"] = round(float((r1 / hold_days).mean()), 6)
+        # total return per capital-day, NOT the mean of per-trade ratios: a
+        # 20-minute loss would otherwise count as a huge daily rate and swamp
+        # longer winning trades.
+        all_time["expectancy_per_capital_day"] = round(float(r1.sum() / hold_days.sum()), 6)
         all_time["mean_hold_days"] = round(float(hold_days.mean()), 3)
     else:
         all_time["expectancy_per_capital_day"] = all_time["mean_hold_days"] = None

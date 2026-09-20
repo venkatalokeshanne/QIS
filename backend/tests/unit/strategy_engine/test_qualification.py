@@ -192,3 +192,23 @@ def test_fragile_stop_is_reported_as_a_warning_not_a_rejection(db):
     assert warn and warn[0].passed is None and "optimistic" in warn[0].note
     assert r.qualification_status == QUALIFIED          # a warning must not silently drop it
     assert fragility(S.slug)["status"] in ("OK", "NO_STOP")
+
+
+def test_capital_day_return_is_not_dominated_by_very_short_losers():
+    """A profitable strategy must not score negative per capital-day just
+    because its losses close fast (mean-of-ratios trap)."""
+    import pandas as pd
+
+    from app.strategy_engine.evaluation import aggregate
+
+    n = 20
+    entry = [1_700_000_000 + i * 86400 for i in range(n)]
+    # 19 losses of -0.05% closed after 1 hour, one winner of +15% held 3 days
+    exit_ = [e + 3600 for e in entry[:-1]] + [entry[-1] + 3 * 86400]
+    price = [99.95] * (n - 1) + [115.0]
+    t = pd.DataFrame({"direction": "LONG", "entry_price": 100.0, "exit_price": price,
+                      "entry_time": entry, "exit_time": exit_, "market_regime": "M",
+                      "ticker_regime": "T", "premarket_regime": "NOT_AVAILABLE"})
+    _, all_time, _, _ = aggregate(t, entry[0] - 86400, exit_[-1] + 86400, S, "r", QUALIFICATION_CONFIG, 0.0, {})
+    assert all_time["profit_factor"] > 1
+    assert all_time["expectancy_per_capital_day"] > 0
