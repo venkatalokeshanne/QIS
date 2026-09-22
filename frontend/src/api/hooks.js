@@ -4,6 +4,7 @@ import { catalogApi } from './catalog'
 import { backtestsApi } from './backtests'
 import { dailySelectionApi } from './dailySelection'
 import { levelsApi } from './levels'
+import { marketLightApi } from './marketLight'
 import { scannerApi } from './scanner'
 
 // --- Catalog ---
@@ -98,4 +99,15 @@ export function useStrategySelection() {
 
 export function useDayReplay() {
   return useMutation({ mutationFn: strategySelectionApi.replay })
+}
+
+// --- Market light ---
+
+export function useMarketLight(timeframe) {
+  return useQuery({
+    queryKey: ['market-light', timeframe],
+    queryFn: () => marketLightApi.get(timeframe),
+    refetchInterval: 5 * 60 * 1000,
+    staleTime: 60 * 1000,
+  })
 }

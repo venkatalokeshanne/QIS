@@ -10,12 +10,14 @@ import DailySelector from './pages/DailySelector'
 import Settings from './pages/Settings'
 import StrategySelection from './pages/StrategySelection'
 import DayReplay from './pages/DayReplay'
+import MarketLight from './pages/MarketLight'
 
 export default function App() {
   return (
     <Routes>
       <Route element={<Layout />}>
         <Route path="/" element={<Navigate to="/run" replace />} />
+        <Route path="/market-light" element={<MarketLight />} />
         <Route path="/levels" element={<DailyLevels />} />
         <Route path="/strategy/:name" element={<StrategyDetail />} />
         <Route path="/run" element={<RunBacktests />} />

@@ -2,6 +2,7 @@
 // same links reappear inside the mobile drawer) -- one list, not two
 // that can drift apart.
 export const NAV_ITEMS = [
+  { to: '/market-light', label: 'Market Light' },
   { to: '/levels', label: 'Daily Levels' },
   { to: '/run', label: 'Run Backtests' },
   { to: '/compare', label: 'Compare' },

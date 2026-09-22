@@ -1,0 +1,114 @@
+/* Market Light. The app keeps green/red for P&L only; here the colours ARE the
+   framework, so the lamps get their own tokens (distinct hues from --positive /
+   --negative) and every lamp is paired with its name, never colour alone. */
+
+.ml-page {
+  --ml-green: #52c78c;
+  --ml-yellow: #e6b650;
+  --ml-red: #e8615a;
+  --ml-green-wash: rgba(82, 199, 140, 0.1);
+  --ml-yellow-wash: rgba(230, 182, 80, 0.1);
+  --ml-red-wash: rgba(232, 97, 90, 0.1);
+  --ml-lamp-off: #1f242c;
+}
+
+.ml-mono { font-family: var(--font-mono); font-variant-numeric: tabular-nums; }
+.ml-text-green { color: var(--ml-green); }
+.ml-text-yellow { color: var(--ml-yellow); }
+.ml-text-red { color: var(--ml-red); }
+
+.ml-grid { display: grid; gap: var(--space-4); transition: opacity 0.2s; }
+.ml-grid > *, .ml-indices > * { min-width: 0; }
+.ml-grid.is-refreshing { opacity: 0.7; }
+
+/* Timeframe picker */
+.ml-tf { display: inline-flex; border: 1px solid var(--border-hairline-strong); border-radius: var(--radius-sm); overflow: hidden; }
+.ml-tf-btn {
+  background: transparent; color: var(--text-secondary); border: 0; padding: 6px 12px;
+  font: inherit; font-size: 13px; cursor: pointer;
+}
+.ml-tf-btn + .ml-tf-btn { border-left: 1px solid var(--border-hairline-strong); }
+.ml-tf-btn:hover { background: var(--bg-hover); color: var(--text-primary); }
+.ml-tf-btn.is-active { background: var(--accent-wash); color: var(--accent); }
+.ml-tf-btn:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
+
+/* Signal housing */
+.ml-signal {
+  display: flex; flex-direction: column; align-items: center; flex: none;
+  background: #0d1014; border: 1px solid var(--border-hairline-strong); border-radius: 999px;
+}
+.ml-signal-lg { gap: 10px; padding: 12px; }
+.ml-signal-sm { gap: 4px; padding: 5px; }
+.ml-lamp { display: block; border-radius: 50%; background: var(--ml-lamp-off); }
+.ml-signal-lg .ml-lamp { width: 44px; height: 44px; }
+.ml-signal-sm .ml-lamp { width: 12px; height: 12px; }
+.ml-lamp-green.is-on { background: var(--ml-green); box-shadow: 0 0 18px var(--ml-green); }
+.ml-lamp-yellow.is-on { background: var(--ml-yellow); box-shadow: 0 0 18px var(--ml-yellow); }
+.ml-lamp-red.is-on { background: var(--ml-red); box-shadow: 0 0 18px var(--ml-red); }
+.ml-signal-sm .is-on { box-shadow: 0 0 6px currentColor; }
+
+/* Hero */
+.ml-hero { display: flex; gap: var(--space-6); align-items: flex-start; }
+.ml-tone-green.ml-hero { background: linear-gradient(90deg, var(--ml-green-wash), transparent 60%), var(--bg-panel); }
+.ml-tone-yellow.ml-hero { background: linear-gradient(90deg, var(--ml-yellow-wash), transparent 60%), var(--bg-panel); }
+.ml-tone-red.ml-hero { background: linear-gradient(90deg, var(--ml-red-wash), transparent 60%), var(--bg-panel); }
+.ml-hero-body { min-width: 0; }
+.ml-eyebrow { font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--text-tertiary); }
+.ml-hero-light { font-size: 34px; font-weight: 700; line-height: 1.1; margin-top: 4px; }
+.ml-hero-meaning { font-size: 16px; color: var(--text-primary); margin-top: 2px; }
+.ml-hero-reason { color: var(--text-secondary); margin: 8px 0 12px; font-size: 13px; }
+.ml-playbook-list { margin: 0; padding-left: 18px; color: var(--text-primary); font-size: 14px; line-height: 1.6; }
+
+/* Index cards */
+.ml-indices { display: grid; gap: var(--space-4); grid-template-columns: repeat(auto-fit, minmax(min(240px, 100%), 1fr)); }
+.ml-index { border-top: 3px solid var(--border-hairline-strong); }
+.ml-tone-green.ml-index { border-top-color: var(--ml-green); }
+.ml-tone-yellow.ml-index { border-top-color: var(--ml-yellow); }
+.ml-tone-red.ml-index { border-top-color: var(--ml-red); }
+.ml-index-head { display: flex; align-items: center; gap: var(--space-3); margin-bottom: var(--space-3); }
+.ml-index-symbol { font-size: 18px; font-weight: 700; }
+.ml-index-light { font-size: 12px; }
+.ml-index-close { margin-left: auto; font-size: 18px; }
+.ml-kv { display: grid; grid-template-columns: auto 1fr; gap: 4px 12px; margin: 0 0 var(--space-3); font-size: 13px; }
+.ml-kv dt { color: var(--text-tertiary); }
+.ml-kv dd { margin: 0; text-align: right; }
+.ml-reasons { margin: 0; padding-left: 16px; color: var(--text-secondary); font-size: 12px; line-height: 1.6; }
+
+/* History strips */
+.ml-section-title { font-size: 12px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--text-tertiary); margin-bottom: var(--space-3); }
+.ml-strips { display: grid; gap: 6px; }
+.ml-strip-row { display: grid; grid-template-columns: 56px 1fr; align-items: center; gap: var(--space-2); }
+.ml-strip-label { font-size: 12px; color: var(--text-secondary); font-family: var(--font-mono); }
+.ml-strip { display: grid; grid-auto-flow: column; grid-auto-columns: 1fr; gap: 2px; height: 18px; }
+.ml-cell { border-radius: 2px; }
+.ml-cell-green { background: var(--ml-green); }
+.ml-cell-yellow { background: var(--ml-yellow); }
+.ml-cell-red { background: var(--ml-red); }
+.ml-strip-axis { display: flex; justify-content: space-between; margin: 6px 0 0 64px; font-size: 11px; color: var(--text-tertiary); }
+
+/* Stats */
+.ml-note { color: var(--text-secondary); font-size: 13px; margin: 0 0 var(--space-3); max-width: 72ch; line-height: 1.55; }
+.ml-table-wrap { overflow-x: auto; }
+.ml-table { width: 100%; border-collapse: collapse; font-size: 13px; min-width: 520px; }
+.ml-table th { text-align: left; font-weight: 500; color: var(--text-tertiary); padding: 6px 10px; border-bottom: 1px solid var(--border-hairline-strong); white-space: nowrap; }
+.ml-table td { padding: 6px 10px; border-bottom: 1px solid var(--border-hairline); }
+.ml-table .num { text-align: right; }
+.ml-group-start td { border-top: 1px solid var(--border-hairline-strong); }
+.ml-dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: 8px; vertical-align: middle; }
+.ml-dot-green { background: var(--ml-green); }
+.ml-dot-yellow { background: var(--ml-yellow); }
+.ml-dot-red { background: var(--ml-red); }
+
+.ml-rules { display: grid; gap: 6px; font-size: 14px; margin-bottom: var(--space-3); }
+.ml-asof { color: var(--text-tertiary); font-size: 11px; margin: 0; }
+
+@media (max-width: 640px) {
+  .ml-hero { flex-direction: column; align-items: center; text-align: center; }
+  .ml-signal-lg { flex-direction: row; }
+  .ml-playbook-list { text-align: left; }
+  .ml-hero-light { font-size: 28px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ml-grid { transition: none; }
+}
