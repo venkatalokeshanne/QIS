@@ -69,8 +69,9 @@ git push -u origin main
      `uvicorn app.main:app --host 0.0.0.0 --port $PORT`, **Plan** to
      **Free**.
 2. When it asks for the environment variables `render.yaml` declares
-   (`TWELVEDATA_API_KEY`, `DATABASE_URL`, `CORS_ALLOWED_ORIGINS`), fill in:
-   - `TWELVEDATA_API_KEY` — your real key (same one from `backend/.env` locally)
+   (`TWELVEDATA_API_KEY_1`, `TWELVEDATA_API_KEY_2`, `DATABASE_URL`, `CORS_ALLOWED_ORIGINS`, and the Tastytrade ones), fill in:
+   - `TWELVEDATA_API_KEY_1` — your real key (same one from `backend/.env` locally);
+     `TWELVEDATA_API_KEY_2` only if you have a second key (leave it blank otherwise)
    - `DATABASE_URL` — the Neon connection string from step 1
    - `CORS_ALLOWED_ORIGINS` — leave a placeholder like `http://localhost:5173`
      for now; you'll update this in step 4 once you know your Vercel URL. (A

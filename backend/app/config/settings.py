@@ -57,6 +57,9 @@ class Settings(BaseSettings):
     twelvedata_api_key_3: str = ""
     twelvedata_api_key_4: str = ""
     twelvedata_api_key_5: str = ""
+    # Single-key name the deploy docs used to give; still honoured so a
+    # host configured that way keeps working.
+    twelvedata_api_key: str = ""
     twelvedata_base_url: str = "https://api.twelvedata.com"
 
     # Tastytrade (market data only: extended-hours candles, VIX, earnings
@@ -72,9 +75,10 @@ class Settings(BaseSettings):
 
     @property
     def twelvedata_api_keys(self) -> list[str]:
-        return [
+        keys = [
             key
             for key in (
+                self.twelvedata_api_key,
                 self.twelvedata_api_key_1,
                 self.twelvedata_api_key_2,
                 self.twelvedata_api_key_3,
@@ -83,6 +87,7 @@ class Settings(BaseSettings):
             )
             if key
         ]
+        return list(dict.fromkeys(keys))
 
     # How many separate OS processes run strategy computation
     # concurrently (see backtest_routes.py) -- each worker is a full
