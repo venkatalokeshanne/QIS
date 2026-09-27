@@ -1,21 +1,9 @@
-import { strategySelectionApi } from './strategySelection'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { catalogApi } from './catalog'
 import { backtestsApi } from './backtests'
-import { dailySelectionApi } from './dailySelection'
-import { levelsApi } from './levels'
 import { marketLightApi } from './marketLight'
-import { scannerApi } from './scanner'
 
 // --- Catalog ---
-
-export function useIndicators() {
-  return useQuery({ queryKey: ['catalog', 'indicators'], queryFn: catalogApi.indicators })
-}
-
-export function useFilters() {
-  return useQuery({ queryKey: ['catalog', 'filters'], queryFn: catalogApi.filters })
-}
 
 export function useStrategies() {
   return useQuery({ queryKey: ['catalog', 'strategies'], queryFn: catalogApi.strategies })
@@ -55,51 +43,9 @@ export function useHistoricalPerformance({ symbol, interval, strategyName, strat
 
 // --- Daily Levels ---
 
-export function useDailyLevels() {
-  return useMutation({ mutationFn: levelsApi.get })
-}
-
-export function useLevelsBacktest() {
-  return useMutation({ mutationFn: levelsApi.backtest })
-}
-
-export function useLevelsDayReports() {
-  return useMutation({ mutationFn: levelsApi.dayReports })
-}
-
-// --- Scanner ---
-
-export function useRunScanner() {
-  return useMutation({ mutationFn: scannerApi.run })
-}
-
-export function useRunDayPrep() {
-  return useMutation({ mutationFn: scannerApi.dayPrep })
-}
-
 // --- Daily Strategy Selector ---
 
-export function useCalibrateTickers() {
-  return useMutation({ mutationFn: dailySelectionApi.calibrate })
-}
-
-export function useRunDailySelection() {
-  return useMutation({ mutationFn: dailySelectionApi.run })
-}
-
-export function useRunSelectionBacktest() {
-  return useMutation({ mutationFn: dailySelectionApi.backtest })
-}
-
 // --- Strategy Selection Engine ---
-
-export function useStrategySelection() {
-  return useMutation({ mutationFn: strategySelectionApi.select })
-}
-
-export function useDayReplay() {
-  return useMutation({ mutationFn: strategySelectionApi.replay })
-}
 
 // --- Market light ---
 

@@ -24,9 +24,9 @@ def test_long_entry_on_cross_up_above_vwap_before_noon():
         vwap=[100.5, 100.5, 100.5],
     )
     entries = EMAVWAPMorningCross().generate_entries(df, {})
-    assert entries.iloc[0] is None  # no prior bar to cross from
+    assert pd.isna(entries.iloc[0])  # no prior bar to cross from
     assert entries.iloc[1] == TradeDirection.LONG  # cross happens here
-    assert entries.iloc[2] is None  # already above — a state, not a cross
+    assert pd.isna(entries.iloc[2])  # already above — a state, not a cross
 
 
 def test_equal_emas_on_prior_bar_counts_as_cross():
@@ -50,7 +50,7 @@ def test_no_long_entry_when_close_below_vwap():
         vwap=[100.5, 102.0],  # cross fires but close is below VWAP
     )
     entries = EMAVWAPMorningCross().generate_entries(df, {})
-    assert entries.iloc[1] is None
+    assert pd.isna(entries.iloc[1])
 
 
 def test_no_entries_at_or_after_entry_cutoff():
@@ -62,7 +62,7 @@ def test_no_entries_at_or_after_entry_cutoff():
         vwap=[99.0, 99.0],
     )
     entries = EMAVWAPMorningCross().generate_entries(df, {})
-    assert entries.iloc[1] is None  # the 12:00 bar is already afternoon
+    assert pd.isna(entries.iloc[1])  # the 12:00 bar is already afternoon
 
     # Same cross one bar earlier (11:55) is still morning.
     df2 = _prepared_df(
@@ -97,7 +97,7 @@ def test_direction_param_filters_sides():
         vwap=[99.5, 99.5],
     )
     entries = EMAVWAPMorningCross().generate_entries(df, {"direction": "long_only"})
-    assert entries.iloc[1] is None
+    assert pd.isna(entries.iloc[1])
 
 
 def test_exits_fire_at_and_after_flat_time_only():

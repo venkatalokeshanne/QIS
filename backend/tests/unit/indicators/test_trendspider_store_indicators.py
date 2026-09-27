@@ -3,7 +3,8 @@
 Golden values in tests/fixtures/ts_store_golden.json were produced by
 running the ORIGINAL JavaScript through TrendSpider's own scripting engine
 (tools/ts_store/oracle); the translations must reproduce them exactly.
-The full 291-script parity sweep is tools/ts_store/oracle/compare.py.
+The full parity sweep over the original 291 scripts is tools/ts_store/oracle/compare.py;
+the scripts themselves live outside this repo, in trendspider-automation.
 """
 
 import json
@@ -34,7 +35,10 @@ def _discovered():
 
 def test_every_store_script_is_registered_with_ts_suffix():
     names = [n for n in indicator_registry.names() if n.endswith("_TS")]
-    assert len(names) == 291
+    # The bulk of the ported store scripts were removed as unused; what is left
+    # is the five wired into ported strategies (see indicator_map._TS_SCRIPT_INDICATORS)
+    # plus the five this file keeps under parity test against the real engine.
+    assert len(names) == 10
     meta = indicator_registry.get("composite_index_TS")().metadata
     assert meta.category == "trendspider_store"
     assert meta.default_params["rsi_length"] == 14  # TrendSpider's input id for "RSI Length"

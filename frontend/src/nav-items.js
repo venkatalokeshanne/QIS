@@ -3,12 +3,7 @@
 // that can drift apart.
 export const NAV_ITEMS = [
   { to: '/market-light', label: 'Market Light' },
-  { to: '/levels', label: 'Daily Levels' },
   { to: '/run', label: 'Run Backtests' },
   { to: '/compare', label: 'Compare' },
-  { to: '/scanner', label: 'Scanner' },
-  { to: '/daily-selector', label: 'Daily Selector' },
-  { to: '/strategy-selection', label: 'Strategy Selection' },
-  { to: '/replay', label: 'Day Replay' },
   { to: '/settings', label: 'Settings' },
 ]

@@ -144,31 +144,6 @@ export const useResearchStore = create(
       compareSelection: [], // strategy_name[] chosen on the Results page for the Compare page
       setCompareSelection: (symbol, names) => set({ compareSymbol: symbol, compareSelection: names }),
 
-      // Scanner (see Scanner.jsx) -- runs every selected strategy against
-      // every selected symbol and keeps only the recent long/short
-      // signal matches. Results are working state for the current
-      // sitting (not persisted); lookback is a saved preference.
-      scannerLookbackBars: 3,
-      setScannerLookbackBars: (bars) => set({ scannerLookbackBars: bars }),
-      lastScanResults: null, // { signals: [...], failed_symbols: [...] }
-      setLastScanResults: (results) => set({ lastScanResults: results }),
-
-      // Day Prep (see Scanner.jsx) -- ranks tickers worth concentrating
-      // on today (activity + historical edge + today's gap), not just
-      // ones with a signal in the last few bars. Working state only.
-      lastDayPrepResults: null, // { tickers: [...], failed_symbols: [...] }
-      setLastDayPrepResults: (results) => set({ lastDayPrepResults: results }),
-
-      // Daily Strategy Selector (see DailySelector.jsx) -- regime-aware
-      // strategy + parameter switching. All three results sets are
-      // working state for the current sitting, same treatment as
-      // lastScanResults/lastDayPrepResults above (not persisted).
-      lastCalibrationResults: null, // { profiles: [...], failed_symbols: [...] }
-      setLastCalibrationResults: (results) => set({ lastCalibrationResults: results }),
-      lastDailySelectionResults: null, // { selections: [...], failed_symbols: [...] }
-      setLastDailySelectionResults: (results) => set({ lastDailySelectionResults: results }),
-      lastSelectionBacktestResults: null, // single SelectionBacktestResponse, or null
-      setLastSelectionBacktestResults: (results) => set({ lastSelectionBacktestResults: results }),
     }),
     {
       name: 'quant-platform-research-store',
@@ -200,7 +175,6 @@ export const useResearchStore = create(
         executionSettings: state.executionSettings,
         strategyParamOverrides: state.strategyParamOverrides,
         breakdownByMonth: state.breakdownByMonth,
-        scannerLookbackBars: state.scannerLookbackBars,
       }),
     }
   )

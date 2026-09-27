@@ -7,7 +7,7 @@ import pandas as pd
 import pytest
 
 from app.core.exceptions import DataValidationError
-from app.services.backtest_data import fetch_backtest_bars
+from app.services.backtest_data import WARMUP_CALENDAR_DAYS, fetch_backtest_bars
 
 
 def _valid_bars_df() -> pd.DataFrame:
@@ -29,7 +29,7 @@ def test_fetch_backtest_bars_returns_normalized_frame():
     assert list(df.columns) == ["open", "high", "low", "close", "volume"]
 
 
-def test_fetch_backtest_bars_passes_symbol_interval_and_dates_through():
+def test_fetch_backtest_bars_passes_symbol_interval_and_dates_through_with_warmup():
     captured = {}
 
     def fake_fetch(symbol, interval, outputsize, start_date, end_date, **kwargs):
@@ -44,7 +44,11 @@ def test_fetch_backtest_bars_passes_symbol_interval_and_dates_through():
 
     assert captured["symbol"] == "TSLA"
     assert captured["interval"] == "15min"
-    assert captured["start_date"] == "2024-01-01"
+    # fetch_backtest_bars deliberately reaches further back than the requested
+    # start so indicators have warm-up bars (see WARMUP_CALENDAR_DAYS).
+    assert captured["start_date"] == (
+        pd.Timestamp("2024-01-01") - pd.Timedelta(days=WARMUP_CALENDAR_DAYS)
+    ).date().isoformat()
     assert captured["end_date"] == "2024-02-01"
 
 
